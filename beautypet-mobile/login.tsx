@@ -1,13 +1,22 @@
 import { Link } from "expo-router";
 import { useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 
 export default function Login() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   function handleSignIn() {
     if (!email.trim() || !password.trim()) {
@@ -27,7 +36,10 @@ export default function Login() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.select({ ios: "padding", android: "height" })}
+      behavior={Platform.select({
+        ios: "padding",
+        android: "height",
+      })}
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
@@ -37,13 +49,17 @@ export default function Login() {
         <View style={styles.container}>
 
           <Image
+            source={require("@/assets/fundo.jpeg")}
+            style={styles.pata}
+          />
+
+          <Image
             source={require("@/assets/img1.png")}
             style={styles.ilustration}
           />
 
           <View style={styles.shadow}>
             <View style={styles.place}>
-
               <Text style={styles.titulo}>
                 Seja bem-vindo!
               </Text>
@@ -52,17 +68,19 @@ export default function Login() {
                 Acesse sua conta com email e senha.
               </Text>
 
-              <View>
+              <View style={styles.inputs}>
                 <Input
                   placeholder="E-mail"
                   keyboardType="email-address"
                   onChangeText={setEmail}
+                  icon="email"
                 />
 
                 <Input
                   placeholder="Senha"
                   secureTextEntry
                   onChangeText={setPassword}
+                  icon="password"
                 />
 
                 <Button
@@ -70,16 +88,18 @@ export default function Login() {
                   onPress={handleSignIn}
                 />
               </View>
-
-              <Text style={styles.footerText}>
-                Nao tem uma conta?{" "}
-                <Link href="/signup" style={styles.footerLink}>
-                  Cadastre-se aqui.
-                </Link>
-              </Text>
-
             </View>
           </View>
+
+          <Text style={styles.footerText}>
+            Nao tem uma conta?{" "}
+            <Link
+              href="/cadastro"
+              style={styles.footerLink}
+            >
+              Cadastre-se aqui.
+            </Link>
+          </Text>
 
         </View>
       </ScrollView>
@@ -90,14 +110,23 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f5d0",
+    backgroundColor: "#ffffff",
     padding: 32,
   },
 
+  pata: {
+    position: "absolute",
+    width: "130%",
+    height: "130%",
+    top: 0,
+    left: 0,
+    opacity: 0.30,
+  },
+
   ilustration: {
-    width: 174,
-    height: 160,
-    marginTop: 78,
+    width: 178,
+    height: 164,
+    marginTop: 82,
     alignSelf: "center",
     transform: [{ translateY: -15 }],
   },
@@ -113,34 +142,40 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 5,
 
-    elevation: 8,
+    elevation: 4,
 
-    transform: [{ translateY: 20 }],
+    transform: [{ translateY: 26 }],
   },
 
   place: {
-    padding: 20,
-    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 16,
     backgroundColor: "#FADE84",
   },
 
   titulo: {
-    marginTop: 10,
+    marginTop: -16,
     fontSize: 28,
     fontFamily: "Poppins_600SemiBold",
     transform: [{ translateY: 34 }],
   },
 
   subtitulo: {
-    fontSize: 18,
-    fontWeight: 700,
-    marginTop: 21,
+    fontSize: 14,
+    marginTop: 18,
+    fontFamily: "Poppins_500Medium",
     transform: [{ translateY: 22 }],
+  },
+
+  inputs: {
+    marginTop: 30,
+    gap: 12,
   },
 
   footerText: {
     textAlign: "center",
-    marginTop: 28,
+    marginTop: 62,
     color: "#585860",
     fontSize: 18,
     transform: [{ translateY: -5 }],
@@ -148,6 +183,6 @@ const styles = StyleSheet.create({
 
   footerLink: {
     color: "#6a83f1",
-    fontWeight: 700,
+    fontWeight: "700",
   },
 });
