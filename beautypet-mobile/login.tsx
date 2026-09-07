@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -27,10 +27,7 @@ export default function Login() {
       return;
     }
 
-    Alert.alert(
-      "Bem-vindo!",
-      `O login foi realizado com ${email}`
-    );
+    router.replace("/home");
   }
 
   return (
@@ -48,6 +45,7 @@ export default function Login() {
       >
         <View style={styles.container}>
 
+          {/* IMAGEM DE FUNDO */}
           <Image
             source={require("@/assets/fundo.jpeg")}
             style={styles.pata}
@@ -91,6 +89,7 @@ export default function Login() {
             </View>
           </View>
 
+          {/* RODAPÉ */}
           <Text style={styles.footerText}>
             Nao tem uma conta?{" "}
             <Link
