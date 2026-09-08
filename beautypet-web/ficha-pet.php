@@ -1,81 +1,109 @@
 <?php
+
+// Carrega as configurações e a conexão com o banco de dados
 require __DIR__ . '/config.php';
 
+// Obtém o ID do tutor enviado pela URL
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
+// Redireciona caso o ID informado seja inválido
 if (!$id) {
-    header('Location: fichas-pets.php');
+    header('Location: fichas-tutores.php');
     exit;
 }
 
-$sqlPet = '
+// Busca os dados do tutor e seus principais indicadores
+$sqlTutor = '
     SELECT
-        p.*,
-        c.nome AS tutor,
-        c.id AS tutor_id,
+        c.*,
+        COALESCE(p.total_pets, 0)        AS total_pets,
+        COALESCE(g.total_gasto, 0.00)   AS total_gasto,
+        COALESCE(s.saldo_credito, 0.00) AS saldo_credito,
+        COALESCE(s.saldo_debito, 0.00)  AS saldo_debito
+    FROM clientes c
+
+    LEFT JOIN (
+        SELECT
+            cliente_id,
+            COUNT(*) AS total_pets
+        FROM pets
+        WHERE ativo = TRUE
+        GROUP BY cliente_id
+    ) p
+        ON p.cliente_id = c.id
+
+    LEFT JOIN (
+        SELECT
+            cliente_id,
+            SUM(total_gasto) AS total_gasto
+        FROM vw_gastos_cliente_mes
+        GROUP BY cliente_id
+    ) g
+        ON g.cliente_id = c.id
+
+    LEFT JOIN vw_saldo_cliente s
+        ON s.cliente_id = c.id
+
+    WHERE c.id = :id
+      AND c.ativo = TRUE
+';
+
+// Executa a consulta do tutor
+$stmt = $pdo->prepare($sqlTutor);
+$stmt->execute([':id' => $id]);
+$tutor = $stmt->fetch();
+
+// Exibe erro caso o tutor não seja encontrado
+if (!$tutor) {
+    http_response_code(404);
+    exit('Tutor não encontrado.');
+}
+
+// Busca os pets vinculados ao tutor
+$sqlPets = '
+    SELECT
+        p.id,
+        p.nome,
+        p.foto_url,
+        p.porte,
+        p.peso,
         e.nome AS especie,
         r.nome AS raca,
-        COALESCE(s.saldo_credito, 0.00) AS saldo_credito_tutor,
-        COALESCE(s.saldo_debito, 0.00)  AS saldo_debito_tutor,
-        COALESCE(g.total_gasto, 0.00)   AS total_gasto
+        COALESCE(pkg.pacotes_ativos, 0)      AS pacotes_ativos,
+        COALESCE(pkg.creditos_restantes, 0) AS creditos_restantes,
+        pkg.resumo_pacotes
     FROM pets p
-    JOIN clientes c
-        ON c.id = p.cliente_id
     JOIN especies e
         ON e.id = p.especie_id
     LEFT JOIN racas r
         ON r.id = p.raca_id
-    LEFT JOIN vw_saldo_cliente s
-        ON s.cliente_id = c.id
     LEFT JOIN (
         SELECT
             pet_id,
-            SUM(valor_total_lancamento) AS total_gasto
-        FROM vw_total_lancamento
+            COUNT(*) AS pacotes_ativos,
+            SUM(creditos_restantes) AS creditos_restantes,
+            GROUP_CONCAT(
+                CONCAT(pacote, \': \', creditos_restantes, \' restante(s)\')
+                ORDER BY pacote
+                SEPARATOR \', \'
+            ) AS resumo_pacotes
+        FROM vw_saldo_pacotes
+        WHERE status = \'ATIVO\'
+          AND creditos_restantes > 0
         GROUP BY pet_id
-    ) g
-        ON g.pet_id = p.id
-    WHERE p.id = :id
+    ) pkg
+        ON pkg.pet_id = p.id
+    WHERE p.cliente_id = :cliente_id
       AND p.ativo = TRUE
+    ORDER BY p.nome
 ';
 
-$stmt = $pdo->prepare($sqlPet);
-$stmt->execute([':id' => $id]);
-$pet = $stmt->fetch();
+// Executa a consulta dos pets
+$stmt = $pdo->prepare($sqlPets);
+$stmt->execute([':cliente_id' => $id]);
+$pets = $stmt->fetchAll();
 
-if (!$pet) {
-    http_response_code(404);
-    exit('Pet não encontrado.');
-}
-
-$sqlPacotes = '
-    SELECT
-        pet_pacote_id,
-        pacote,
-        data_compra,
-        data_validade,
-        creditos_totais,
-        creditos_utilizados,
-        creditos_restantes,
-        status
-    FROM vw_saldo_pacotes
-    WHERE pet_id = :pet_id
-      AND status = \'ATIVO\'
-      AND creditos_restantes > 0
-    ORDER BY data_compra DESC
-';
-
-$stmt = $pdo->prepare($sqlPacotes);
-$stmt->execute([':pet_id' => $id]);
-$pacotes = $stmt->fetchAll();
-
-$totalCreditosRestantes = array_sum(
-    array_map(
-        static fn(array $pacote): int => (int) $pacote['creditos_restantes'],
-        $pacotes
-    )
-);
-
+// Busca o histórico financeiro do tutor
 $sqlHistorico = '
     SELECT
         h.*,
@@ -83,7 +111,7 @@ $sqlHistorico = '
             NULLIF(CONCAT_WS(\' + \', pg.formas, mov.movimentos), \'\'),
             \'Não informado\'
         ) AS forma_pagamento
-    FROM vw_historico_pet h
+    FROM vw_historico_cliente h
 
     LEFT JOIN (
         SELECT
@@ -124,273 +152,297 @@ $sqlHistorico = '
     ) mov
         ON mov.lancamento_diario_id = h.lancamento_diario_id
 
-    WHERE h.pet_id = :pet_id
+    WHERE h.cliente_id = :cliente_id
     ORDER BY h.data_fechamento DESC, h.lancamento_diario_id DESC
     LIMIT 100
 ';
 
+// Executa a consulta do histórico financeiro
 $stmt = $pdo->prepare($sqlHistorico);
-$stmt->execute([':pet_id' => $id]);
+$stmt->execute([':cliente_id' => $id]);
 $historico = $stmt->fetchAll();
 
-$tituloPagina = 'Ficha de ' . $pet['nome'];
-$paginaAtiva = 'fichas-pets';
+// Define as informações utilizadas pelo menu e pelo título da página
+$tituloPagina = 'Ficha de ' . $tutor['nome'];
+$paginaAtiva = 'fichas-tutores';
 
+// Carrega o cabeçalho da página
 require __DIR__ . '/includes/topo.php';
 ?>
 
 <div class="page records-page">
-    <a class="back-link" href="fichas-pets.php">
+
+    <!-- Link para retornar à lista de tutores -->
+    <a class="back-link" href="fichas-tutores.php">
         <i class="fa-solid fa-arrow-left"></i>
-        Voltar para fichas dos pets
+        Voltar para fichas dos tutores
     </a>
 
-    <section class="detail-card pet-profile-top">
-        <div class="pet-profile-identity">
-            <?php if (!empty($pet['foto_url'])): ?>
-                <img src="<?= escapar($pet['foto_url']) ?>" alt="Foto de <?= escapar($pet['nome']) ?>">
-            <?php else: ?>
-                <div class="pet-photo-fallback large">
-                    <i class="fa-solid fa-paw"></i>
+    <div class="detail-layout">
+
+        <!-- Exibe os dados pessoais e de contato do tutor -->
+        <section class="detail-card tutor-profile-card">
+
+            <div class="detail-profile-head">
+
+                <div class="record-avatar large">
+                    <?= escapar(iniciaisNome($tutor['nome'])) ?>
                 </div>
-            <?php endif; ?>
 
-            <div>
-                <h1><?= escapar($pet['nome']) ?></h1>
-                <strong><?= escapar($pet['raca'] ?: $pet['especie']) ?></strong>
-                <a href="ficha-tutor.php?id=<?= (int) $pet['tutor_id'] ?>">
-                    <?= escapar($pet['tutor']) ?>
-                </a>
+                <div>
+                    <h1><?= escapar($tutor['nome']) ?></h1>
+
+                    <p>
+                        Tutor cadastrado em
+                        <?= escapar(formatarData($tutor['criado_em'])) ?>
+                    </p>
+                </div>
+
             </div>
-        </div>
 
-        <div class="pet-summary-grid">
+            <!-- Apresenta os dados de contato e endereço -->
+            <div class="contact-grid">
+
+                <div>
+                    <small>E-mail</small>
+                    <strong><?= escapar($tutor['email'] ?: 'Não informado') ?></strong>
+                </div>
+
+                <div>
+                    <small>CPF</small>
+                    <strong><?= escapar(formatarCpf($tutor['cpf'])) ?></strong>
+                </div>
+
+                <div>
+                    <small>Telefone</small>
+                    <strong><?= escapar(formatarTelefone($tutor['telefone_principal'])) ?></strong>
+                </div>
+
+                <div>
+                    <small>Telefone reserva</small>
+                    <strong><?= escapar(formatarTelefone($tutor['telefone_reserva'])) ?></strong>
+                </div>
+
+                <div class="wide">
+                    <small>Endereço</small>
+                    <strong><?= escapar(enderecoCompleto($tutor)) ?></strong>
+                </div>
+
+                <!-- Exibe observações somente quando existem -->
+                <?php if (!empty($tutor['observacoes'])): ?>
+
+                    <div class="wide">
+                        <small>Observações</small>
+                        <strong><?= nl2br(escapar($tutor['observacoes'])) ?></strong>
+                    </div>
+
+                <?php endif; ?>
+
+            </div>
+
+        </section>
+
+        <!-- Apresenta o resumo financeiro e a quantidade de pets -->
+        <aside class="summary-column">
+
             <div class="summary-card">
                 <small>Total comercializado</small>
-                <strong><?= escapar(formatarMoeda($pet['total_gasto'])) ?></strong>
+                <strong><?= escapar(formatarMoeda($tutor['total_gasto'])) ?></strong>
             </div>
 
             <div class="summary-card credit">
-                <small>Crédito do tutor</small>
-                <strong><?= escapar(formatarMoeda($pet['saldo_credito_tutor'])) ?></strong>
+                <small>Crédito disponível</small>
+                <strong><?= escapar(formatarMoeda($tutor['saldo_credito'])) ?></strong>
             </div>
 
             <div class="summary-card debt">
-                <small>Débito do tutor</small>
+                <small>Débito pendente</small>
                 <strong>
-                    <?= (float) $pet['saldo_debito_tutor'] > 0
-                        ? escapar(formatarMoeda($pet['saldo_debito_tutor']))
+                    <?= (float) $tutor['saldo_debito'] > 0
+                        ? escapar(formatarMoeda($tutor['saldo_debito']))
                         : 'Nenhum' ?>
                 </strong>
             </div>
 
             <div class="summary-card">
-                <small>Créditos de pacote</small>
-                <strong><?= $totalCreditosRestantes ?></strong>
+                <small>Pets cadastrados</small>
+                <strong><?= (int) $tutor['total_pets'] ?></strong>
             </div>
-        </div>
-    </section>
 
-    <div class="pet-detail-columns">
-        <section class="detail-card section-card">
-            <h2>Dados do pet</h2>
+        </aside>
 
-            <div class="data-grid">
-                <div>
-                    <small>Nome</small>
-                    <strong><?= escapar($pet['nome']) ?></strong>
-                </div>
-
-                <div>
-                    <small>Espécie</small>
-                    <strong><?= escapar($pet['especie']) ?></strong>
-                </div>
-
-                <div>
-                    <small>Raça</small>
-                    <strong><?= escapar($pet['raca'] ?: 'Não informada') ?></strong>
-                </div>
-
-                <div>
-                    <small>Sexo</small>
-                    <strong><?= escapar(nomeSexo($pet['sexo'])) ?></strong>
-                </div>
-
-                <div>
-                    <small>Idade</small>
-                    <strong>
-                        <?= escapar(
-                            idadePet(
-                                $pet['data_nascimento'],
-                                (bool) $pet['nascimento_aproximado']
-                            )
-                        ) ?>
-                    </strong>
-                </div>
-
-                <div>
-                    <small>Porte</small>
-                    <strong><?= escapar(nomePorte($pet['porte'])) ?></strong>
-                </div>
-
-                <div>
-                    <small>Peso</small>
-                    <strong>
-                        <?= $pet['peso'] !== null
-                            ? escapar(number_format((float) $pet['peso'], 2, ',', '.') . ' kg')
-                            : 'Não informado' ?>
-                    </strong>
-                </div>
-
-                <div>
-                    <small>Cor</small>
-                    <strong><?= escapar($pet['cor'] ?: 'Não informada') ?></strong>
-                </div>
-
-                <div>
-                    <small>Castrado(a)</small>
-                    <strong><?= escapar(textoBooleano($pet['castrado'])) ?></strong>
-                </div>
-
-                <div>
-                    <small>Vacinação em dia</small>
-                    <strong><?= escapar(textoBooleano($pet['vacinacao_em_dia'])) ?></strong>
-                </div>
-
-                <div class="wide">
-                    <small>Data de nascimento</small>
-                    <strong><?= escapar(formatarData($pet['data_nascimento'])) ?></strong>
-                </div>
-            </div>
-        </section>
-
-        <section class="detail-card section-card">
-            <h2>Comportamento e saúde</h2>
-
-            <div class="text-information">
-                <div>
-                    <small>Comportamento</small>
-                    <p>
-                        <?= nl2br(
-                            escapar(
-                                $pet['observacoes_comportamentais']
-                                ?: 'Nenhuma observação comportamental cadastrada.'
-                            )
-                        ) ?>
-                    </p>
-                </div>
-
-                <div>
-                    <small>Medicamentos</small>
-                    <p>
-                        <?= nl2br(
-                            escapar(
-                                $pet['medicamentos']
-                                ?: 'Nenhum medicamento cadastrado.'
-                            )
-                        ) ?>
-                    </p>
-                </div>
-
-                <div>
-                    <small>Observações médicas</small>
-                    <p>
-                        <?= nl2br(
-                            escapar(
-                                $pet['observacoes_medicas']
-                                ?: 'Nenhuma observação médica cadastrada.'
-                            )
-                        ) ?>
-                    </p>
-                </div>
-            </div>
-        </section>
     </div>
 
+    <!-- Lista os pets vinculados ao tutor -->
     <section class="detail-card section-card">
+
         <div class="section-title">
-            <h2>Pacotes ativos</h2>
-            <small>Somente pacotes com créditos restantes.</small>
+            <h2>Pets vinculados</h2>
+            <a href="cadastro-pet.php">Cadastrar novo pet</a>
         </div>
 
-        <?php if (!$pacotes): ?>
+        <!-- Verifica se existem pets cadastrados -->
+        <?php if (!$pets): ?>
+
             <div class="inline-empty">
-                Este pet não possui pacote ativo. Os atendimentos avulsos continuam aparecendo normalmente no histórico.
+                Nenhum pet está vinculado a este tutor.
             </div>
+
         <?php else: ?>
-            <div class="package-grid">
-                <?php foreach ($pacotes as $pacote): ?>
-                    <article class="package-card">
-                        <strong><?= escapar($pacote['pacote']) ?></strong>
 
-                        <div>
-                            <span>
-                                <?= (int) $pacote['creditos_utilizados'] ?>
-                                usado(s)
-                            </span>
-                            <span>
-                                <?= (int) $pacote['creditos_restantes'] ?>
-                                restante(s)
-                            </span>
-                        </div>
+            <div class="linked-pets-grid">
 
-                        <small>
-                            Compra: <?= escapar(formatarData($pacote['data_compra'])) ?>
+                <!-- Percorre e apresenta cada pet vinculado -->
+                <?php foreach ($pets as $pet): ?>
 
-                            <?php if (!empty($pacote['data_validade'])): ?>
-                                • Validade: <?= escapar(formatarData($pacote['data_validade'])) ?>
-                            <?php endif; ?>
-                        </small>
-                    </article>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </section>
+                    <a class="linked-pet-card"
+                       href="ficha-pet.php?id=<?= (int) $pet['id'] ?>">
 
-    <section class="detail-card history-card">
-        <div class="section-title">
-            <h2>Histórico de atendimentos</h2>
-            <small>Valores inseridos nos lançamentos do fechamento diário.</small>
-        </div>
+                        <!-- Exibe a foto do pet ou um ícone padrão -->
+                        <?php if (!empty($pet['foto_url'])): ?>
 
-        <?php if (!$historico): ?>
-            <div class="inline-empty">
-                Ainda não existem atendimentos lançados para este pet.
-            </div>
-        <?php else: ?>
-            <div class="timeline">
-                <?php foreach ($historico as $item): ?>
-                    <article class="timeline-item">
-                        <div class="timeline-dot"></div>
+                            <img
+                                src="<?= escapar($pet['foto_url']) ?>"
+                                alt="Foto de <?= escapar($pet['nome']) ?>">
 
-                        <div class="timeline-content">
-                            <strong><?= escapar($item['servico']) ?></strong>
+                        <?php else: ?>
 
-                            <?php if (!empty($item['descricao'])): ?>
-                                <p><?= escapar($item['descricao']) ?></p>
-                            <?php endif; ?>
+                            <div class="pet-photo-fallback">
+                                <i class="fa-solid fa-paw"></i>
+                            </div>
 
-                            <small>
-                                Pagamento: <?= escapar($item['forma_pagamento']) ?>
+                        <?php endif; ?>
+
+                        <strong><?= escapar($pet['nome']) ?></strong>
+
+                        <span>
+                            <?= escapar($pet['raca'] ?: $pet['especie']) ?>
+                        </span>
+
+                        <!-- Informa a quantidade de créditos do pacote ativo -->
+                        <?php if ((int) $pet['pacotes_ativos'] > 0): ?>
+
+                            <small class="package-label">
+                                <?= (int) $pet['creditos_restantes'] ?> crédito(s) de pacote
                             </small>
 
-                            <?php if ((float) $item['total_adicionais'] > 0): ?>
-                                <small>
-                                    Adicionais:
-                                    <?= escapar(formatarMoeda($item['total_adicionais'])) ?>
-                                </small>
-                            <?php endif; ?>
-                        </div>
+                        <?php else: ?>
 
-                        <div class="timeline-value">
-                            <strong><?= escapar(formatarMoeda($item['valor_total'])) ?></strong>
-                            <span><?= escapar(formatarData($item['data_fechamento'])) ?></span>
-                        </div>
-                    </article>
+                            <small>Sem pacote ativo</small>
+
+                        <?php endif; ?>
+
+                    </a>
+
                 <?php endforeach; ?>
+
             </div>
+
         <?php endif; ?>
+
     </section>
+
+    <!-- Exibe o histórico financeiro do tutor -->
+    <section class="detail-card history-card">
+
+        <div class="section-title">
+            <h2>Histórico financeiro</h2>
+            <small>Valores vindos dos lançamentos do fechamento diário.</small>
+        </div>
+
+        <!-- Verifica se existem registros financeiros -->
+        <?php if (!$historico): ?>
+
+            <div class="inline-empty">
+                Ainda não existem lançamentos para este tutor.
+            </div>
+
+        <?php else: ?>
+
+            <div class="table-wrap">
+
+                <table class="records-table">
+
+                    <!-- Cabeçalho da tabela financeira -->
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Pet</th>
+                            <th>Serviço</th>
+                            <th>Valor</th>
+                            <th>Forma de pagamento</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <!-- Percorre os registros financeiros encontrados -->
+                        <?php foreach ($historico as $item): ?>
+
+                            <tr>
+
+                                <td>
+                                    <?= escapar(formatarData($item['data_fechamento'])) ?>
+                                </td>
+
+                                <td>
+                                    <?= escapar($item['pet']) ?>
+                                </td>
+
+                                <td>
+
+                                    <strong>
+                                        <?= escapar($item['servico']) ?>
+                                    </strong>
+
+                                    <!-- Exibe a descrição quando disponível -->
+                                    <?php if (!empty($item['descricao'])): ?>
+
+                                        <small>
+                                            <?= escapar($item['descricao']) ?>
+                                        </small>
+
+                                    <?php endif; ?>
+
+                                    <!-- Exibe os valores adicionais quando existirem -->
+                                    <?php if ((float) $item['total_adicionais'] > 0): ?>
+
+                                        <small>
+                                            Inclui <?= escapar(formatarMoeda($item['total_adicionais'])) ?>
+                                            em adicional(is)
+                                        </small>
+
+                                    <?php endif; ?>
+
+                                </td>
+
+                                <td class="money">
+                                    <?= escapar(formatarMoeda($item['valor_total'])) ?>
+                                </td>
+
+                                <td>
+                                    <?= escapar($item['forma_pagamento']) ?>
+                                </td>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        <?php endif; ?>
+
+    </section>
+
 </div>
 
-<?php require __DIR__ . '/includes/rodape.php'; ?>
+<?php
+
+// Carrega o rodapé da página
+require __DIR__ . '/includes/rodape.php';
+
+?>
