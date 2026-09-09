@@ -1,5 +1,8 @@
 <?php
+
 require __DIR__ . '/config.php';
+
+// Obtém o usuário atualmente logado
 $usuarioAtualSolicitacao = obterUsuarioAtual($pdo);
 $usuarioId = isset($usuarioAtualSolicitacao['id'])
     ? (int) $usuarioAtualSolicitacao['id']
@@ -7,12 +10,15 @@ $usuarioId = isset($usuarioAtualSolicitacao['id'])
 
 $mensagem = '';
 $tipoMensagem = '';
+
+// Define a aba atual (pendentes ou confirmadas)
 $aba = (string) ($_GET['aba'] ?? 'pendentes');
 
 if (!in_array($aba, ['pendentes', 'confirmadas'], true)) {
     $aba = 'pendentes';
 }
 
+// Processa as ações enviadas pelos formulários
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = (string) ($_POST['acao'] ?? '');
     $agendamentoId = inteiroOuNull($_POST['agendamento_id'] ?? null);
@@ -20,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($agendamentoId === null) {
         $mensagem = 'A solicitação selecionada é inválida.';
         $tipoMensagem = 'error';
+
+    // Confirma, recusa ou cancela uma solicitação
     } elseif (in_array($acao, ['confirmar', 'recusar', 'cancelar'], true)) {
         $novoStatus = match ($acao) {
             'confirmar' => 'CONFIRMADO',
@@ -42,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':id'         => $agendamentoId,
         ]);
 
+        // Define para qual aba o usuário será redirecionado após a ação
         $abaRetorno = $acao === 'cancelar'
             ? 'confirmadas'
             : 'pendentes';
@@ -52,14 +61,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             . '&atualizado=1'
         );
         exit;
+
+    // Processa o reagendamento
     } elseif ($acao === 'reagendar') {
         $data = (string) ($_POST['data'] ?? '');
         $hora = (string) ($_POST['hora'] ?? '');
 
+        // Valida a nova data e o novo horário
         if (!dataSqlValida($data) || !horaSqlValida($hora)) {
             $mensagem = 'Informe uma nova data e um novo horário válidos.';
             $tipoMensagem = 'error';
+
         } else {
+            // Busca o agendamento atual para preservar sua duração
             $stmt = $pdo->prepare(
                 "SELECT data_hora_inicio, data_hora_fim
                  FROM agendamentos
@@ -76,9 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $novoInicio = new DateTime($data . ' ' . $hora . ':00');
                 $novoFim = null;
 
+                // Mantém a mesma duração do agendamento anterior
                 if (!empty($atual['data_hora_fim'])) {
                     $inicioAnterior = new DateTime($atual['data_hora_inicio']);
                     $fimAnterior = new DateTime($atual['data_hora_fim']);
+
                     $duracao = max(
                         0,
                         $fimAnterior->getTimestamp()
@@ -90,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ->format('Y-m-d H:i:s');
                 }
 
+                // Atualiza a data, horário e confirma o agendamento
                 $stmt = $pdo->prepare(
                     "UPDATE agendamentos
                      SET data_hora_inicio = :inicio,
@@ -118,16 +135,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Exibe mensagem após confirmar, recusar ou cancelar
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['atualizado'])) {
     $mensagem = 'Solicitação atualizada com sucesso.';
     $tipoMensagem = 'success';
 }
 
+// Exibe mensagem após um reagendamento
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['reagendado'])) {
     $mensagem = 'Novo horário salvo e agendamento confirmado.';
     $tipoMensagem = 'success';
 }
 
+// Obtém a quantidade de solicitações pendentes e confirmadas
 $totais = $pdo->query(
     "SELECT
         SUM(status = 'SOLICITADO') AS pendentes,
@@ -139,10 +159,12 @@ $totais = $pdo->query(
 $totalPendentes = (int) ($totais['pendentes'] ?? 0);
 $totalConfirmadas = (int) ($totais['confirmadas'] ?? 0);
 
+// Define qual status será usado na consulta da aba atual
 $statusConsulta = $aba === 'pendentes'
     ? 'SOLICITADO'
     : 'CONFIRMADO';
 
+// Busca os agendamentos da aba selecionada
 $stmt = $pdo->prepare(
     "SELECT
         a.id,
@@ -183,6 +205,7 @@ $stmt = $pdo->prepare(
 $stmt->execute([':status' => $statusConsulta]);
 $solicitacoes = $stmt->fetchAll();
 
+// Verifica se existe uma solicitação selecionada para edição/reagendamento
 $editarId = inteiroOuNull($_GET['editar'] ?? null);
 $solicitacaoEditar = null;
 
@@ -206,8 +229,10 @@ if ($editarId !== null) {
     $solicitacaoEditar = $stmt->fetch() ?: null;
 }
 
+// Configurações utilizadas pelo layout da página
 $tituloPagina = 'Solicitações de agendamento';
 $paginaAtiva = 'solicitacoes-agendamento';
+
 require __DIR__ . '/includes/topo.php';
 ?>
 
@@ -231,6 +256,7 @@ require __DIR__ . '/includes/topo.php';
 
     <?php if ($solicitacaoEditar): ?>
         <?php
+        // Converte a data atual para preencher os campos do formulário
         $dataHoraEditar = new DateTime($solicitacaoEditar['data_hora_inicio']);
         ?>
         <form class="reschedule-card" method="post"
@@ -270,6 +296,7 @@ require __DIR__ . '/includes/topo.php';
     <?php endif; ?>
 
     <section class="requests-card">
+        <!-- Abas para alternar entre solicitações pendentes e confirmadas -->
         <nav class="request-tabs">
             <a href="solicitacoes-agendamento.php?aba=pendentes"
                 class="<?= $aba === 'pendentes' ? 'active' : '' ?>">
@@ -289,9 +316,13 @@ require __DIR__ . '/includes/topo.php';
                 Nenhuma solicitação nesta categoria.
             </div>
         <?php else: ?>
+
+            <!-- Lista de solicitações encontradas -->
             <div class="request-list">
                 <?php foreach ($solicitacoes as $item): ?>
                     <article class="request-item">
+
+                        <!-- Informações do pet e do tutor -->
                         <div class="agenda-pet">
                             <?php if (!empty($item['foto_url'])): ?>
                                 <img src="<?= escapar($item['foto_url']) ?>"
@@ -308,23 +339,28 @@ require __DIR__ . '/includes/topo.php';
                             </div>
                         </div>
 
+                        <!-- Data e horário solicitados -->
                         <div class="request-info">
                             <small>Data e horário</small>
                             <strong><?= escapar(formatarDataHoraAgenda($item['data_hora_inicio'])) ?></strong>
                         </div>
 
+                        <!-- Serviços selecionados pelo cliente -->
                         <div class="request-info">
                             <small>Serviço</small>
                             <strong><?= escapar($item['servicos'] ?: 'Não informado') ?></strong>
                         </div>
 
                         <?php if ($aba === 'pendentes'): ?>
+
+                            <!-- Ações disponíveis para uma solicitação pendente -->
                             <div class="request-actions">
                                 <form method="post"
                                     action="solicitacoes-agendamento.php?aba=pendentes">
                                     <input type="hidden" name="acao" value="confirmar">
                                     <input type="hidden" name="agendamento_id"
                                         value="<?= (int) $item['id'] ?>">
+
                                     <button class="request-button confirm" type="submit">
                                         <i class="fa-solid fa-check"></i>
                                         Confirmar
@@ -342,13 +378,17 @@ require __DIR__ . '/includes/topo.php';
                                     <input type="hidden" name="acao" value="recusar">
                                     <input type="hidden" name="agendamento_id"
                                         value="<?= (int) $item['id'] ?>">
+
                                     <button class="icon-action-button danger"
                                         type="submit" title="Recusar">
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
                                 </form>
                             </div>
+
                         <?php else: ?>
+
+                            <!-- Ações disponíveis para um agendamento confirmado -->
                             <div class="request-actions">
                                 <span class="status-badge success">Confirmado</span>
 
@@ -363,12 +403,14 @@ require __DIR__ . '/includes/topo.php';
                                     <input type="hidden" name="acao" value="cancelar">
                                     <input type="hidden" name="agendamento_id"
                                         value="<?= (int) $item['id'] ?>">
+
                                     <button class="icon-action-button danger"
                                         type="submit" title="Cancelar">
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
                                 </form>
                             </div>
+
                         <?php endif; ?>
                     </article>
                 <?php endforeach; ?>

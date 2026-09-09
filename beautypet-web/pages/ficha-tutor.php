@@ -1,13 +1,20 @@
 <?php
+
+// Carrega o arquivo de configuração do sistema.
 require __DIR__ . '/config.php';
 
+// Obtém o ID do tutor informado pela URL.
+// O valor é validado para garantir que seja um número inteiro.
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
+// Caso o ID não seja válido, retorna para a página de fichas dos tutores.
 if (!$id) {
     header('Location: fichas-tutores.php');
     exit;
 }
 
+// Consulta os dados do tutor, a quantidade de pets,
+// o total gasto e os saldos financeiro de crédito e débito.
 $sqlTutor = '
     SELECT
         c.*,
@@ -43,15 +50,23 @@ $sqlTutor = '
       AND c.ativo = TRUE
 ';
 
+// Prepara a consulta do tutor.
 $stmt = $pdo->prepare($sqlTutor);
+
+// Executa a consulta utilizando o ID do tutor.
 $stmt->execute([':id' => $id]);
+
+// Recupera os dados do tutor encontrado.
 $tutor = $stmt->fetch();
 
+// Caso o tutor não seja encontrado, retorna um erro 404.
 if (!$tutor) {
     http_response_code(404);
     exit('Tutor não encontrado.');
 }
 
+// Consulta os pets vinculados ao tutor,
+// incluindo informações de espécie, raça e pacotes.
 $sqlPets = '
     SELECT
         p.id,
@@ -90,10 +105,17 @@ $sqlPets = '
     ORDER BY p.nome
 ';
 
+// Prepara a consulta dos pets.
 $stmt = $pdo->prepare($sqlPets);
+
+// Executa a consulta utilizando o ID do tutor.
 $stmt->execute([':cliente_id' => $id]);
+
+// Recupera todos os pets vinculados ao tutor.
 $pets = $stmt->fetchAll();
 
+// Consulta o histórico financeiro do tutor,
+// incluindo pagamentos e movimentações de crédito e débito.
 $sqlHistorico = '
     SELECT
         h.*,
@@ -147,153 +169,251 @@ $sqlHistorico = '
     LIMIT 100
 ';
 
+// Prepara a consulta do histórico financeiro.
 $stmt = $pdo->prepare($sqlHistorico);
+
+// Executa a consulta utilizando o ID do tutor.
 $stmt->execute([':cliente_id' => $id]);
+
+// Recupera os registros do histórico financeiro.
 $historico = $stmt->fetchAll();
 
+// Define o título da página utilizando o nome do tutor.
 $tituloPagina = 'Ficha de ' . $tutor['nome'];
+
+// Define a página ativa no menu.
 $paginaAtiva = 'fichas-tutores';
 
+// Carrega o topo da página.
 require __DIR__ . '/includes/topo.php';
 ?>
 
+<!-- Área principal da ficha do tutor. -->
 <div class="page records-page">
+
+    <!-- Link para retornar à lista de tutores. -->
     <a class="back-link" href="fichas-tutores.php">
         <i class="fa-solid fa-arrow-left"></i>
         Voltar para fichas dos tutores
     </a>
 
+    <!-- Organiza as informações principais do tutor. -->
     <div class="detail-layout">
+
+        <!-- Card com os dados pessoais do tutor. -->
         <section class="detail-card tutor-profile-card">
+
             <div class="detail-profile-head">
+
+                <!-- Exibe as iniciais do nome do tutor. -->
                 <div class="record-avatar large">
                     <?= escapar(iniciaisNome($tutor['nome'])) ?>
                 </div>
 
                 <div>
+
+                    <!-- Nome do tutor. -->
                     <h1><?= escapar($tutor['nome']) ?></h1>
+
+                    <!-- Data em que o tutor foi cadastrado. -->
                     <p>
                         Tutor cadastrado em
                         <?= escapar(formatarData($tutor['criado_em'])) ?>
                     </p>
+
                 </div>
+
             </div>
 
+            <!-- Exibe as informações de contato e endereço. -->
             <div class="contact-grid">
+
+                <!-- E-mail do tutor. -->
                 <div>
                     <small>E-mail</small>
                     <strong><?= escapar($tutor['email'] ?: 'Não informado') ?></strong>
                 </div>
 
+                <!-- CPF do tutor. -->
                 <div>
                     <small>CPF</small>
                     <strong><?= escapar(formatarCpf($tutor['cpf'])) ?></strong>
                 </div>
 
+                <!-- Telefone principal do tutor. -->
                 <div>
                     <small>Telefone</small>
                     <strong><?= escapar(formatarTelefone($tutor['telefone_principal'])) ?></strong>
                 </div>
 
+                <!-- Telefone reserva do tutor. -->
                 <div>
                     <small>Telefone reserva</small>
                     <strong><?= escapar(formatarTelefone($tutor['telefone_reserva'])) ?></strong>
                 </div>
 
+                <!-- Endereço completo do tutor. -->
                 <div class="wide">
                     <small>Endereço</small>
                     <strong><?= escapar(enderecoCompleto($tutor)) ?></strong>
                 </div>
 
+                <!-- Exibe as observações somente quando existem. -->
                 <?php if (!empty($tutor['observacoes'])): ?>
+
                     <div class="wide">
                         <small>Observações</small>
                         <strong><?= nl2br(escapar($tutor['observacoes'])) ?></strong>
                     </div>
+
                 <?php endif; ?>
+
             </div>
+
         </section>
 
+        <!-- Coluna com o resumo financeiro e quantidade de pets. -->
         <aside class="summary-column">
+
+            <!-- Total comercializado pelo tutor. -->
             <div class="summary-card">
                 <small>Total comercializado</small>
                 <strong><?= escapar(formatarMoeda($tutor['total_gasto'])) ?></strong>
             </div>
 
+            <!-- Crédito disponível do tutor. -->
             <div class="summary-card credit">
                 <small>Crédito disponível</small>
                 <strong><?= escapar(formatarMoeda($tutor['saldo_credito'])) ?></strong>
             </div>
 
+            <!-- Débito pendente do tutor. -->
             <div class="summary-card debt">
                 <small>Débito pendente</small>
+
                 <strong>
                     <?= (float) $tutor['saldo_debito'] > 0
                         ? escapar(formatarMoeda($tutor['saldo_debito']))
                         : 'Nenhum' ?>
                 </strong>
+
             </div>
 
+            <!-- Quantidade de pets cadastrados para o tutor. -->
             <div class="summary-card">
                 <small>Pets cadastrados</small>
                 <strong><?= (int) $tutor['total_pets'] ?></strong>
             </div>
+
         </aside>
+
     </div>
 
+    <!-- Seção com os pets vinculados ao tutor. -->
     <section class="detail-card section-card">
+
         <div class="section-title">
+
             <h2>Pets vinculados</h2>
+
+            <!-- Link para cadastrar um novo pet. -->
             <a href="cadastro-pet.php">Cadastrar novo pet</a>
+
         </div>
 
+        <!-- Verifica se o tutor possui pets cadastrados. -->
         <?php if (!$pets): ?>
+
             <div class="inline-empty">
                 Nenhum pet está vinculado a este tutor.
             </div>
+
         <?php else: ?>
+
+            <!-- Grade com os pets vinculados. -->
             <div class="linked-pets-grid">
+
+                <!-- Percorre todos os pets do tutor. -->
                 <?php foreach ($pets as $pet): ?>
-                    <a class="linked-pet-card" href="ficha-pet.php?id=<?= (int) $pet['id'] ?>">
+
+                    <!-- Link para acessar a ficha individual do pet. -->
+                    <a class="linked-pet-card"
+                       href="ficha-pet.php?id=<?= (int) $pet['id'] ?>">
+
+                        <!-- Verifica se existe uma foto cadastrada. -->
                         <?php if (!empty($pet['foto_url'])): ?>
-                            <img src="<?= escapar($pet['foto_url']) ?>" alt="Foto de <?= escapar($pet['nome']) ?>">
+
+                            <!-- Exibe a foto do pet. -->
+                            <img
+                                src="<?= escapar($pet['foto_url']) ?>"
+                                alt="Foto de <?= escapar($pet['nome']) ?>">
+
                         <?php else: ?>
+
+                            <!-- Exibe um ícone caso o pet não possua foto. -->
                             <div class="pet-photo-fallback">
                                 <i class="fa-solid fa-paw"></i>
                             </div>
+
                         <?php endif; ?>
 
+                        <!-- Nome do pet. -->
                         <strong><?= escapar($pet['nome']) ?></strong>
+
+                        <!-- Exibe a raça ou a espécie do pet. -->
                         <span>
                             <?= escapar($pet['raca'] ?: $pet['especie']) ?>
                         </span>
 
+                        <!-- Verifica se o pet possui pacote ativo. -->
                         <?php if ((int) $pet['pacotes_ativos'] > 0): ?>
+
                             <small class="package-label">
                                 <?= (int) $pet['creditos_restantes'] ?> crédito(s) de pacote
                             </small>
+
                         <?php else: ?>
+
                             <small>Sem pacote ativo</small>
+
                         <?php endif; ?>
+
                     </a>
+
                 <?php endforeach; ?>
+
             </div>
+
         <?php endif; ?>
+
     </section>
 
+    <!-- Seção com o histórico financeiro do tutor. -->
     <section class="detail-card history-card">
+
         <div class="section-title">
+
             <h2>Histórico financeiro</h2>
+
             <small>Valores vindos dos lançamentos do fechamento diário.</small>
+
         </div>
 
+        <!-- Verifica se existem registros financeiros. -->
         <?php if (!$historico): ?>
+
             <div class="inline-empty">
                 Ainda não existem lançamentos para este tutor.
             </div>
+
         <?php else: ?>
+
+            <!-- Área responsável por permitir a visualização da tabela. -->
             <div class="table-wrap">
+
                 <table class="records-table">
+
+                    <!-- Cabeçalho da tabela. -->
                     <thead>
                         <tr>
                             <th>Data</th>
@@ -304,36 +424,81 @@ require __DIR__ . '/includes/topo.php';
                         </tr>
                     </thead>
 
+                    <!-- Corpo da tabela. -->
                     <tbody>
-                        <?php foreach ($historico as $item): ?>
-                            <tr>
-                                <td><?= escapar(formatarData($item['data_fechamento'])) ?></td>
-                                <td><?= escapar($item['pet']) ?></td>
-                                <td>
-                                    <strong><?= escapar($item['servico']) ?></strong>
 
+                        <!-- Percorre cada registro do histórico. -->
+                        <?php foreach ($historico as $item): ?>
+
+                            <tr>
+
+                                <!-- Data do fechamento. -->
+                                <td>
+                                    <?= escapar(formatarData($item['data_fechamento'])) ?>
+                                </td>
+
+                                <!-- Nome do pet. -->
+                                <td>
+                                    <?= escapar($item['pet']) ?>
+                                </td>
+
+                                <!-- Informações do serviço. -->
+                                <td>
+
+                                    <strong>
+                                        <?= escapar($item['servico']) ?>
+                                    </strong>
+
+                                    <!-- Exibe a descrição quando estiver disponível. -->
                                     <?php if (!empty($item['descricao'])): ?>
-                                        <small><?= escapar($item['descricao']) ?></small>
+
+                                        <small>
+                                            <?= escapar($item['descricao']) ?>
+                                        </small>
+
                                     <?php endif; ?>
 
+                                    <!-- Exibe o valor dos adicionais quando houver. -->
                                     <?php if ((float) $item['total_adicionais'] > 0): ?>
+
                                         <small>
                                             Inclui <?= escapar(formatarMoeda($item['total_adicionais'])) ?>
                                             em adicional(is)
                                         </small>
+
                                     <?php endif; ?>
+
                                 </td>
+
+                                <!-- Valor total do serviço. -->
                                 <td class="money">
                                     <?= escapar(formatarMoeda($item['valor_total'])) ?>
                                 </td>
-                                <td><?= escapar($item['forma_pagamento']) ?></td>
+
+                                <!-- Forma de pagamento utilizada. -->
+                                <td>
+                                    <?= escapar($item['forma_pagamento']) ?>
+                                </td>
+
                             </tr>
+
                         <?php endforeach; ?>
+
                     </tbody>
+
                 </table>
+
             </div>
+
         <?php endif; ?>
+
     </section>
+
 </div>
 
-<?php require __DIR__ . '/includes/rodape.php'; ?>
+<?php
+
+// Carrega o rodapé da página.
+require __DIR__ . '/includes/rodape.php';
+
+?>
