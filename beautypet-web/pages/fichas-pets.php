@@ -2,7 +2,7 @@
 
 // Carrega o arquivo de configuração do sistema,
 // incluindo a conexão com o banco de dados.
-require __DIR__ . '/config.php';
+require __DIR__ . '/../config/config.php';
 
 // Recebe o termo informado no campo de busca.
 // Caso nenhum termo seja informado, utiliza uma string vazia.
@@ -47,10 +47,10 @@ $sql = '
             pet_id,
             COUNT(*) AS pacotes_ativos,
             SUM(creditos_restantes) AS creditos_restantes,
-            GROUP_CONCAT(
-                CONCAT(pacote, \': \', creditos_restantes, \' restante(s)\')
+            STRING_AGG(
+                CONCAT(pacote, \': \', creditos_restantes, \' restante(s)\'),
+                \', \'
                 ORDER BY pacote
-                SEPARATOR \', \'
             ) AS resumo_pacotes
         FROM vw_saldo_pacotes
         WHERE status = \'ATIVO\'
@@ -114,7 +114,7 @@ $tituloPagina = 'Fichas dos pets';
 $paginaAtiva = 'fichas-pets';
 
 // Carrega o topo da página.
-require __DIR__ . '/includes/topo.php';
+require __DIR__ . '/../includes/topo.php';
 ?>
 
 <!-- Área principal da página de fichas dos pets. -->
@@ -317,6 +317,6 @@ require __DIR__ . '/includes/topo.php';
 <?php
 
 // Carrega o rodapé da página.
-require __DIR__ . '/includes/rodape.php';
+require __DIR__ . '/../includes/rodape.php';
 
 ?>

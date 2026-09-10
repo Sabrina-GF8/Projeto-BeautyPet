@@ -1,6 +1,6 @@
 <?php
 // Inclui configuração (conexão PDO, funções auxiliares) usada em toda a página
-require __DIR__ . '/config.php';
+require __DIR__ . '/../config/config.php';
 
 // Variáveis de mensagem de feedback (sucesso/erro) exibidas ao usuário
 $mensagem = '';
@@ -215,7 +215,7 @@ $totalPets = (int) $pdo
 $tituloPagina = 'Cadastro de pet';
 $paginaAtiva = 'cadastro-pet';
 
-require __DIR__ . '/includes/topo.php';
+require __DIR__ . '/../includes/topo.php';
 ?>
 
 <div class="page registration-page">
@@ -412,4 +412,4 @@ require __DIR__ . '/includes/topo.php';
                 </form>
             </div>
 
-<?php require __DIR__ . '/includes/rodape.php'; ?>
+<?php require __DIR__ . '/../includes/rodape.php'; ?>

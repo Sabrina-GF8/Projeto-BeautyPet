@@ -1,7 +1,8 @@
 <?php
 // Importa o arquivo de configuração do sistema.
 // O __DIR__ representa o diretório onde este arquivo PHP está localizado.
-require __DIR__ . '/config.php';
+// Adicionada a barra '/' antes de 'config/config.php' para montar o caminho correto.
+require __DIR__ . '/config/config.php';
 
 // Define o título que será utilizado para identificar a página.
 $tituloPagina = 'Dashboard';
@@ -11,7 +12,6 @@ $tituloPagina = 'Dashboard';
 $paginaAtiva = 'dashboard';
 
 // Importa o arquivo responsável pelo topo da página.
-// Nele podem estar elementos como o cabeçalho, menu e estrutura HTML inicial.
 require __DIR__ . '/includes/topo.php';
 ?>
 
@@ -32,7 +32,5 @@ require __DIR__ . '/includes/topo.php';
 
 <?php
 // Importa o arquivo responsável pelo rodapé da página.
-// Esse arquivo normalmente contém o fechamento da estrutura HTML
-// e outros elementos exibidos no final da página.
 require __DIR__ . '/includes/rodape.php';
 ?>

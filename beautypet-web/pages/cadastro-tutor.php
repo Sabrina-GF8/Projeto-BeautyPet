@@ -1,6 +1,6 @@
 <?php
 // Inclui configuração (conexão PDO, funções auxiliares) usada em toda a página
-require __DIR__ . '/config.php';
+require __DIR__ . '/../config/config.php';
 
 /*
  * Proteção extra: evita o erro de função indefinida caso um
@@ -175,7 +175,7 @@ $totalTutores = (int) $pdo
 $tituloPagina = 'Cadastro de tutor';
 $paginaAtiva = 'cadastro-tutor';
 
-require __DIR__ . '/includes/topo.php';
+require __DIR__ . '/../includes/topo.php';
 ?>
 
 <div class="page registration-page">
@@ -357,4 +357,4 @@ require __DIR__ . '/includes/topo.php';
                 </form>
             </div>
 
-<?php require __DIR__ . '/includes/rodape.php'; ?>
+<?php require __DIR__ . '/../includes/rodape.php'; ?>

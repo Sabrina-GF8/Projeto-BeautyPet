@@ -1,7 +1,7 @@
 <?php
 
 // Carrega as configurações do sistema e a conexão com o banco de dados.
-require __DIR__ . '/config.php';
+require __DIR__ . '/../config/config.php';
 
 // Recebe o termo de busca informado pelo usuário.
 // Caso não exista, utiliza uma string vazia.
@@ -113,7 +113,7 @@ $tituloPagina = 'Fichas dos tutores';
 $paginaAtiva = 'fichas-tutores';
 
 // Carrega o topo da página.
-require __DIR__ . '/includes/topo.php';
+require __DIR__ . '/../includes/topo.php';
 
 ?>
 
@@ -284,6 +284,6 @@ require __DIR__ . '/includes/topo.php';
 <?php
 
 // Carrega o rodapé da página.
-require __DIR__ . '/includes/rodape.php';
+require __DIR__ . '/../includes/rodape.php';
 
 ?>

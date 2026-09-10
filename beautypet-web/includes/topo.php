@@ -83,7 +83,7 @@ $podeCriarUsuario = !$usuariosAtivos
     <title><?= escapar($tituloPagina) ?> | Beauty Pet</title>
 
     <!-- Arquivo principal de estilos do sistema. -->
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style.css?v=6">
 
     <!-- Biblioteca Font Awesome utilizada para os ícones do sistema. -->
     <link rel="stylesheet"
@@ -118,7 +118,7 @@ $podeCriarUsuario = !$usuariosAtivos
         <nav>
 
             <!-- Link para a página inicial/dashboard. -->
-            <a href="index.php"
+            <a href="<?= BASE_URL ?>/index.php"
                 class="menu-item <?= $paginaAtiva === 'dashboard' ? 'active' : '' ?>">
 
                 <!-- Ícone do Dashboard. -->
@@ -132,7 +132,7 @@ $podeCriarUsuario = !$usuariosAtivos
 
             <!-- Link para a agenda. -->
             <!-- A opção fica ativa quando estamos na agenda ou nas solicitações. -->
-            <a href="agenda.php"
+            <a href="<?= BASE_URL ?>/pages/agenda.php"
                 class="menu-item <?= in_array($paginaAtiva, ['agenda', 'solicitacoes-agendamento'], true) ? 'active' : '' ?>">
 
                 <i class="fa-regular fa-calendar"></i>
@@ -202,7 +202,7 @@ $podeCriarUsuario = !$usuariosAtivos
 
 
                 <!-- Acesso ao cadastro de tutores. -->
-                <a href="cadastro-tutor.php"
+                <a href="<?= BASE_URL ?>/pages/cadastro-tutor.php"
                     class="submenu <?= $paginaAtiva === 'cadastro-tutor' ? 'active' : '' ?>">
 
                     <i class="fa-solid fa-user-plus"></i>
@@ -213,7 +213,7 @@ $podeCriarUsuario = !$usuariosAtivos
 
 
                 <!-- Acesso às fichas dos tutores. -->
-                <a href="fichas-tutores.php"
+                <a href="<?= BASE_URL ?>/pages/fichas-tutores.php"
                     class="submenu <?= $paginaAtiva === 'fichas-tutores' ? 'active' : '' ?>">
 
                     <i class="fa-regular fa-address-card"></i>
@@ -248,7 +248,7 @@ $podeCriarUsuario = !$usuariosAtivos
 
 
                 <!-- Acesso ao cadastro de pets. -->
-                <a href="cadastro-pet.php"
+                <a href="<?= BASE_URL ?>/pages/cadastro-pet.php"
                     class="submenu <?= $paginaAtiva === 'cadastro-pet' ? 'active' : '' ?>">
 
                     <i class="fa-solid fa-dog"></i>
@@ -259,7 +259,7 @@ $podeCriarUsuario = !$usuariosAtivos
 
 
                 <!-- Acesso às fichas dos pets. -->
-                <a href="fichas-pets.php"
+                <a href="<?= BASE_URL ?>/pages/fichas-pets.php"
                     class="submenu <?= $paginaAtiva === 'fichas-pets' ? 'active' : '' ?>">
 
                     <i class="fa-solid fa-notes-medical"></i>
@@ -498,7 +498,7 @@ $podeCriarUsuario = !$usuariosAtivos
 
                             <a
                                 class="create-user-link"
-                                href="novo-usuario.php">
+                                href="<?= BASE_URL ?>/pages/novo-usuario.php"
 
                                 <i class="fa-solid fa-user-plus"></i>
 

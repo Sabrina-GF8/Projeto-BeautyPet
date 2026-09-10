@@ -1,6 +1,6 @@
 <?php
 // Inclui configuração (conexão PDO, funções auxiliares) usada em toda a página
-require __DIR__ . '/config.php';
+require __DIR__ . '/../config/config.php';
 
 // Recupera o usuário logado atualmente
 $usuarioAtual = obterUsuarioAtual($pdo);
@@ -757,7 +757,7 @@ $observacoesSelecionadas = (string) (
 // Metadados da página usados pelo template de topo (título da aba, item de menu ativo)
 $tituloPagina = 'Agenda';
 $paginaAtiva = 'agenda';
-require __DIR__ . '/includes/topo.php';
+require __DIR__ . '/../includes/topo.php';
 ?>
 
 <div class="page agenda-page">
@@ -1402,4 +1402,4 @@ require __DIR__ . '/includes/topo.php';
 })();
 </script>
 
-<?php require __DIR__ . '/includes/rodape.php'; ?>
+<?php require __DIR__ . '/../includes/rodape.php'; ?>

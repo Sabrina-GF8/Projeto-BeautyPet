@@ -1,5 +1,7 @@
 <?php
 
+define('BASE_URL', '/beautypet-web');
+
 // Carrega a função responsável por ler o arquivo .env
 require_once __DIR__ . '/env.php';
 
