@@ -1,18 +1,24 @@
 <?php
 
-// Configurações gerais do sistema Beauty Pet
-$host = 'localhost';
-$banco = 'beauty_pet';
-$usuarioBanco = 'root';
-$senhaBanco = '';
+// Carrega a função responsável por ler o arquivo .env
+require_once __DIR__ . '/env.php';
 
 try {
 
-    // Cria a conexão com o banco de dados MySQL
+    // Carrega as variáveis do arquivo .env
+    carregarEnv(__DIR__ . '/.env');
+
+    // Pega a URL de conexão armazenada no .env
+    $databaseUrl = $_ENV['DATABASE_URL'];
+
+    // Separa as informações da URL de conexão
+    $dadosConexao = parse_url($databaseUrl);
+
+    // Cria a conexão com o PostgreSQL do Supabase
     $pdo = new PDO(
-        "mysql:host={$host};dbname={$banco};charset=utf8mb4",
-        $usuarioBanco,
-        $senhaBanco,
+        "pgsql:host={$dadosConexao['host']};port={$dadosConexao['port']};dbname=" . ltrim($dadosConexao['path'], '/') . ";sslmode=require",
+        $dadosConexao['user'],
+        $dadosConexao['pass'],
         [
             // Define que os erros do banco serão tratados como exceções
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -29,6 +35,11 @@ try {
 
     // Interrompe o sistema caso não seja possível conectar ao banco
     exit('Não foi possível conectar ao banco de dados: ' . $erro->getMessage());
+
+} catch (Exception $erro) {
+
+    // Erro relacionado à configuração do ambiente
+    exit('Erro na configuração: ' . $erro->getMessage());
 }
 
 
