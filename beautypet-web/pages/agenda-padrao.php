@@ -1,28 +1,34 @@
 <?php
-// Inclui o arquivo de configuração (conexão com banco de dados $pdo, funções auxiliares, etc.)
-require __DIR__ . '/config.php';
-
-// Obtém os dados do usuário logado no momento (via sessão/cookie, definido em config.php)
+/**
+ * ARQUIVO: agenda-padrao.php
+ * RESPONSABILIDADE: Configuração da agenda-padrão de banho e tosa.
+ * Permite ao administrador definir dias, horários e quantidade de vagas que serão usados para calcular os horários disponíveis na agenda.
+ *
+ * Os comentários abaixo descrevem o motivo de cada etapa, os dados manipulados
+ * e a relação entre interface, regras de negócio e banco de dados.
+ */
+require __DIR__ . '/../config/config.php';
+// Recupera os dados do usuário autenticado para saber quem está operando o sistema.
 $usuarioAtual = obterUsuarioAtual($pdo);
-
-// Extrai o ID do usuário atual, convertendo para inteiro, ou null se não existir
+// Guarda somente o ID do usuário atual para registrar autoria das operações no banco.
 $usuarioId = isset($usuarioAtual['id']) ? (int) $usuarioAtual['id'] : null;
 
-// Verifica se o usuário logado tem perfil de ADMINISTRADOR;
-// caso não tenha, redireciona para a agenda comum com aviso de falta de permissão
+// Verifica a condição abaixo antes de executar este bloco.
 if (($usuarioAtual['perfil'] ?? '') !== 'ADMINISTRADOR') {
+    // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
     header('Location: agenda.php?sem_permissao=1');
+    // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
     exit;
 }
 
-// Variáveis para exibir mensagens de feedback ao usuário (sucesso/erro)
+// Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
 $mensagem = '';
+// Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
 $tipoMensagem = '';
-
-// Captura o ID de uma agenda-padrão a ser editada, vindo via GET (?editar=ID)
+// Lê o identificador enviado pela URL para saber se a página está em modo de edição.
 $editarId = inteiroOuNull($_GET['editar'] ?? null);
 
-// Mapeamento dos dias da semana (1 = Segunda ... 7 = Domingo) para exibição
+// Armazena em "diasSemana" o valor necessário para as próximas etapas deste fluxo.
 $diasSemana = [
     1 => 'Segunda-feira',
     2 => 'Terça-feira',
@@ -33,35 +39,41 @@ $diasSemana = [
     7 => 'Domingo',
 ];
 
-// Bloco executado apenas quando o formulário é enviado via POST
+// Executa o processamento abaixo somente quando algum formulário desta página foi enviado.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Identifica qual ação foi solicitada pelo formulário (criar, editar ou excluir)
+    // Identifica qual ação o formulário solicitou para direcionar o processamento correto.
     $acao = (string) ($_POST['acao'] ?? '');
 
-    // Trata tanto a criação quanto a edição de uma agenda-padrão
+    // Verifica a condição abaixo antes de executar este bloco.
     if (in_array($acao, ['criar_padrao', 'editar_padrao'], true)) {
-        // Se for edição, recupera o ID enviado; se for criação, ainda não existe ID
+        // Converte o identificador recebido para uso seguro nas consultas e alterações.
         $id = $acao === 'editar_padrao'
             ? inteiroOuNull($_POST['id'] ?? null)
             : null;
 
-        // Captura e normaliza os dados enviados pelo formulário
+        // Armazena em "diaSemana" o valor necessário para as próximas etapas deste fluxo.
         $diaSemana = inteiroOuNull($_POST['dia_semana'] ?? null);
+        // Guarda o horário efetivo de início que será salvo no agendamento ou atendimento.
         $horaInicio = (string) ($_POST['hora_inicio'] ?? '');
+        // Guarda o horário de término quando o atendimento possui intervalo de início e fim.
         $horaFim = (string) ($_POST['hora_fim'] ?? '');
+        // Armazena a data "dataInicio" usada nas validações e consultas desta página.
         $dataInicio = (string) ($_POST['data_inicio'] ?? '');
+        // Guarda a forma como a duração ou validade será interpretada na regra em processamento.
         $tipoDuracao = (string) ($_POST['tipo_duracao'] ?? '');
+        // Guarda a data de término quando o serviço ocupa mais de um dia, como ocorre no hotel.
         $dataFim = textoOuNull($_POST['data_fim'] ?? null);
-        // Checkbox "ativo": se estiver marcado, vem no POST; senão, assume 0
+        // Armazena em "ativo" o valor necessário para as próximas etapas deste fluxo.
         $ativo = isset($_POST['ativo']) ? 1 : 0;
-        // Array com as vagas marcadas por horário, enviado pelo formulário (grade de checkboxes)
+        // Armazena a coleção "vagasEnviadas" carregada para ser percorrida e exibida/processada a seguir.
         $vagasEnviadas = $_POST['vagas'] ?? [];
 
-        // Gera a lista de horários de 30 em 30 minutos entre hora início e hora fim
+        // Armazena a coleção "horarios" carregada para ser percorrida e exibida/processada a seguir.
         $horarios = gerarHorariosDeTrinta($horaInicio, $horaFim);
 
-        // Validação principal dos campos obrigatórios e formatos
+        // Verifica a condição abaixo antes de executar este bloco.
         if (
+            // Armazena em "diaSemana" o valor necessário para as próximas etapas deste fluxo.
             $diaSemana === null
             || !isset($diasSemana[$diaSemana])
             || !horaEmBlocoDeTrinta($horaInicio)
@@ -70,30 +82,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             || !dataSqlValida($dataInicio)
             || !in_array($tipoDuracao, ['INDETERMINADO', 'ATE_DATA'], true)
         ) {
-            // Mensagem de erro genérica quando algum campo obrigatório é inválido
+            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
             $mensagem = 'Preencha corretamente o dia, o período e a validade. Os horários devem terminar em :00 ou :30.';
+            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
         } elseif (
-            // Validação específica: se a duração for "até uma data", a data final deve ser válida
-            // e não pode ser anterior à data de início
+            // Guarda a forma como a duração ou validade será interpretada na regra em processamento.
             $tipoDuracao === 'ATE_DATA'
             && (
+                // Guarda a data de término quando o serviço ocupa mais de um dia, como ocorre no hotel.
                 $dataFim === null
                 || !dataSqlValida($dataFim)
                 || $dataFim < $dataInicio
             )
         ) {
+            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
             $mensagem = 'A data final deve ser válida e igual ou posterior à data inicial.';
+            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
+        // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
         } else {
-            // Se a duração for indeterminada, garante que não haja data final armazenada
+            // Verifica a condição abaixo antes de executar este bloco.
             if ($tipoDuracao === 'INDETERMINADO') {
+                // Guarda a data de término quando o serviço ocupa mais de um dia, como ocorre no hotel.
                 $dataFim = null;
             }
 
-            // Verifica se já existe outra agenda-padrão ativa que se sobreponha
-            // ao mesmo dia da semana e período (evita conflitos de horário)
+            // Verifica a condição abaixo antes de executar este bloco.
             if (
+                // Armazena em "ativo" o valor necessário para as próximas etapas deste fluxo.
                 $ativo === 1
                 && padraoSobreposto(
                     $pdo,
@@ -103,16 +121,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id
                 )
             ) {
+                // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                 $mensagem = 'Já existe uma agenda-padrão ativa para esse dia da semana no mesmo período.';
+                // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                 $tipoMensagem = 'error';
+            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
             } else {
+                // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
                 try {
-                    // Inicia transação para garantir consistência entre a tabela principal
-                    // e a tabela de horários/vagas
+                    // Inicia uma transação para garantir que todas as alterações deste processo sejam salvas em conjunto.
                     $pdo->beginTransaction();
 
+                    // Verifica a condição abaixo antes de executar este bloco.
                     if ($acao === 'criar_padrao') {
-                        // Monta o INSERT de uma nova agenda-padrão
+                        // Prepara a inclusão de um novo registro em "agenda_padrao_banho_tosa" usando os valores já validados.
                         $stmt = $pdo->prepare(
                             'INSERT INTO agenda_padrao_banho_tosa (
                                 dia_semana,
@@ -135,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              )'
                         );
 
-                        // Executa o INSERT com os valores capturados do formulário
+                        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                         $stmt->execute([
                             ':dia_semana'    => $diaSemana,
                             ':hora_inicio'   => $horaInicio . ':00',
@@ -147,17 +169,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             ':criado_por'    => $usuarioId,
                         ]);
 
-                        // Recupera o ID gerado para a nova agenda-padrão (necessário para os horários)
+                        // Converte o identificador recebido para uso seguro nas consultas e alterações.
                         $id = (int) $pdo->lastInsertId();
+                    // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
                     } else {
-                        // Caso de edição: exige que um ID válido tenha sido informado
+                        // Interrompe a ação quando o identificador obrigatório não foi informado ou não é válido.
                         if ($id === null) {
+                            // Interrompe este fluxo com uma exceção controlada porque a regra necessária não foi atendida.
                             throw new RuntimeException(
                                 'Agenda-padrão inválida para edição.'
                             );
                         }
 
-                        // Monta o UPDATE da agenda-padrão existente
+                        // Prepara a inclusão de um novo registro em "agenda_padrao_banho_tosa_horarios" usando os valores já validados.
                         $stmt = $pdo->prepare(
                             'UPDATE agenda_padrao_banho_tosa
                              SET dia_semana = :dia_semana,
@@ -170,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              WHERE id = :id'
                         );
 
-                        // Executa o UPDATE com os novos valores
+                        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                         $stmt->execute([
                             ':dia_semana'   => $diaSemana,
                             ':hora_inicio'  => $horaInicio . ':00',
@@ -182,15 +206,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             ':id'           => $id,
                         ]);
 
-                        // Remove todos os horários/vagas antigos associados a essa agenda-padrão,
-                        // pois serão reinseridos a seguir com os valores atualizados
+                        // Prepara a consulta SQL para receber parâmetros sem concatenar valores diretamente no comando.
                         $pdo->prepare(
                             'DELETE FROM agenda_padrao_banho_tosa_horarios
                              WHERE agenda_padrao_id = :id'
+                        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                         )->execute([':id' => $id]);
                     }
 
-                    // Prepara o INSERT que será reutilizado para cada horário de 30 em 30 minutos
+                    // Armazena em "stmtHorario" o valor necessário para as próximas etapas deste fluxo.
                     $stmtHorario = $pdo->prepare(
                         'INSERT INTO agenda_padrao_banho_tosa_horarios (
                             agenda_padrao_id,
@@ -203,14 +227,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                          )'
                     );
 
-                    // Percorre cada horário gerado (ex.: 09:00, 09:30, 10:00...) e insere
-                    // a quantidade de vagas marcadas para aquele horário específico
+                    // Percorre cada item da coleção para processar os registros individualmente.
                     foreach ($horarios as $horario) {
-                        // Conta quantas "vagas" (checkboxes) foram marcadas para este horário
-                        $quantidade = contarVagasEnviadas(
-                            $vagasEnviadas[$horario] ?? []
+                        // Guarda a quantidade informada e usada para vagas, créditos, itens ou repetições.
+                        $quantidade = quantidadeVagas(
+                            $vagasEnviadas[$horario] ?? 0
                         );
 
+                        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                         $stmtHorario->execute([
                             ':agenda_padrao_id' => $id,
                             ':horario'          => $horario . ':00',
@@ -218,102 +242,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ]);
                     }
 
-                    // Confirma a transação, salvando tanto a agenda-padrão quanto seus horários
+                    // Confirma a transação e grava definitivamente todas as alterações realizadas no bloco.
                     $pdo->commit();
 
-                    // Redireciona de volta à página com um parâmetro indicando sucesso
-                    // (evita reenvio do formulário ao atualizar a página - padrão PRG)
+                    // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
                     header(
                         'Location: agenda-padrao.php?'
                         . ($acao === 'criar_padrao' ? 'salvo=1' : 'editado=1')
                     );
+                    // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
                     exit;
+                // Captura uma falha ocorrida no bloco anterior para desfazer operações e exibir uma mensagem controlada.
                 } catch (Throwable $erro) {
-                    // Em caso de qualquer erro, desfaz a transação para não deixar dados inconsistentes
+                    // Confere se existe uma transação aberta antes de tentar desfazê-la.
                     if ($pdo->inTransaction()) {
+                        // Desfaz as alterações da transação atual porque alguma etapa falhou.
                         $pdo->rollBack();
                     }
 
-                    // Define a mensagem de erro: usa a mensagem customizada da exceção
-                    // se for RuntimeException, senão usa uma mensagem genérica
+                    // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                     $mensagem = $erro instanceof RuntimeException
                         ? $erro->getMessage()
                         : 'Não foi possível salvar a agenda-padrão.';
+                    // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                     $tipoMensagem = 'error';
                 }
             }
         }
     }
 
-    // Trata a ação de exclusão de uma agenda-padrão
+    // Verifica a condição abaixo antes de executar este bloco.
     if ($acao === 'excluir_padrao') {
+        // Converte o identificador recebido para uso seguro nas consultas e alterações.
         $id = inteiroOuNull($_POST['id'] ?? null);
 
+        // Interrompe a ação quando o identificador obrigatório não foi informado ou não é válido.
         if ($id === null) {
+            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
             $mensagem = 'Agenda-padrão inválida para exclusão.';
+            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
+        // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
         } else {
-            // Remove a agenda-padrão do banco (assume-se que os horários relacionados
-            // são removidos em cascata pelo próprio banco de dados)
+            // Prepara uma consulta em "agenda_padrao_banho_tosa" para carregar os dados necessários a esta etapa.
             $stmt = $pdo->prepare(
                 'DELETE FROM agenda_padrao_banho_tosa
                  WHERE id = :id'
             );
+            // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
             $stmt->execute([':id' => $id]);
 
-            // Redireciona indicando sucesso na exclusão
+            // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
             header('Location: agenda-padrao.php?excluido=1');
+            // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
             exit;
         }
     }
 }
 
-// Bloco para exibir mensagens de sucesso vindas via query string (redirecionamento após POST)
+// Trata os parâmetros da URL usados principalmente para exibir mensagens após redirecionamentos.
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Verifica a condição abaixo antes de executar este bloco.
     if (isset($_GET['salvo'])) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Agenda-padrão cadastrada com sucesso!';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'success';
+    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (isset($_GET['editado'])) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Agenda-padrão atualizada com sucesso!';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'success';
+    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (isset($_GET['excluido'])) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Agenda-padrão excluída com sucesso!';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'success';
     }
 }
 
-// Variáveis que armazenarão os dados da agenda-padrão em edição (se houver)
+// Carrega a configuração da agenda-padrão selecionada para preencher os campos de edição.
 $padraoEdicao = null;
+// Armazena em "vagasEdicao" o valor necessário para as próximas etapas deste fluxo.
 $vagasEdicao = [];
 
-// Se um ID de edição foi passado via GET, busca os dados dessa agenda-padrão no banco
+// Verifica a condição abaixo antes de executar este bloco.
 if ($editarId !== null) {
+    // Prepara uma consulta em "agenda_padrao_banho_tosa" para carregar os dados necessários a esta etapa.
     $stmt = $pdo->prepare(
         'SELECT *
          FROM agenda_padrao_banho_tosa
          WHERE id = :id'
     );
+    // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
     $stmt->execute([':id' => $editarId]);
+    // Obtém a próxima linha retornada pela consulta como um registro associativo.
     $padraoEdicao = $stmt->fetch() ?: null;
 
+    // Verifica a condição abaixo antes de executar este bloco.
     if ($padraoEdicao === null) {
-        // Caso o ID informado não corresponda a nenhum registro, avisa o usuário
-        // e reseta $editarId para voltar ao modo de criação
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'A agenda-padrão selecionada não foi encontrada.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
+        // Lê o identificador enviado pela URL para saber se a página está em modo de edição.
         $editarId = null;
+    // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
     } else {
-        // Busca os horários e quantidades de vagas cadastrados para essa agenda-padrão
+        // Prepara uma consulta em "agenda_padrao_banho_tosa_horarios" para carregar os dados necessários a esta etapa.
         $stmt = $pdo->prepare(
             'SELECT horario, quantidade_vagas
              FROM agenda_padrao_banho_tosa_horarios
              WHERE agenda_padrao_id = :id
              ORDER BY horario'
         );
+        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
         $stmt->execute([':id' => $editarId]);
 
-        // Monta um array associativo [horario => quantidade_vagas] para popular o formulário,
-        // usando apenas "HH:MM" (removendo os segundos) como chave
+        // Percorre cada item da coleção para processar os registros individualmente.
         foreach ($stmt->fetchAll() as $item) {
             $vagasEdicao[substr((string) $item['horario'], 0, 5)] =
                 (int) $item['quantidade_vagas'];
@@ -321,36 +369,35 @@ if ($editarId !== null) {
     }
 }
 
-// Busca todas as agendas-padrão cadastradas, ordenadas por dia da semana,
-// data de início (mais recente primeiro) e hora de início
+// Prepara uma consulta em "agenda_padrao_banho_tosa" para carregar os dados necessários a esta etapa.
 $stmt = $pdo->query(
     'SELECT *
      FROM agenda_padrao_banho_tosa
      ORDER BY dia_semana, data_inicio DESC, hora_inicio'
 );
+// Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
 $padroes = $stmt->fetchAll();
 
-// Busca todos os horários/vagas de todas as agendas-padrão de uma vez só
-// (evita fazer uma consulta por agenda-padrão dentro do loop de exibição)
+// Armazena a coleção "horariosTodos" carregada para ser percorrida e exibida/processada a seguir.
 $horariosTodos = $pdo->query(
     'SELECT agenda_padrao_id, horario, quantidade_vagas
      FROM agenda_padrao_banho_tosa_horarios
      ORDER BY agenda_padrao_id, horario'
+// Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
 )->fetchAll();
 
-// Agrupa os horários por ID da agenda-padrão, para facilitar o acesso na listagem
+// Armazena o horário "horariosPorPadrao" utilizado na regra de agendamento/atendimento.
 $horariosPorPadrao = [];
 
+// Percorre cada item da coleção para processar os registros individualmente.
 foreach ($horariosTodos as $item) {
     $horariosPorPadrao[(int) $item['agenda_padrao_id']][] = $item;
 }
 
-// Define a fonte de dados para preencher o formulário:
-// prioriza os dados recém-enviados via POST (em caso de erro de validação);
-// caso não haja POST, usa os dados da agenda-padrão em edição (se houver)
+// Guarda os dados usados para preencher novamente o formulário, inclusive após erros de validação.
 $dados = $_POST ?: ($padraoEdicao ?? []);
 
-// Define o valor do campo "hora início" do formulário, com fallback para 09:00
+// Armazena o horário "horaInicioForm" utilizado na regra de agendamento/atendimento.
 $horaInicioForm = (string) (
     $_POST['hora_inicio']
     ?? (
@@ -360,7 +407,7 @@ $horaInicioForm = (string) (
     )
 );
 
-// Define o valor do campo "hora fim" do formulário, com fallback para 17:00
+// Armazena o horário "horaFimForm" utilizado na regra de agendamento/atendimento.
 $horaFimForm = (string) (
     $_POST['hora_fim']
     ?? (
@@ -370,29 +417,33 @@ $horaFimForm = (string) (
     )
 );
 
-// Monta o array de vagas que será enviado ao JavaScript para desenhar a grade de horários
+// Executa o processamento abaixo somente quando algum formulário desta página foi enviado.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Se veio de um POST (ex.: erro de validação), reconstrói as vagas a partir
-    // do que o usuário tinha marcado antes de reenviar o formulário
+    // Monta a estrutura de horários e quantidades que será enviada ao JavaScript da agenda-padrão.
     $vagasParaJs = [];
 
+    // Percorre cada item da coleção para processar os registros individualmente.
     foreach (gerarHorariosDeTrinta($horaInicioForm, $horaFimForm) as $hora) {
-        $vagasParaJs[$hora] = contarVagasEnviadas(
-            ($_POST['vagas'] ?? [])[$hora] ?? []
+        $vagasParaJs[$hora] = quantidadeVagas(
+            ($_POST['vagas'] ?? [])[$hora] ?? 0
         );
     }
+// Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
 } else {
-    // Caso contrário (GET normal ou edição), usa as vagas já carregadas do banco
+    // Monta a estrutura de horários e quantidades que será enviada ao JavaScript da agenda-padrão.
     $vagasParaJs = $vagasEdicao;
 }
 
-// Define metadados da página usados pelo template de topo (título, item de menu ativo)
+// Define o título exibido na aba/navegador pelo template compartilhado.
 $tituloPagina = 'Agenda-padrão';
+// Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'agenda';
-require __DIR__ . '/includes/topo.php';
+// Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
+require __DIR__ . '/../includes/topo.php';
 ?>
 
 <div class="page agenda-page standard-schedule-page">
+    <!-- Bloco visual "page-heading agenda-heading" que organiza esta parte da interface. -->
     <div class="page-heading agenda-heading">
         <div>
             <a class="back-link" href="agenda.php">
@@ -402,20 +453,18 @@ require __DIR__ . '/includes/topo.php';
 
             <h1>Agenda-padrão de banho e tosa</h1>
             <small>
-                Cada quadradinho marcado representa uma vaga. Os horários são gerados de 30 em 30 minutos.
+                Os horários são gerados de 30 em 30 minutos e você informa a quantidade de vagas.
             </small>
         </div>
     </div>
 
     <?php if ($mensagem !== ''): ?>
-        <!-- Exibe a mensagem de feedback (sucesso ou erro) definida no processamento acima -->
         <div class="message <?= escapar($tipoMensagem) ?>">
             <?= escapar($mensagem) ?>
         </div>
     <?php endif; ?>
 
-    <!-- Formulário de criação/edição de agenda-padrão. A ação (criar/editar) e o método
-         são definidos dinamicamente conforme o modo atual da página -->
+    <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
     <form class="agenda-form-card" method="post" action="agenda-padrao.php">
         <input
             type="hidden"
@@ -423,7 +472,7 @@ require __DIR__ . '/includes/topo.php';
             value="<?= $editarId !== null ? 'editar_padrao' : 'criar_padrao' ?>">
 
         <?php if ($editarId !== null): ?>
-            <!-- Campo oculto com o ID da agenda-padrão, presente apenas em modo de edição -->
+            <!-- Campo "id" utilizado para enviar esta informação no formulário. -->
             <input type="hidden" name="id" value="<?= $editarId ?>">
         <?php endif; ?>
 
@@ -431,12 +480,11 @@ require __DIR__ . '/includes/topo.php';
             <div>
                 <h2><?= $editarId !== null ? 'Editar agenda-padrão' : 'Criar agenda-padrão' ?></h2>
                 <small>
-                    Não há separação por funcionário. Cada faixa pode ter de zero a cinco vagas.
+                    Não há separação por funcionário. Digite de 0 a 5 vagas para cada horário.
                 </small>
             </div>
 
             <?php if ($editarId !== null): ?>
-                <!-- Link para cancelar a edição e voltar ao modo de criação -->
                 <a href="agenda-padrao.php" aria-label="Cancelar edição">
                     <i class="fa-solid fa-xmark"></i>
                 </a>
@@ -444,9 +492,10 @@ require __DIR__ . '/includes/topo.php';
         </div>
 
         <div class="form-grid">
-            <!-- Seleção do dia da semana para o qual a agenda-padrão vale -->
             <div class="field span-4">
+                <!-- Rótulo do campo "Dia da semana", indicando ao usuário qual informação deve ser preenchida. -->
                 <label for="diaSemanaPadrao">Dia da semana</label>
+                <!-- Lista de seleção "dia_semana" com as opções válidas para este dado. -->
                 <select id="diaSemanaPadrao" name="dia_semana" required>
                     <option value="">Selecione</option>
 
@@ -460,8 +509,8 @@ require __DIR__ . '/includes/topo.php';
                 </select>
             </div>
 
-            <!-- Campo de hora inicial, em blocos de 30 minutos (step=1800 segundos) -->
             <div class="field span-2">
+                <!-- Rótulo do campo "Das", indicando ao usuário qual informação deve ser preenchida. -->
                 <label for="horaInicioPadrao">Das</label>
                 <input
                     id="horaInicioPadrao"
@@ -472,8 +521,8 @@ require __DIR__ . '/includes/topo.php';
                     required>
             </div>
 
-            <!-- Campo de hora final, também em blocos de 30 minutos -->
             <div class="field span-2">
+                <!-- Rótulo do campo "Até", indicando ao usuário qual informação deve ser preenchida. -->
                 <label for="horaFimPadrao">Até</label>
                 <input
                     id="horaFimPadrao"
@@ -484,8 +533,8 @@ require __DIR__ . '/includes/topo.php';
                     required>
             </div>
 
-            <!-- Data a partir da qual a agenda-padrão passa a valer -->
             <div class="field span-4">
+                <!-- Rótulo do campo "Começa a valer em", indicando ao usuário qual informação deve ser preenchida. -->
                 <label for="dataInicioPadrao">Começa a valer em</label>
                 <input
                     id="dataInicioPadrao"
@@ -495,9 +544,10 @@ require __DIR__ . '/includes/topo.php';
                     required>
             </div>
 
-            <!-- Tipo de duração: indeterminada ou até uma data específica -->
             <div class="field span-4">
+                <!-- Rótulo do campo "Duração do padrão", indicando ao usuário qual informação deve ser preenchida. -->
                 <label for="duracaoPadrao">Duração do padrão</label>
+                <!-- Lista de seleção "tipo_duracao" com as opções válidas para este dado. -->
                 <select id="duracaoPadrao" name="tipo_duracao" required>
                     <option
                         value="INDETERMINADO"
@@ -512,9 +562,8 @@ require __DIR__ . '/includes/topo.php';
                 </select>
             </div>
 
-            <!-- Campo de data final, exibido/obrigatório apenas quando a duração é "ATE_DATA"
-                 (controle de exibição feito via JavaScript mais abaixo) -->
             <div class="field span-4" id="dataFimPadraoBox">
+                <!-- Rótulo do campo "Válido até", indicando ao usuário qual informação deve ser preenchida. -->
                 <label for="dataFimPadrao">Válido até</label>
                 <input
                     id="dataFimPadrao"
@@ -523,8 +572,6 @@ require __DIR__ . '/includes/topo.php';
                     value="<?= escapar($dados['data_fim'] ?? '') ?>">
             </div>
 
-            <!-- Checkbox que define se a agenda-padrão está ativa; marcado por padrão
-                 quando não há dado prévio (nova agenda) -->
             <div class="checkbox-field span-4 standard-active-checkbox">
                 <input
                     id="ativoPadrao"
@@ -532,40 +579,27 @@ require __DIR__ . '/includes/topo.php';
                     type="checkbox"
                     value="1"
                     <?= !isset($dados['ativo']) || (int) $dados['ativo'] === 1 ? 'checked' : '' ?>>
+                <!-- Rótulo do campo "Agenda-padrão ativa", indicando ao usuário qual informação deve ser preenchida. -->
                 <label for="ativoPadrao">Agenda-padrão ativa</label>
             </div>
         </div>
 
-        <!-- Seção onde o usuário marca, para cada horário de 30 minutos,
-             quantas vagas (checkboxes de 1 a 5) estarão disponíveis.
-             A grade em si (#capacityGrid) é montada dinamicamente via JavaScript -->
+        <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
         <section class="capacity-editor">
             <div class="capacity-editor-heading">
                 <div>
                     <h3>Vagas por horário</h3>
                     <small>
-                        Exemplo: cinco quadradinhos marcados = cinco vagas disponíveis naquele bloco de 30 minutos.
+                        Digite quantas vagas ficam disponíveis em cada bloco de 30 minutos.
                     </small>
                 </div>
-
-                <!-- Botão que aciona o JS para marcar todas as vagas de todos os horários -->
-                <button class="secondary-action-button small" type="button" id="marcarTodasVagas">
-                    Marcar todas
-                </button>
             </div>
 
             <div class="capacity-grid-header">
                 <strong>Horário</strong>
-                <span>Vaga 1</span>
-                <span>Vaga 2</span>
-                <span>Vaga 3</span>
-                <span>Vaga 4</span>
-                <span>Vaga 5</span>
-                <strong>Total</strong>
+                <strong>Quantidade de vagas</strong>
             </div>
 
-            <!-- Container vazio: as linhas de horário/vagas são inseridas via JS
-                 (função renderizarGrade), com base no intervalo de hora início/fim -->
             <div id="capacityGrid" class="capacity-grid"></div>
         </section>
 
@@ -577,7 +611,7 @@ require __DIR__ . '/includes/topo.php';
         </div>
     </form>
 
-    <!-- Listagem de todas as agendas-padrão já cadastradas no sistema -->
+    <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
     <section class="agenda-section">
         <div class="agenda-section-title">
             <div>
@@ -588,7 +622,6 @@ require __DIR__ . '/includes/topo.php';
         </div>
 
         <?php if (!$padroes): ?>
-            <!-- Mensagem exibida quando não há nenhuma agenda-padrão cadastrada -->
             <div class="agenda-empty">
                 Nenhuma agenda-padrão foi criada.
             </div>
@@ -597,8 +630,8 @@ require __DIR__ . '/includes/topo.php';
                 <?php foreach ($padroes as $padrao): ?>
                     <?php $horariosPadrao = $horariosPorPadrao[(int) $padrao['id']] ?? []; ?>
 
-                    <!-- Card com o resumo de uma agenda-padrão: dia, horário, vigência e status -->
                     <article class="standard-pattern-card">
+                        <!-- Bloco visual "standard-pattern-summary" que organiza esta parte da interface. -->
                         <div class="standard-pattern-summary">
                             <div>
                                 <strong><?= escapar($diasSemana[(int) $padrao['dia_semana']] ?? '-') ?></strong>
@@ -617,12 +650,10 @@ require __DIR__ . '/includes/topo.php';
                                 </small>
                             </div>
 
-                            <!-- Selo indicando se a agenda-padrão está ativa ou inativa -->
                             <span class="status-badge <?= (int) $padrao['ativo'] === 1 ? 'success' : 'neutral' ?>">
                                 <?= (int) $padrao['ativo'] === 1 ? 'Ativa' : 'Inativa' ?>
                             </span>
 
-                            <!-- Ações rápidas: editar (link) e excluir (formulário com confirmação) -->
                             <div class="agenda-row-actions">
                                 <a
                                     class="icon-action-button edit"
@@ -631,11 +662,14 @@ require __DIR__ . '/includes/topo.php';
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
 
+                                <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
                                 <form
                                     method="post"
                                     action="agenda-padrao.php"
                                     onsubmit="return confirm('Excluir esta agenda-padrão?');">
+                                    <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
                                     <input type="hidden" name="acao" value="excluir_padrao">
+                                    <!-- Campo "id" utilizado para enviar esta informação no formulário. -->
                                     <input type="hidden" name="id" value="<?= (int) $padrao['id'] ?>">
                                     <button class="icon-action-button danger" type="submit" title="Excluir">
                                         <i class="fa-solid fa-trash"></i>
@@ -644,7 +678,6 @@ require __DIR__ . '/includes/topo.php';
                             </div>
                         </div>
 
-                        <!-- Detalhamento (recolhível) de cada horário de 30 minutos e suas vagas -->
                         <details class="standard-pattern-details">
                             <summary>Ver vagas de 30 em 30 minutos</summary>
 
@@ -653,16 +686,12 @@ require __DIR__ . '/includes/topo.php';
                                     <div class="pattern-preview-row">
                                         <strong><?= escapar(substr((string) $horario['horario'], 0, 5)) ?></strong>
 
-                                        <!-- Representação visual das vagas: bolinhas preenchidas
-                                             conforme a quantidade de vagas daquele horário -->
-                                        <div class="pattern-preview-dots">
-                                            <?php for ($vaga = 1; $vaga <= 5; $vaga++): ?>
-                                                <span class="<?= $vaga <= (int) $horario['quantidade_vagas'] ? 'active' : '' ?>"></span>
-                                            <?php endfor; ?>
-                                        </div>
+                                        <span class="pattern-vagas-number">
+                                            <?= (int) $horario['quantidade_vagas'] ?>
+                                        </span>
 
                                         <small>
-                                            <?= (int) $horario['quantidade_vagas'] ?> vaga(s)
+                                            vaga(s)
                                         </small>
                                     </div>
                                 <?php endforeach; ?>
@@ -675,59 +704,58 @@ require __DIR__ . '/includes/topo.php';
     </section>
 </div>
 
+<!-- Script responsável pelas interações desta parte da página no navegador. -->
 <script>
 (() => {
-    // Valores iniciais de vagas por horário (vindos do PHP), usados para pré-marcar
-    // os checkboxes da grade ao carregar a página (edição) ou após erro de validação
+    // Armazena em "valoresIniciais" um valor usado pela lógica executada no navegador.
     const valoresIniciais = <?= json_encode(
         $vagasParaJs,
         JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
     ) ?>;
 
-    // Referências aos elementos do formulário manipulados pelo script
+    // Obtém a referência do elemento "inicio" para ler ou alterar seu conteúdo/comportamento.
     const inicio = document.querySelector('#horaInicioPadrao');
+    // Obtém a referência do elemento "fim" para ler ou alterar seu conteúdo/comportamento.
     const fim = document.querySelector('#horaFimPadrao');
+    // Obtém a referência do elemento "grid" para ler ou alterar seu conteúdo/comportamento.
     const grid = document.querySelector('#capacityGrid');
-    const marcarTodas = document.querySelector('#marcarTodasVagas');
+    // Obtém a referência do elemento "tipoDuracao" para ler ou alterar seu conteúdo/comportamento.
     const tipoDuracao = document.querySelector('#duracaoPadrao');
+    // Obtém a referência do elemento "dataFimBox" para ler ou alterar seu conteúdo/comportamento.
     const dataFimBox = document.querySelector('#dataFimPadraoBox');
+    // Obtém a referência do elemento "dataFim" para ler ou alterar seu conteúdo/comportamento.
     const dataFim = document.querySelector('#dataFimPadrao');
 
-    // Se os elementos essenciais não existirem na página, interrompe a execução do script
+    // Verifica esta condição antes de alterar a interface ou continuar o processamento.
     if (!inicio || !fim || !grid) {
         return;
     }
 
-    // Converte uma hora no formato "HH:MM" para o total de minutos desde 00:00
+    // Armazena em "paraMinutos" um valor usado pela lógica executada no navegador.
     const paraMinutos = (hora) => {
         const [h, m] = hora.split(':').map(Number);
         return (h * 60) + m;
     };
 
-    // Converte um total de minutos de volta para o formato "HH:MM"
+    // Armazena em "paraHora" um valor usado pela lógica executada no navegador.
     const paraHora = (total) => {
+        // Armazena em "h" um valor usado pela lógica executada no navegador.
         const h = Math.floor(total / 60);
+        // Armazena em "m" um valor usado pela lógica executada no navegador.
         const m = total % 60;
         return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
     };
 
-    // Atualiza o texto de total de vagas marcadas em uma linha específica da grade
-    const atualizarTotalLinha = (linha) => {
-        const total = linha.querySelectorAll('input[type="checkbox"]:checked').length;
-        const texto = linha.querySelector('.capacity-total');
-        texto.textContent = `${total} vaga${total === 1 ? '' : 's'}`;
-    };
-
-    // Monta (ou remonta) toda a grade de horários/vagas com base no intervalo
-    // definido nos campos de hora início e hora fim
+    // Armazena em "renderizarGrade" um valor usado pela lógica executada no navegador.
     const renderizarGrade = () => {
+        // Armazena em "inicioMinutos" um valor usado pela lógica executada no navegador.
         const inicioMinutos = paraMinutos(inicio.value);
+        // Armazena em "fimMinutos" um valor usado pela lógica executada no navegador.
         const fimMinutos = paraMinutos(fim.value);
 
-        // Limpa a grade atual antes de reconstruir
         grid.innerHTML = '';
 
-        // Valida se o intervalo de horários é coerente (fim deve ser maior que início)
+        // Verifica esta condição antes de alterar a interface ou continuar o processamento.
         if (
             !Number.isFinite(inicioMinutos)
             || !Number.isFinite(fimMinutos)
@@ -738,109 +766,79 @@ require __DIR__ . '/includes/topo.php';
             return;
         }
 
-        // Itera de 30 em 30 minutos dentro do intervalo, criando uma linha para cada horário
         for (
+            // Armazena em "minutoAtual" um valor usado pela lógica executada no navegador.
             let minutoAtual = inicioMinutos;
             minutoAtual < fimMinutos;
             minutoAtual += 30
         ) {
+            // Armazena em "hora" um valor usado pela lógica executada no navegador.
             const hora = paraHora(minutoAtual);
-            // Define quantas vagas já estavam marcadas para esse horário (do PHP);
-            // se não houver valor prévio, assume o máximo (5) por padrão
+            // Armazena em "quantidadeInicial" um valor usado pela lógica executada no navegador.
             const quantidadeInicial =
                 Object.prototype.hasOwnProperty.call(valoresIniciais, hora)
                     ? Number(valoresIniciais[hora])
                     : 5;
 
-            // Cria a linha (row) da grade para este horário
+            // Armazena em "linha" um valor usado pela lógica executada no navegador.
             const linha = document.createElement('div');
             linha.className = 'capacity-grid-row';
 
-            // Coluna com o rótulo do horário (ex.: "09:00")
+            // Armazena em "horaElemento" um valor usado pela lógica executada no navegador.
             const horaElemento = document.createElement('strong');
             horaElemento.className = 'capacity-time';
             horaElemento.textContent = hora;
             linha.appendChild(horaElemento);
 
-            // Cria os 5 checkboxes de vaga para este horário (vaga 1 a vaga 5)
-            for (let vaga = 1; vaga <= 5; vaga++) {
-                const label = document.createElement('label');
-                label.className = 'capacity-check';
+            // Armazena em "input" um valor usado pela lógica executada no navegador.
+            const input = document.createElement('input');
+            input.className = 'capacity-number';
+            input.type = 'number';
+            input.name = `vagas[${hora}]`;
+            input.min = '0';
+            input.max = '5';
+            input.step = '1';
+            input.value = String(quantidadeInicial);
+            input.required = true;
+            input.setAttribute('aria-label', `Quantidade de vagas às ${hora}`);
 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                // Nome do campo no formato vagas[HH:MM][] para ser recebido como array no PHP
-                checkbox.name = `vagas[${hora}][]`;
-                checkbox.value = String(vaga);
-                // Marca o checkbox se o número da vaga estiver dentro da quantidade inicial
-                checkbox.checked = vaga <= quantidadeInicial;
-
-                const visual = document.createElement('span');
-                visual.textContent = String(vaga);
-
-                // Atualiza o total da linha sempre que um checkbox for alterado
-                checkbox.addEventListener('change', () => {
-                    atualizarTotalLinha(linha);
-                });
-
-                label.appendChild(checkbox);
-                label.appendChild(visual);
-                linha.appendChild(label);
-            }
-
-            // Coluna de total de vagas marcadas nesta linha (atualizada dinamicamente)
-            const total = document.createElement('strong');
-            total.className = 'capacity-total';
-            linha.appendChild(total);
-
+            linha.appendChild(input);
             grid.appendChild(linha);
-            // Calcula o total inicial assim que a linha é inserida na grade
-            atualizarTotalLinha(linha);
         }
     };
 
-    // Mostra/oculta e torna obrigatório (ou não) o campo de "Válido até"
-    // conforme a opção selecionada em "Duração do padrão"
+    // Armazena em "atualizarDuracao" um valor usado pela lógica executada no navegador.
     const atualizarDuracao = () => {
+        // Verifica esta condição antes de alterar a interface ou continuar o processamento.
         if (!tipoDuracao || !dataFimBox || !dataFim) {
             return;
         }
 
+        // Armazena em "ateData" um valor usado pela lógica executada no navegador.
         const ateData = tipoDuracao.value === 'ATE_DATA';
         dataFimBox.hidden = !ateData;
         dataFim.required = ateData;
 
-        // Se a duração voltar a ser indeterminada, limpa o valor da data final
+        // Verifica esta condição antes de alterar a interface ou continuar o processamento.
         if (!ateData) {
             dataFim.value = '';
         }
     };
 
-    // Sempre que a hora início ou hora fim mudar, a grade de vagas é reconstruída
+    // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
     inicio.addEventListener('change', renderizarGrade);
+    // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
     fim.addEventListener('change', renderizarGrade);
 
-    // Botão "Marcar todas": marca todos os checkboxes de vaga de todos os horários
-    if (marcarTodas) {
-        marcarTodas.addEventListener('click', () => {
-            grid.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-                checkbox.checked = true;
-            });
-
-            // Recalcula o total de cada linha após marcar tudo
-            grid.querySelectorAll('.capacity-grid-row').forEach(atualizarTotalLinha);
-        });
-    }
-
-    // Reage à troca do tipo de duração, exibindo/ocultando o campo de data final
+    // Verifica esta condição antes de alterar a interface ou continuar o processamento.
     if (tipoDuracao) {
+        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         tipoDuracao.addEventListener('change', atualizarDuracao);
     }
 
-    // Execução inicial ao carregar a página: monta a grade e ajusta o campo de duração
     renderizarGrade();
     atualizarDuracao();
 })();
 </script>
 
-<?php require __DIR__ . '/includes/rodape.php'; ?>
+<?php require __DIR__ . '/../includes/rodape.php'; ?>

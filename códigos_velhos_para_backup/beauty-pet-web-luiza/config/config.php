@@ -1,43 +1,36 @@
 <?php
-/**
- * ARQUIVO: config/config.php
- * RESPONSABILIDADE: Configuração central e funções compartilhadas.
- * Cria a conexão PDO, controla a sessão/usuário atual e concentra funções auxiliares usadas por cadastros, agenda, buscas e fechamento.
- *
- * Os comentários abaixo descrevem o motivo de cada etapa, os dados manipulados
- * e a relação entre interface, regras de negócio e banco de dados.
- */
 
-// CONFIGURAÇÃO GERAL DO BEAUTY PET
+// Define a URL base da aplicação web para o roteamento de assets e links
+define('BASE_URL', '/beautypet-web');
 
-$host = 'localhost';
-// Armazena em "banco" o valor necessário para as próximas etapas deste fluxo.
-$banco = 'beauty_pet';
-// Armazena em "usuarioBanco" o valor necessário para as próximas etapas deste fluxo.
-$usuarioBanco = 'root';
-// Armazena em "senhaBanco" o valor necessário para as próximas etapas deste fluxo.
-$senhaBanco = '';
+// Carrega a função responsável por ler o arquivo .env
+require_once __DIR__ . '/env.php';
 
-// Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
 try {
-    // Armazena em "pdo" o valor necessário para as próximas etapas deste fluxo.
+    // Carrega as variáveis de ambiente (onde a DATABASE_URL do Supabase deve estar)
+    carregarEnv(__DIR__ . '/.env');
+    $databaseUrl = $_ENV['DATABASE_URL'];
+    
+    // Extrai os dados da string de conexão nativa do Supabase
+    $dadosConexao = parse_url($databaseUrl);
+
+    // Cria a conexão PDO forçando o driver pgsql e sslmode requerido pelo Supabase
     $pdo = new PDO(
-        "mysql:host={$host};dbname={$banco};charset=utf8mb4",
-        $usuarioBanco,
-        $senhaBanco,
+        "pgsql:host={$dadosConexao['host']};port={$dadosConexao['port']};dbname=" . ltrim($dadosConexao['path'], '/') . ";sslmode=require",
+        $dadosConexao['user'],
+        $dadosConexao['pass'],
         [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
         ]
     );
-// Captura uma falha ocorrida no bloco anterior para desfazer operações e exibir uma mensagem controlada.
-} catch (PDOException $erro) {
-    // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
-    exit('Não foi possível conectar ao banco de dados: ' . $erro->getMessage());
-}
 
-// Funções usadas em várias páginas
+} catch (PDOException $erro) {
+    exit('Não foi possível conectar ao banco de dados: ' . $erro->getMessage());
+} catch (Exception $erro) {
+    exit('Erro na configuração de ambiente: ' . $erro->getMessage());
+}
 
 function escapar(?string $valor): string
 {
@@ -1439,4 +1432,267 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'trocar_
     header('Location: ' . $retorno);
     // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
     exit;
+}
+
+/**
+ * Converte valores numéricos booleanos (1/0) do banco para texto legível na interface.
+ */
+function textoBooleano(mixed $valor): string
+{
+    if ($valor === null || $valor === '') {
+        return 'Não informado';
+    }
+    return (int) $valor === 1 ? 'Sim' : 'Não';
+}
+
+/**
+ * Traduz a constante de porte do banco para o rótulo exibido ao cliente/funcionário.
+ */
+function nomePorte(?string $porte): string
+{
+    return match ($porte) {
+        'PEQUENO' => 'Pequeno',
+        'MEDIO'   => 'Médio',
+        'GRANDE'  => 'Grande',
+        default   => 'Não informado',
+    };
+}
+
+/**
+ * Traduz a constante de sexo do banco para exibição no frontend.
+ */
+function nomeSexo(?string $sexo): string
+{
+    return match ($sexo) {
+        'MACHO' => 'Macho',
+        'FEMEA' => 'Fêmea',
+        default => 'Não informado',
+    };
+}
+
+/**
+ * Calcula dinamicamente a idade atual do pet com base na data de nascimento cadastrada.
+ */
+function idadePet(?string $dataNascimento, bool $aproximada = false): string
+{
+    if ($dataNascimento === null || $dataNascimento === '') {
+        return 'Não informada';
+    }
+    try {
+        $idade = (new DateTime($dataNascimento))->diff(new DateTime());
+        $texto = $idade->y === 1 ? '1 ano' : $idade->y . ' anos';
+        return $aproximada ? 'Aproximadamente ' . $texto : $texto;
+    } catch (Throwable) {
+        return 'Não informada';
+    }
+}
+
+/**
+ * Monta o endereço em uma linha única omitindo campos vazios, ideal para listagens e cabeçalhos de OS.
+ */
+function enderecoCompleto(array $cliente): string
+{
+    $partes = [];
+    if (!empty($cliente['logradouro'])) {
+        $rua = $cliente['logradouro'];
+        if (!empty($cliente['numero'])) {
+            $rua .= ', ' . $cliente['numero'];
+        }
+        $partes[] = $rua;
+    }
+    if (!empty($cliente['bairro'])) {
+        $partes[] = $cliente['bairro'];
+    }
+    $cidadeEstado = trim(($cliente['cidade'] ?? '') . (!empty($cliente['estado']) ? ' - ' . $cliente['estado'] : ''));
+    if ($cidadeEstado !== '') {
+        $partes[] = $cidadeEstado;
+    }
+    return $partes ? implode(' • ', $partes) : 'Não informado';
+}
+
+/**
+ * Garante que a sessão inicie apenas uma vez para evitar logs de warning (Headers already sent).
+ */
+function iniciarSessao(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+}
+
+/**
+ * Mapeia o perfil de acesso interno do funcionário para exibição na tela.
+ */
+function nomePerfilUsuario(?string $perfil): string
+{
+    return match ($perfil) {
+        'ADMINISTRADOR' => 'Administradora',
+        'FUNCIONARIO'   => 'Funcionário(a)',
+        default         => 'Sem perfil',
+    };
+}
+
+/**
+ * Retorna os dados do funcionário logado. Destrói a sessão caso o usuário tenha sido inativado.
+ */
+function obterUsuarioAtual(PDO $pdo): ?array
+{
+    $usuarioId = $_SESSION['usuario_id'] ?? null;
+    if (!$usuarioId) return null;
+
+    $stmt = $pdo->prepare('SELECT id, nome, email, perfil, ativo FROM usuarios WHERE id = :id AND ativo = TRUE');
+    $stmt->execute([':id' => (int) $usuarioId]);
+    $usuario = $stmt->fetch();
+
+    if (!$usuario) {
+        unset($_SESSION['usuario_id']);
+        return null;
+    }
+    return $usuario;
+}
+
+/**
+ * Retorna a lista de todos os funcionários com acesso permitido ao painel web.
+ */
+function listarUsuariosAtivos(PDO $pdo): array
+{
+    return $pdo->query('SELECT id, nome, email, perfil FROM usuarios WHERE ativo = TRUE ORDER BY nome')->fetchAll();
+}
+
+/**
+ * Grava uma mensagem flash na sessão para notificar o usuário (ex: após redirecionamentos de POST).
+ */
+function definirMensagemUsuario(string $tipo, string $texto): void
+{
+    iniciarSessao();
+    $_SESSION['mensagem_usuario'] = ['tipo' => $tipo, 'texto' => $texto];
+}
+
+/**
+ * Lê e limpa imediatamente a mensagem flash, garantindo que seja exibida apenas na próxima renderização.
+ */
+function consumirMensagemUsuario(): ?array
+{
+    iniciarSessao();
+    $mensagem = $_SESSION['mensagem_usuario'] ?? null;
+    unset($_SESSION['mensagem_usuario']);
+    return is_array($mensagem) ? $mensagem : null;
+}
+
+/**
+ * Sanitiza o parâmetro de redirecionamento (retorno), prevenindo vulnerabilidades de Open Redirect.
+ */
+function paginaRetornoSegura(?string $pagina): string
+{
+    $pagina = trim((string) $pagina);
+    if ($pagina === '') return 'index.php';
+
+    $partes = parse_url($pagina);
+    $caminho = basename((string) ($partes['path'] ?? ''));
+    if (!preg_match('/^[a-zA-Z0-9_-]+\.php$/', $caminho)) return 'index.php';
+
+    return $caminho . (isset($partes['query']) && $partes['query'] !== '' ? '?' . $partes['query'] : '');
+}
+
+/**
+ * Validação rigorosa de formato de data SQL (Y-m-d) prevendo entradas maliciosas ou mal formatadas.
+ */
+function dataSqlValida(?string $data): bool
+{
+    if ($data === null || $data === '') return false;
+    $objeto = DateTime::createFromFormat('Y-m-d', $data);
+    return $objeto !== false && $objeto->format('Y-m-d') === $data;
+}
+
+/**
+ * Validação rigorosa de formato de hora SQL (H:i) prevendo entradas maliciosas ou mal formatadas.
+ */
+function horaSqlValida(?string $hora): bool
+{
+    if ($hora === null || $hora === '') return false;
+    $objeto = DateTime::createFromFormat('H:i', $hora);
+    return $objeto !== false && $objeto->format('H:i') === $hora;
+}
+
+/**
+ * Converte timestamp UTC/Banco para o formato visual da agenda do cliente (d/m/Y às H:i).
+ */
+function formatarDataHoraAgenda(?string $dataHora): string
+{
+    if ($dataHora === null || $dataHora === '') return 'Não informada';
+    try { return (new DateTime($dataHora))->format('d/m/Y à\s H:i'); } catch (Throwable) { return 'Não informada'; }
+}
+
+/**
+ * Extrai apenas o horário de um timestamp da agenda.
+ */
+function formatarHoraAgenda(?string $dataHora): string
+{
+    if ($dataHora === null || $dataHora === '') return '--:--';
+    try { return (new DateTime($dataHora))->format('H:i'); } catch (Throwable) { return '--:--'; }
+}
+
+/**
+ * Traduz o enum de status do Supabase para o texto legível.
+ */
+function nomeStatusAgendamento(?string $status): string
+{
+    return match ($status) {
+        'SOLICITADO'     => 'Solicitado',
+        'CONFIRMADO'     => 'Confirmado',
+        'RECUSADO'       => 'Recusado',
+        'CANCELADO'      => 'Cancelado',
+        'EM_ATENDIMENTO' => 'Em atendimento',
+        'CONCLUIDO'      => 'Concluído',
+        default          => 'Não informado',
+    };
+}
+
+/**
+ * Retorna classes utilitárias baseadas no status para renderizar badges visuais no painel e no App.
+ */
+function classeStatusAgendamento(?string $status): string
+{
+    return match ($status) {
+        'CONFIRMADO', 'CONCLUIDO' => 'success',
+        'EM_ATENDIMENTO'          => 'warning',
+        'SOLICITADO'              => 'info',
+        'RECUSADO', 'CANCELADO'   => 'danger',
+        default                   => 'neutral',
+    };
+}
+
+/**
+ * Sanitiza e remove acentuação/maiúsculas do texto para viabilizar buscas difusas de categorias de serviço.
+ */
+function normalizarCategoriaAgenda(?string $texto): string
+{
+    $texto = function_exists('mb_strtolower') ? mb_strtolower(trim((string)$texto), 'UTF-8') : strtolower(trim((string)$texto));
+    return strtr($texto, ['á'=>'a','à'=>'a','â'=>'a','ã'=>'a','ä'=>'a','é'=>'e','è'=>'e','ê'=>'e','ë'=>'e','í'=>'i','ì'=>'i','î'=>'i','ï'=>'i','ó'=>'o','ò'=>'o','ô'=>'o','õ'=>'o','ö'=>'o','ú'=>'u','ù'=>'u','û'=>'u','ü'=>'u','ç'=>'c']);
+}
+
+/**
+ * Avalia de forma agnóstica se a categoria do serviço está atrelada à operação de banho ou tosa.
+ */
+function ehBanhoTosa(?string $categoria, ?string $servico = null): bool
+{
+    $texto = normalizarCategoriaAgenda(trim((string) $categoria . ' ' . (string) $servico));
+    return str_contains($texto, 'banho') || str_contains($texto, 'tosa') || str_contains($texto, 'higien');
+}
+
+/**
+ * Formata os rótulos de categorização dos agendamentos para manter padronização visual.
+ */
+function nomeCategoriaAgenda(string $categoria): string
+{
+    $normalizada = normalizarCategoriaAgenda($categoria);
+    return match (true) {
+        str_contains($normalizada, 'taxi')    => 'Taxidog',
+        str_contains($normalizada, 'veterin') => 'Consulta veterinária',
+        str_contains($normalizada, 'banho'),
+        str_contains($normalizada, 'tosa')    => 'Banho e tosa',
+        str_contains($normalizada, 'creche')  => 'Creche',
+        str_contains($normalizada, 'hotel')   => 'Hotel',
+        default                               => $categoria,
+    };
 }

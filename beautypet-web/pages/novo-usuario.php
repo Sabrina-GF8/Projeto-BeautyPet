@@ -1,96 +1,114 @@
 <?php
-require __DIR__ . '/config.php';
-
+/**
+ * ARQUIVO: novo-usuario.php
+ * RESPONSABILIDADE: Criação de usuários do sistema web.
+ * Valida permissões, nome, e-mail, senha e perfil; cria o primeiro administrador e permite que administradores cadastrem outros usuários.
+ *
+ * Os comentários abaixo descrevem o motivo de cada etapa, os dados manipulados
+ * e a relação entre interface, regras de negócio e banco de dados.
+ */
+require __DIR__ . '/../config/config.php';
+// Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
 $mensagem = '';
+// Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
 $tipoMensagem = '';
+// Guarda os dados usados para preencher novamente o formulário, inclusive após erros de validação.
 $dados = $_POST;
+// Guarda a mensagem de erro específica relacionada à validação ou duplicidade de e-mail.
 $erroEmail = false;
 
-// Conta quantos usuários já existem no sistema
+// Conta os usuários cadastrados para decidir regras como a criação do primeiro administrador.
 $totalUsuarios = (int) $pdo
     ->query('SELECT COUNT(*) FROM usuarios')
+    // Obtém somente a primeira coluna do resultado, útil para contagens, IDs e totais simples.
     ->fetchColumn();
 
-// Verifica se este é o primeiro usuário do sistema
+// Armazena em "primeiroUsuario" o valor necessário para as próximas etapas deste fluxo.
 $primeiroUsuario = $totalUsuarios === 0;
-
-// Obtém o usuário atualmente logado
+// Armazena em "usuarioAtualPagina" o valor necessário para as próximas etapas deste fluxo.
 $usuarioAtualPagina = obterUsuarioAtual($pdo);
-
-// Permite criar usuário se for o primeiro cadastro
-// ou se o usuário atual for administrador
+// Guarda uma condição booleana em "podeCriar" para controlar o fluxo ou a exibição da página.
 $podeCriar = $primeiroUsuario
     || (($usuarioAtualPagina['perfil'] ?? null) === 'ADMINISTRADOR');
 
-// Processa o formulário somente quando enviado via POST
-// e quando o usuário possui permissão para criar contas
+// Executa o processamento abaixo somente quando algum formulário desta página foi enviado.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
+    // Guarda o nome informado no formulário após a normalização necessária.
     $nome = textoOuNull($_POST['nome'] ?? null);
+    // Guarda o e-mail informado para validação, autenticação ou cadastro.
     $email = textoOuNull($_POST['email'] ?? null);
-
-    // Normaliza o e-mail para evitar diferenças de maiúsculas e espaços
+    // Padroniza o e-mail antes de comparar ou salvar, evitando diferenças por espaços ou letras maiúsculas.
     $emailNormalizado = $email === null
         ? null
         : (function_exists('mb_strtolower')
             ? mb_strtolower(trim($email), 'UTF-8')
             : strtolower(trim($email)));
-
+    // Armazena em "senha" o valor necessário para as próximas etapas deste fluxo.
     $senha = (string) ($_POST['senha'] ?? '');
+    // Armazena em "confirmacao" o valor necessário para as próximas etapas deste fluxo.
     $confirmacao = (string) ($_POST['confirmar_senha'] ?? '');
-
-    // O primeiro usuário será sempre administrador
-    // Nos demais casos, o perfil vem do formulário
+    // Armazena em "perfil" o valor necessário para as próximas etapas deste fluxo.
     $perfil = $primeiroUsuario
         ? 'ADMINISTRADOR'
         : (string) ($_POST['perfil'] ?? '');
-
-    // O primeiro usuário fica ativo automaticamente
-    // Nos demais, depende do checkbox "ativo"
+    // Armazena em "ativo" o valor necessário para as próximas etapas deste fluxo.
     $ativo = $primeiroUsuario || isset($_POST['ativo']) ? 1 : 0;
 
-    // Verifica se os campos obrigatórios foram preenchidos
+    // Verifica a condição abaixo antes de executar este bloco.
     if ($nome === null || $email === null || $senha === '' || $confirmacao === '') {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Preencha todos os campos obrigatórios.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
-
-    // Verifica se o e-mail possui formato válido
+    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (!filter_var($emailNormalizado, FILTER_VALIDATE_EMAIL)) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Informe um e-mail válido.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
-
-    // Verifica o tamanho mínimo da senha
+    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (strlen($senha) < 8) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'A senha deve possuir pelo menos 8 caracteres.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
-
-    // Confirma se as senhas digitadas são iguais
+    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif ($senha !== $confirmacao) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'A confirmação da senha não corresponde.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
-
-    // Verifica se o perfil selecionado é permitido
+    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (!in_array($perfil, ['ADMINISTRADOR', 'FUNCIONARIO'], true)) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Selecione um perfil válido.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
-
+    // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
     } else {
+        // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
         try {
-            // Verifica se já existe outro usuário com o mesmo e-mail
+            // Armazena em "verificarEmail" o valor necessário para as próximas etapas deste fluxo.
             $verificarEmail = $pdo->prepare(
                 'SELECT id
                    FROM usuarios
                   WHERE LOWER(TRIM(email)) = :email
                   LIMIT 1'
             );
+            // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
             $verificarEmail->execute([':email' => $emailNormalizado]);
 
+            // Verifica a condição abaixo antes de executar este bloco.
             if ($verificarEmail->fetchColumn() !== false) {
-                // Impede o cadastro de e-mails duplicados
+                // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                 $mensagem = 'Já existe um usuário cadastrado com esse e-mail.';
+                // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                 $tipoMensagem = 'error';
+                // Guarda a mensagem de erro específica relacionada à validação ou duplicidade de e-mail.
                 $erroEmail = true;
+            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
             } else {
-                // Insere o novo usuário no banco de dados
+                // Prepara a inclusão de um novo registro em "usuarios" usando os valores já validados.
                 $stmt = $pdo->prepare(
                     'INSERT INTO usuarios (
                         nome,
@@ -107,112 +125,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
                     )'
                 );
 
+                // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                 $stmt->execute([
                     ':nome'       => $nome,
                     ':email'      => $emailNormalizado,
-
-                    // Armazena somente o hash da senha por segurança
                     ':senha_hash' => password_hash($senha, PASSWORD_DEFAULT),
-
                     ':perfil'     => $perfil,
                     ':ativo'      => $ativo,
                 ]);
 
-                // Recupera o ID do usuário recém-criado
+                // Armazena o identificador "novoId" utilizado para relacionar ou localizar o registro no banco.
                 $novoId = (int) $pdo->lastInsertId();
 
-                // Se for o primeiro usuário, inicia a sessão com ele
+                // Verifica a condição abaixo antes de executar este bloco.
                 if ($primeiroUsuario) {
                     $_SESSION['usuario_id'] = $novoId;
                 }
 
-                // Redireciona após salvar para evitar reenvio do formulário
+                // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
                 header('Location: novo-usuario.php?salvo=1');
+                // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
                 exit;
-            }
-        } catch (PDOException $erro) {
-            // Trata especificamente o erro de e-mail duplicado
+            }        } catch (PDOException $erro) {
+            // Verifica a condição abaixo antes de executar este bloco.
             if ((int) ($erro->errorInfo[1] ?? 0) === 1062) {
+                // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                 $mensagem = 'Já existe um usuário cadastrado com esse e-mail.';
+                // Guarda a mensagem de erro específica relacionada à validação ou duplicidade de e-mail.
                 $erroEmail = true;
+            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
             } else {
-                // Trata outros erros relacionados ao banco
+                // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                 $mensagem = 'Não foi possível criar o usuário.';
             }
+            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
         }
     }
 }
 
-// Exibe a mensagem após o cadastro realizado com sucesso
+// Verifica a condição abaixo antes de executar este bloco.
 if (isset($_GET['salvo'])) {
+    // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
     $mensagem = 'Usuário criado com sucesso!';
+    // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
     $tipoMensagem = 'success';
+    // Guarda os dados usados para preencher novamente o formulário, inclusive após erros de validação.
     $dados = [];
 }
 
-// Atualiza a quantidade de usuários exibida na página
+// Conta os usuários cadastrados para decidir regras como a criação do primeiro administrador.
 $totalUsuarios = (int) $pdo
     ->query('SELECT COUNT(*) FROM usuarios')
+    // Obtém somente a primeira coluna do resultado, útil para contagens, IDs e totais simples.
     ->fetchColumn();
 
+// Define o título exibido na aba/navegador pelo template compartilhado.
 $tituloPagina = 'Criar usuário';
+// Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'novo-usuario';
 
-// Carrega o cabeçalho padrão do sistema
-require __DIR__ . '/includes/topo.php';
+// Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
+require __DIR__ . '/../includes/topo.php';
 ?>
 
-<div class="page registration-page">
-    <div class="page-heading">
-        <div>
-            <h1>Criar usuário</h1>
-            <small>Cadastre administradores e funcionários do sistema.</small>
-        </div>
-
-        // Exibe a quantidade total de usuários cadastrados
-        <span class="counter">
-            <strong><?= $totalUsuarios ?></strong>
-            <?= $totalUsuarios === 1 ? 'usuário cadastrado' : 'usuários cadastrados' ?>
-        </span>
-    </div>
-
-    // Bloqueia o formulário caso o usuário não tenha permissão
-    <?php if (!$podeCriar): ?>
-        <div class="message error">
-            Somente um usuário administrador pode criar novas contas.
-        </div>
-    <?php else: ?>
-
-        // Exibe mensagens de erro ou sucesso
-        <?php if ($mensagem !== ''): ?>
-            <div class="message <?= escapar($tipoMensagem) ?>">
-                <?= escapar($mensagem) ?>
-            </div>
+<!-- Bloco visual "account-page-modal is-open" que organiza esta parte da interface. -->
+<div class="account-page-modal is-open">
+    <div class="account-dialog create-user-dialog" role="dialog" aria-modal="true" aria-labelledby="createUserTitle">
+        <?php if (!$primeiroUsuario): ?>
+            <a class="account-modal-close" href="index.php" aria-label="Fechar">
+                <i class="fa-solid fa-xmark"></i>
+            </a>
         <?php endif; ?>
 
-        // Formulário de cadastro do usuário
-        <form class="form-card user-registration-card" method="post" autocomplete="off">
-            <h2>Novo usuário</h2>
+        <div class="account-dialog-icon create">
+            <i class="fa-solid fa-user-plus"></i>
+        </div>
 
-            <section class="form-section">
-                <?php if ($primeiroUsuario): ?>
+        <h2 id="createUserTitle">Criar usuário</h2>
+        <p class="account-dialog-subtitle">
+            Cadastre uma nova conta para acessar o Beauty Pet.
+        </p>
 
-                    // Aviso exibido somente durante o primeiro cadastro
-                    <div class="first-user-notice">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <div>
-                            <strong>Primeiro acesso</strong>
-                            <span>O primeiro usuário será administrador e ficará ativo automaticamente.</span>
-                        </div>
+        <?php if (!$podeCriar): ?>
+            <div class="account-message error">
+                Somente um usuário administrador pode criar novas contas.
+            </div>
+
+            <a class="account-primary-button account-button-link" href="index.php">
+                Voltar ao sistema
+            </a>
+        <?php else: ?>
+            <?php if ($mensagem !== ''): ?>
+                <div class="account-message <?= escapar($tipoMensagem) ?>">
+                    <?= escapar($mensagem) ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($primeiroUsuario): ?>
+                <div class="account-first-access">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <div>
+                        <strong>Primeiro acesso</strong>
+                        <small>Esta conta será administradora e ficará ativa automaticamente.</small>
                     </div>
-                <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
-                <div class="form-grid">
-
-                    // Campo para o nome completo
-                    <div class="field span-6">
-                        <label for="nome">Nome completo</label>
+            <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
+            <form class="account-create-form" method="post" autocomplete="off">
+                <div class="account-field">
+                    <!-- Rótulo do campo "Nome completo", indicando ao usuário qual informação deve ser preenchida. -->
+                    <label for="nome">Nome completo</label>
+                    <div class="account-input-icon">
+                        <i class="fa-regular fa-user"></i>
                         <input
                             id="nome"
                             name="nome"
@@ -222,31 +248,32 @@ require __DIR__ . '/includes/topo.php';
                             autocomplete="name"
                             required>
                     </div>
+                </div>
 
-                    // Campo para o e-mail de acesso
-                    <div class="field span-6">
-                        <label for="email">E-mail de acesso</label>
+                <div class="account-field">
+                    <!-- Rótulo do campo "E-mail", indicando ao usuário qual informação deve ser preenchida. -->
+                    <label for="email">E-mail</label>
+                    <div class="account-input-icon <?= $erroEmail ? 'has-error' : '' ?>">
+                        <i class="fa-regular fa-envelope"></i>
                         <input
                             id="email"
                             name="email"
                             type="email"
-                            class="<?= $erroEmail ? 'input-error' : '' ?>"
-                            aria-invalid="<?= $erroEmail ? 'true' : 'false' ?>"
                             value="<?= escapar($dados['email'] ?? '') ?>"
                             placeholder="usuario@exemplo.com"
                             autocomplete="email"
                             required>
-
-                        <?php if ($erroEmail): ?>
-                            // Mensagem exibida quando o e-mail já está cadastrado
-                            <small class="field-error">Use outro e-mail para este usuário.</small>
-                        <?php endif; ?>
                     </div>
+                    <?php if ($erroEmail): ?>
+                        <small class="account-field-error">Use outro e-mail para este usuário.</small>
+                    <?php endif; ?>
+                </div>
 
-                    // Campo para criação da senha
-                    <div class="field span-6">
+                <div class="account-form-row">
+                    <div class="account-field">
+                        <!-- Rótulo do campo "Senha", indicando ao usuário qual informação deve ser preenchida. -->
                         <label for="senha">Senha</label>
-                        <div class="password-field">
+                        <div class="password-field account-password-field">
                             <input
                                 id="senha"
                                 name="senha"
@@ -255,8 +282,6 @@ require __DIR__ . '/includes/topo.php';
                                 placeholder="Mínimo de 8 caracteres"
                                 autocomplete="new-password"
                                 required>
-
-                            // Botão para mostrar ou ocultar a senha
                             <button class="toggle-password" type="button"
                                 data-password-target="senha" title="Mostrar ou ocultar senha">
                                 <i class="fa-regular fa-eye"></i>
@@ -264,39 +289,39 @@ require __DIR__ . '/includes/topo.php';
                         </div>
                     </div>
 
-                    // Campo para confirmar a senha
-                    <div class="field span-6">
+                    <div class="account-field">
+                        <!-- Rótulo do campo "Confirmar senha", indicando ao usuário qual informação deve ser preenchida. -->
                         <label for="confirmarSenha">Confirmar senha</label>
-                        <div class="password-field">
+                        <div class="password-field account-password-field">
                             <input
                                 id="confirmarSenha"
                                 name="confirmar_senha"
                                 type="password"
                                 minlength="8"
-                                placeholder="Digite a senha novamente"
+                                placeholder="Repita a senha"
                                 autocomplete="new-password"
                                 required>
-
-                            // Botão para mostrar ou ocultar a confirmação da senha
                             <button class="toggle-password" type="button"
                                 data-password-target="confirmarSenha" title="Mostrar ou ocultar senha">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    // Seleção do perfil do usuário
-                    <div class="field span-6">
+                <div class="account-form-row">
+                    <div class="account-field">
+                        <!-- Rótulo do campo "Tipo de usuário", indicando ao usuário qual informação deve ser preenchida. -->
                         <label for="perfil">Tipo de usuário</label>
-
                         <?php if ($primeiroUsuario): ?>
-
-                            // O primeiro usuário é obrigatoriamente administrador
+                            <!-- Campo "perfil" utilizado para enviar esta informação no formulário. -->
                             <input type="hidden" name="perfil" value="ADMINISTRADOR">
-                            <input type="text" value="Administrador" disabled>
-
+                            <div class="account-readonly-field">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                Administrador
+                            </div>
                         <?php else: ?>
-
+                            <!-- Lista de seleção "perfil" com as opções válidas para este dado. -->
                             <select id="perfil" name="perfil" required>
                                 <option value="">Selecione</option>
                                 <option value="ADMINISTRADOR"
@@ -311,11 +336,10 @@ require __DIR__ . '/includes/topo.php';
                         <?php endif; ?>
                     </div>
 
-                    // Controle para definir se a conta ficará ativa
-                    <div class="field span-6 user-status-field">
-                        <span class="field-label">Situação da conta</span>
-
-                        <label class="account-status-option" for="ativo">
+                    <div class="account-field">
+                        <span class="account-label">Situação da conta</span>
+                        <!-- Rótulo do campo "ativo", indicando ao usuário qual informação deve ser preenchida. -->
+                        <label class="account-active-option" for="ativo">
                             <input
                                 id="ativo"
                                 name="ativo"
@@ -323,32 +347,25 @@ require __DIR__ . '/includes/topo.php';
                                 value="1"
                                 <?= ($primeiroUsuario || isset($dados['ativo']) || !$dados) ? 'checked' : '' ?>
                                 <?= $primeiroUsuario ? 'disabled' : '' ?>>
-
                             <span>
                                 <strong>Usuário ativo</strong>
-                                <small>Pode aparecer no cartão de troca de usuário.</small>
+                                <small>Permitir acesso ao sistema</small>
                             </span>
                         </label>
-
                         <?php if ($primeiroUsuario): ?>
-
-                            // Como o checkbox está desabilitado, envia o valor através de um campo hidden
+                            <!-- Campo "ativo" utilizado para enviar esta informação no formulário. -->
                             <input type="hidden" name="ativo" value="1">
-
                         <?php endif; ?>
                     </div>
                 </div>
-            </section>
 
-            // Botão responsável pelo envio do cadastro
-            <div class="form-actions">
-                <button class="save-button" type="submit">
+                <button class="account-primary-button" type="submit">
                     <i class="fa-solid fa-user-plus"></i>
                     Criar usuário
                 </button>
-            </div>
-        </form>
-    <?php endif; ?>
+            </form>
+        <?php endif; ?>
+    </div>
 </div>
 
-<?php require __DIR__ . '/includes/rodape.php'; ?>
+<?php require __DIR__ . '/../includes/rodape.php'; ?>

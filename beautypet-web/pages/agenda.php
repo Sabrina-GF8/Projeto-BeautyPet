@@ -1,37 +1,81 @@
 <?php
-// Inclui configuração (conexão PDO, funções auxiliares) usada em toda a página
+
+/**
+ * ARQUIVO: agenda.php
+ * RESPONSABILIDADE: Agenda diária do sistema web.
+ * Cria, edita, exclui e altera o status dos agendamentos; separa os atendimentos por categoria; calcula disponibilidade de banho e tosa; exibe a agenda por dia.
+ *
+ * Os comentários abaixo descrevem o motivo de cada etapa, os dados manipulados
+ * e a relação entre interface, regras de negócio e banco de dados.
+ */
 require __DIR__ . '/../config/config.php';
-
-// Recupera o usuário logado atualmente
+// Recupera os dados do usuário autenticado para saber quem está operando o sistema.
 $usuarioAtual = obterUsuarioAtual($pdo);
-
-// ID do usuário atual (usado para registrar quem criou/alterou um agendamento)
+// Guarda somente o ID do usuário atual para registrar autoria das operações no banco.
 $usuarioId = isset($usuarioAtual['id']) ? (int) $usuarioAtual['id'] : null;
-
-// Flag que indica se o usuário logado é administrador
-// (controla exibição de links como "Agenda-padrão")
+// Indica se o usuário possui perfil de administrador e, portanto, acesso às funções restritas.
 $administrador = ($usuarioAtual['perfil'] ?? '') === 'ADMINISTRADOR';
 
-// Variáveis de mensagem de feedback (sucesso/erro) exibidas na página
+// Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
 $mensagem = '';
+// Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
 $tipoMensagem = '';
-
-// Data atualmente selecionada na agenda; vem da query string ou usa hoje como padrão
+// Define a data que a página irá consultar/exibir, usando a data recebida na URL ou o dia atual.
 $dataSelecionada = (string) ($_GET['data'] ?? date('Y-m-d'));
-
-// ID do agendamento a ser editado, se houver (via ?editar=ID)
+// Lê o identificador enviado pela URL para saber se a página está em modo de edição.
 $editarId = inteiroOuNull($_GET['editar'] ?? null);
 
 /**
- * Renderiza os botões de ação (editar, iniciar/concluir, excluir) de um agendamento.
- * Função auxiliar usada tanto na listagem compacta (creche/hotel) quanto nas tabelas
- * (banho e tosa, consulta, taxidog), evitando duplicar o HTML das ações.
+ * Transforma o nome textual da categoria em uma chave padronizada usada pela lógica e pela interface da agenda.
+ * Mantém esta regra isolada para evitar repetição e facilitar manutenção/testes.
+ */
+function chaveCategoriaAgenda(string $categoria): string
+{
+    // Armazena em "categoria" o valor necessário para as próximas etapas deste fluxo.
+    $categoria = normalizarCategoriaAgenda($categoria);
+
+    // Verifica a condição abaixo antes de executar este bloco.
+    if (str_contains($categoria, 'creche')) {
+        // Devolve o resultado calculado para o ponto que chamou esta função.
+        return 'creche';
+    }
+
+    // Verifica a condição abaixo antes de executar este bloco.
+    if (str_contains($categoria, 'hotel')) {
+        // Devolve o resultado calculado para o ponto que chamou esta função.
+        return 'hotel';
+    }
+
+    // Verifica a condição abaixo antes de executar este bloco.
+    if (str_contains($categoria, 'taxi')) {
+        // Devolve o resultado calculado para o ponto que chamou esta função.
+        return 'taxidog';
+    }
+
+    // Verifica a condição abaixo antes de executar este bloco.
+    if (str_contains($categoria, 'veterin') || str_contains($categoria, 'consulta')) {
+        // Devolve o resultado calculado para o ponto que chamou esta função.
+        return 'veterinario';
+    }
+
+    // Verifica a condição abaixo antes de executar este bloco.
+    if (ehBanhoTosa($categoria)) {
+        // Devolve o resultado calculado para o ponto que chamou esta função.
+        return 'banho_tosa';
+    }
+
+    // Devolve o resultado calculado para o ponto que chamou esta função.
+    return 'outro';
+}
+
+/**
+ * Gera os botões de editar, iniciar, concluir e excluir para um agendamento.
+ * Mantém esta regra isolada para evitar repetição e facilitar manutenção/testes.
  */
 function renderizarAcoesAgenda(array $item, string $dataSelecionada): void
 {
-    ?>
+?>
     <div class="agenda-row-actions">
-        <!-- Link para editar o agendamento, mantendo a data selecionada na URL -->
         <a
             class="icon-action-button edit"
             href="agenda.php?data=<?= escapar($dataSelecionada) ?>&editar=<?= (int) $item['id'] ?>"
@@ -40,103 +84,126 @@ function renderizarAcoesAgenda(array $item, string $dataSelecionada): void
         </a>
 
         <?php if ($item['status'] === 'CONFIRMADO'): ?>
-            <!-- Se o agendamento está confirmado, permite avançar para "Em atendimento" -->
+            <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
             <form method="post" action="agenda.php?data=<?= escapar($dataSelecionada) ?>">
+                <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="acao" value="alterar_status">
+                <!-- Campo "agendamento_id" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="agendamento_id" value="<?= (int) $item['id'] ?>">
+                <!-- Campo "status" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="status" value="EM_ATENDIMENTO">
                 <button class="small-action-button start" type="submit">Iniciar</button>
             </form>
         <?php elseif ($item['status'] === 'EM_ATENDIMENTO'): ?>
-            <!-- Se já está em atendimento, permite marcar como concluído -->
+            <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
             <form method="post" action="agenda.php?data=<?= escapar($dataSelecionada) ?>">
+                <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="acao" value="alterar_status">
+                <!-- Campo "agendamento_id" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="agendamento_id" value="<?= (int) $item['id'] ?>">
+                <!-- Campo "status" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="status" value="CONCLUIDO">
                 <button class="small-action-button finish" type="submit">Concluir</button>
             </form>
         <?php endif; ?>
 
-        <!-- Formulário de exclusão do agendamento, com confirmação via JS antes de enviar -->
+        <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
         <form
             method="post"
             action="agenda.php?data=<?= escapar($dataSelecionada) ?>"
             onsubmit="return confirm('Excluir este agendamento definitivamente?');">
+            <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
             <input type="hidden" name="acao" value="excluir_agendamento">
+            <!-- Campo "agendamento_id" utilizado para enviar esta informação no formulário. -->
             <input type="hidden" name="agendamento_id" value="<?= (int) $item['id'] ?>">
             <button class="icon-action-button danger" type="submit" title="Excluir">
                 <i class="fa-solid fa-trash"></i>
             </button>
         </form>
     </div>
-    <?php
+<?php
 }
 
-// Garante que a data selecionada seja válida; caso contrário, volta para o dia atual
+// Confere se a data recebida pela URL é válida; se não for, a página volta para a data atual.
 if (!dataSqlValida($dataSelecionada)) {
+    // Define a data que a página irá consultar/exibir, usando a data recebida na URL ou o dia atual.
     $dataSelecionada = date('Y-m-d');
 }
 
-// Se um ID de edição foi informado, busca os dados completos desse agendamento
+// Carrega o agendamento que será alterado para preencher o formulário com os dados atuais.
 $agendamentoEdicao = $editarId !== null
     ? buscarAgendamentoEdicao($pdo, $editarId)
     : null;
 
-// Se o agendamento informado não existir, avisa o usuário e volta ao modo de criação
+// Detecta quando foi solicitado editar um agendamento que não existe mais ou possui ID inválido.
 if ($editarId !== null && $agendamentoEdicao === null) {
+    // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
     $mensagem = 'O agendamento selecionado não foi encontrado.';
+    // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
     $tipoMensagem = 'error';
+    // Lê o identificador enviado pela URL para saber se a página está em modo de edição.
     $editarId = null;
 }
 
-// Bloco de processamento do formulário, executado apenas em requisições POST
+// Executa o processamento abaixo somente quando algum formulário desta página foi enviado.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Identifica a ação solicitada (criar, editar, alterar status ou excluir)
+    // Identifica qual ação o formulário solicitou para direcionar o processamento correto.
     $acao = (string) ($_POST['acao'] ?? '');
 
-    // Trata tanto criação quanto edição de agendamento
+    // Verifica a condição abaixo antes de executar este bloco.
     if (in_array($acao, ['criar_agendamento', 'editar_agendamento'], true)) {
-        // Se for edição, recupera o ID do agendamento enviado
+        // Guarda o ID do agendamento criado ou selecionado para edição, status ou exclusão.
         $agendamentoId = $acao === 'editar_agendamento'
             ? inteiroOuNull($_POST['agendamento_id'] ?? null)
             : null;
 
-        // Captura os dados enviados pelo formulário
+        // Converte o identificador do pet selecionado para um inteiro válido.
         $petId = inteiroOuNull($_POST['pet_id'] ?? null);
+        // Converte o identificador do serviço selecionado para um inteiro válido.
         $servicoId = inteiroOuNull($_POST['servico_id'] ?? null);
+        // Guarda o horário digitado manualmente para serviços que não utilizam a grade de banho e tosa.
         $horaManual = (string) ($_POST['hora'] ?? '');
+        // Guarda o horário escolhido dentro da grade de vagas de banho e tosa.
         $horaBanho = (string) ($_POST['hora_banho'] ?? '');
+        // Guarda a duração escolhida para o serviço, em minutos, para calcular quantos blocos de 30 minutos serão necessários.
         $duracaoMinutos = inteiroOuNull($_POST['duracao_minutos'] ?? null);
+        // Guarda a data de término quando o serviço ocupa mais de um dia, como ocorre no hotel.
         $dataFim = textoOuNull($_POST['data_fim'] ?? null);
+        // Guarda o horário de término quando o atendimento possui intervalo de início e fim.
         $horaFim = textoOuNull($_POST['hora_fim'] ?? null);
+        // Guarda observações informadas pela equipe para acompanhar o cadastro, agendamento ou lançamento.
         $observacoes = textoOuNull($_POST['observacoes'] ?? null);
 
-        // Busca os dados do serviço selecionado, para saber sua categoria/nome
+        // Carrega os dados do serviço selecionado para validar categoria, regras e comportamento do formulário.
         $servico = $servicoId !== null
             ? buscarServicoAgenda($pdo, $servicoId)
             : null;
 
+        // Impede continuar enquanto pet e serviço obrigatórios não tiverem sido selecionados corretamente.
         if ($petId === null || $servico === null) {
-            // Pet e serviço são obrigatórios para qualquer agendamento
+            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
             $mensagem = 'Selecione o pet e o serviço.';
+            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
+            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
         } else {
-            // Verifica se o serviço escolhido é do tipo "banho e tosa"
-            // (esse tipo de serviço usa vagas fixas de 30 em 30 minutos, diferente dos demais)
+            // Indica se o serviço selecionado pertence ao fluxo especial de banho e tosa com controle de vagas.
             $banhoTosa = ehBanhoTosa($servico['categoria'], $servico['nome']);
+            // Guarda o horário efetivo de início que será salvo no agendamento ou atendimento.
             $horaInicio = null;
+            // Guarda a data e hora completas de término do agendamento quando houver.
             $fim = null;
 
+            // Verifica a condição abaixo antes de executar este bloco.
             if ($banhoTosa) {
-                // Fluxo específico para banho e tosa: usa a agenda-padrão do dia
-                // para descobrir os horários e vagas disponíveis
+                // Armazena a configuração de agenda-padrão válida para a data que está sendo processada.
                 $padrao = buscarPadraoBanhoDaData($pdo, $dataSelecionada);
+                // Guarda os blocos de horário e a capacidade de vagas definidos na agenda-padrão.
                 $horariosPadrao = $padrao
                     ? buscarHorariosPadraoBanho($pdo, (int) $padrao['id'])
                     : [];
 
-                // Verifica quantas vagas já estão ocupadas em cada horário da agenda-padrão,
-                // ignorando o próprio agendamento em edição (para não contar ele mesmo)
+                // Guarda quantas vagas já estão ocupadas em cada horário para impedir sobreposição da capacidade.
                 $ocupacao = buscarOcupacaoBanhoTosa(
                     $pdo,
                     $dataSelecionada,
@@ -144,15 +211,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $agendamentoId
                 );
 
+                // Confere se existe uma agenda-padrão válida com horários configurados para a data escolhida.
                 if ($padrao === null || !$horariosPadrao) {
+                    // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                     $mensagem = 'Não existe agenda-padrão de banho e tosa para esta data.';
+                    // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                     $tipoMensagem = 'error';
+                    // Garante que a duração do banho e tosa tenha sido informada antes de calcular as vagas necessárias.
                 } elseif ($duracaoMinutos === null) {
+                    // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                     $mensagem = 'Selecione a duração do banho e tosa.';
+                    // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                     $tipoMensagem = 'error';
+                    // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
                 } else {
-                    // Confere se há vagas suficientes em todos os blocos de 30 minutos
-                    // necessários para cobrir a duração escolhida do serviço
                     [$disponivel, $erroVaga] = validarVagasBanhoTosa(
                         $horariosPadrao,
                         $ocupacao,
@@ -160,83 +232,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $duracaoMinutos
                     );
 
+                    // Bloqueia o agendamento quando algum dos blocos necessários não possui vaga disponível.
                     if (!$disponivel) {
+                        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                         $mensagem = $erroVaga;
+                        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                         $tipoMensagem = 'error';
+                        // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
                     } else {
+                        // Guarda o horário efetivo de início que será salvo no agendamento ou atendimento.
                         $horaInicio = $horaBanho;
-
-                        // Calcula automaticamente o horário de término somando
-                        // a duração selecionada ao horário de início
+                        // Armazena em "inicioTemporario" o valor necessário para as próximas etapas deste fluxo.
                         $inicioTemporario = new DateTime(
                             $dataSelecionada . ' ' . $horaBanho . ':00'
                         );
+                        // Guarda a data e hora completas de término do agendamento quando houver.
                         $fim = (clone $inicioTemporario)
                             ->modify('+' . $duracaoMinutos . ' minutes')
                             ->format('Y-m-d H:i:s');
                     }
                 }
+                // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
             } else {
-                // Fluxo para serviços que não são banho e tosa: horário definido manualmente
-                if (!horaSqlValida($horaManual)) {
-                    $mensagem = 'Informe um horário válido.';
-                    $tipoMensagem = 'error';
-                } else {
-                    $horaInicio = $horaManual;
+                // Armazena em "categoriaAgenda" o valor necessário para as próximas etapas deste fluxo.
+                $categoriaAgenda = chaveCategoriaAgenda((string) $servico['categoria']);
+
+                // Creche é um compromisso do dia: não precisa escolher horário.
+                if ($categoriaAgenda === 'creche') {
+                    // Guarda o horário efetivo de início que será salvo no agendamento ou atendimento.
+                    $horaInicio = '00:00';
                 }
 
-                // Validação do término opcional: se informado, data e hora devem ser
-                // ambos preenchidos e válidos (não pode ter um sem o outro)
-                if (
-                    $mensagem === ''
-                    && (
-                        ($dataFim !== null && !dataSqlValida($dataFim))
-                        || ($horaFim !== null && !horaSqlValida($horaFim))
-                        || (($dataFim === null) xor ($horaFim === null))
-                    )
-                ) {
-                    $mensagem = 'Para informar o término, preencha data e horário.';
-                    $tipoMensagem = 'error';
+                // Hotel trabalha com datas. O horário fica apenas técnico no banco.
+                elseif ($categoriaAgenda === 'hotel') {
+                    // Guarda o horário efetivo de início que será salvo no agendamento ou atendimento.
+                    $horaInicio = '00:00';
+
+                    // Verifica a condição abaixo antes de executar este bloco.
+                    if ($dataFim === null || !dataSqlValida($dataFim)) {
+                        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
+                        $mensagem = 'Informe a data de saída do hotel.';
+                        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
+                        $tipoMensagem = 'error';
+                        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
+                    } elseif ($dataFim < $dataSelecionada) {
+                        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
+                        $mensagem = 'A data de saída não pode ser anterior à entrada.';
+                        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
+                        $tipoMensagem = 'error';
+                        // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
+                    } else {
+                        // Guarda a data e hora completas de término do agendamento quando houver.
+                        $fim = $dataFim . ' 23:59:00';
+                    }
                 }
 
-                // Monta o timestamp de término, se data e hora de fim foram informadas
-                if ($mensagem === '' && $dataFim !== null && $horaFim !== null) {
-                    $fim = $dataFim . ' ' . $horaFim . ':00';
+                // Consulta e Taxidog não têm grade de vagas, mas podem ter horário manual.
+                else {
+                    // Verifica a condição abaixo antes de executar este bloco.
+                    if (!horaSqlValida($horaManual)) {
+                        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
+                        $mensagem = 'Informe um horário válido.';
+                        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
+                        $tipoMensagem = 'error';
+                        // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
+                    } else {
+                        // Guarda o horário efetivo de início que será salvo no agendamento ou atendimento.
+                        $horaInicio = $horaManual;
+                    }
                 }
             }
 
+            // Só continua para a próxima etapa quando nenhuma validação anterior gerou mensagem de erro.
             if ($mensagem === '' && $horaInicio !== null) {
-                // Monta o timestamp completo de início do agendamento
+                // Monta a data e hora completas de início no formato esperado pelo banco de dados.
                 $inicio = $dataSelecionada . ' ' . $horaInicio . ':00';
 
-                // Garante que o término (quando informado) seja depois do início
+                // Garante que o término seja realmente posterior ao início do atendimento.
                 if ($fim !== null && strtotime($fim) <= strtotime($inicio)) {
+                    // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                     $mensagem = 'O término deve ser posterior ao início.';
+                    // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                     $tipoMensagem = 'error';
+                    // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
                 } else {
+                    // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
                     try {
-                        // Confirma que o pet selecionado existe e está ativo antes de prosseguir
+                        // Prepara uma consulta em "pets" para carregar os dados necessários a esta etapa.
                         $stmt = $pdo->prepare(
                             'SELECT COUNT(*)
                              FROM pets
                              WHERE id = :id
                                AND ativo = TRUE'
                         );
+                        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                         $stmt->execute([':id' => $petId]);
 
+                        // Verifica a condição abaixo antes de executar este bloco.
                         if ((int) $stmt->fetchColumn() === 0) {
+                            // Interrompe este fluxo com uma exceção controlada porque a regra necessária não foi atendida.
                             throw new RuntimeException(
                                 'O pet selecionado não foi encontrado.'
                             );
                         }
 
-                        // Inicia transação: agendamento + item do agendamento devem
-                        // ser salvos juntos de forma consistente
+                        // Inicia uma transação para garantir que todas as alterações deste processo sejam salvas em conjunto.
                         $pdo->beginTransaction();
 
+                        // Verifica a condição abaixo antes de executar este bloco.
                         if ($acao === 'criar_agendamento') {
-                            // Insere um novo agendamento, já como CONFIRMADO
-                            // (agendamentos criados internamente pelo painel entram confirmados)
+                            // Prepara a inclusão de um novo registro em "agendamentos" usando os valores já validados.
                             $stmt = $pdo->prepare(
                                 'INSERT INTO agendamentos (
                                     pet_id,
@@ -257,6 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                  )'
                             );
 
+                            // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                             $stmt->execute([
                                 ':pet_id'      => $petId,
                                 ':inicio'      => $inicio,
@@ -267,18 +373,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ':criado_por'  => $usuarioId,
                             ]);
 
-                            // Recupera o ID gerado para inserir o item do agendamento em seguida
+                            // Guarda o ID do agendamento criado ou selecionado para edição, status ou exclusão.
                             $agendamentoId = (int) $pdo->lastInsertId();
+                            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
                         } else {
-                            // Edição exige um ID de agendamento válido
+                            // Valida a existência do identificador antes de alterar ou excluir um agendamento.
                             if ($agendamentoId === null) {
+                                // Interrompe este fluxo com uma exceção controlada porque a regra necessária não foi atendida.
                                 throw new RuntimeException(
                                     'Agendamento inválido para edição.'
                                 );
                             }
 
-                            // Atualiza os dados principais do agendamento
-                            // (não altera status/origem/criado_por na edição)
+                            // Prepara a inclusão de um novo registro em "agendamento_itens" usando os valores já validados.
                             $stmt = $pdo->prepare(
                                 'UPDATE agendamentos
                                  SET pet_id = :pet_id,
@@ -288,6 +395,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                  WHERE id = :id'
                             );
 
+                            // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                             $stmt->execute([
                                 ':pet_id'      => $petId,
                                 ':inicio'      => $inicio,
@@ -296,16 +404,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ':id'          => $agendamentoId,
                             ]);
 
-                            // Remove o(s) item(ns) de serviço anteriores, para recriá-los
-                            // logo abaixo com os dados atuais do formulário
+                            // Prepara a consulta SQL para receber parâmetros sem concatenar valores diretamente no comando.
                             $pdo->prepare(
                                 'DELETE FROM agendamento_itens
                                  WHERE agendamento_id = :id'
+                                // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                             )->execute([':id' => $agendamentoId]);
                         }
 
-                        // Insere o item de serviço vinculado a este agendamento
-                        // (tanto na criação quanto após recriar na edição)
+                        // Prepara a inclusão de um novo registro em "agendamento_itens" usando os valores já validados.
                         $stmt = $pdo->prepare(
                             'INSERT INTO agendamento_itens (
                                 agendamento_id,
@@ -318,39 +425,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              )'
                         );
 
+                        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                         $stmt->execute([
                             ':agendamento_id' => $agendamentoId,
                             ':servico_id'      => $servicoId,
                             ':observacoes'     => $observacoes,
                         ]);
 
-                        // Confirma a transação, persistindo agendamento + item juntos
+                        // Confirma a transação e grava definitivamente todas as alterações realizadas no bloco.
                         $pdo->commit();
 
-                        // Define o parâmetro de sucesso conforme a ação executada
+                        // Armazena em "parametro" o valor necessário para as próximas etapas deste fluxo.
                         $parametro = $acao === 'criar_agendamento'
                             ? 'salvo=1'
                             : 'editado=1';
 
-                        // Redireciona de volta à agenda do dia, evitando reenvio do form (padrão PRG)
+                        // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
                         header(
                             'Location: agenda.php?data='
-                            . urlencode($dataSelecionada)
-                            . '&'
-                            . $parametro
+                                . urlencode($dataSelecionada)
+                                . '&'
+                                . $parametro
                         );
+                        // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
                         exit;
+                        // Captura uma falha ocorrida no bloco anterior para desfazer operações e exibir uma mensagem controlada.
                     } catch (Throwable $erro) {
-                        // Desfaz a transação em caso de qualquer falha
+                        // Confere se existe uma transação aberta antes de tentar desfazê-la.
                         if ($pdo->inTransaction()) {
+                            // Desfaz as alterações da transação atual porque alguma etapa falhou.
                             $pdo->rollBack();
                         }
 
-                        // Usa a mensagem específica da exceção quando for RuntimeException,
-                        // senão exibe uma mensagem genérica de erro
+                        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                         $mensagem = $erro instanceof RuntimeException
                             ? $erro->getMessage()
                             : 'Não foi possível salvar o agendamento.';
+                        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                         $tipoMensagem = 'error';
                     }
                 }
@@ -358,21 +469,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Ação de alterar apenas o status de um agendamento (ex.: Iniciar, Concluir, Cancelar)
+    // Verifica a condição abaixo antes de executar este bloco.
     if ($acao === 'alterar_status') {
+        // Guarda o ID do agendamento criado ou selecionado para edição, status ou exclusão.
         $agendamentoId = inteiroOuNull($_POST['agendamento_id'] ?? null);
+        // Guarda o status solicitado e permite validar se a transição é aceita antes de atualizar o banco.
         $novoStatus = (string) ($_POST['status'] ?? '');
-        // Lista de status permitidos para alteração manual via este endpoint
+        // Armazena a coleção "statusPermitidos" carregada para ser percorrida e exibida/processada a seguir.
         $statusPermitidos = ['EM_ATENDIMENTO', 'CONCLUIDO', 'CANCELADO'];
 
+        // Verifica a condição abaixo antes de executar este bloco.
         if (
+            // Valida a existência do identificador antes de alterar ou excluir um agendamento.
             $agendamentoId === null
             || !in_array($novoStatus, $statusPermitidos, true)
         ) {
+            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
             $mensagem = 'Não foi possível atualizar esse agendamento.';
+            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
+            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
         } else {
-            // Atualiza o status e registra quem e quando fez a alteração
+            // Prepara a atualização do registro correspondente em "agendamentos" com os novos dados.
             $stmt = $pdo->prepare(
                 'UPDATE agendamentos
                  SET status = :status,
@@ -381,102 +499,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  WHERE id = :id'
             );
 
+            // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
             $stmt->execute([
                 ':status'     => $novoStatus,
                 ':usuario_id' => $usuarioId,
                 ':id'         => $agendamentoId,
             ]);
 
-            // Redireciona de volta à agenda do dia, indicando sucesso na atualização
+            // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
             header(
                 'Location: agenda.php?data='
-                . urlencode($dataSelecionada)
-                . '&atualizado=1'
+                    . urlencode($dataSelecionada)
+                    . '&atualizado=1'
             );
+            // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
             exit;
         }
     }
 
-    // Ação de exclusão definitiva de um agendamento
+    // Verifica a condição abaixo antes de executar este bloco.
     if ($acao === 'excluir_agendamento') {
+        // Guarda o ID do agendamento criado ou selecionado para edição, status ou exclusão.
         $agendamentoId = inteiroOuNull($_POST['agendamento_id'] ?? null);
 
+        // Valida a existência do identificador antes de alterar ou excluir um agendamento.
         if ($agendamentoId === null) {
+            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
             $mensagem = 'Agendamento inválido para exclusão.';
+            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
+            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
         } else {
+            // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
             try {
-                // Transação para excluir o agendamento e seus itens de forma consistente
+                // Inicia uma transação para garantir que todas as alterações deste processo sejam salvas em conjunto.
                 $pdo->beginTransaction();
 
-                // Remove primeiro os itens de serviço vinculados (dependência de chave estrangeira)
+                // Prepara a consulta SQL para receber parâmetros sem concatenar valores diretamente no comando.
                 $pdo->prepare(
                     'DELETE FROM agendamento_itens
                      WHERE agendamento_id = :id'
+                    // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                 )->execute([':id' => $agendamentoId]);
 
-                // Em seguida remove o agendamento propriamente dito
+                // Prepara a consulta SQL para receber parâmetros sem concatenar valores diretamente no comando.
                 $pdo->prepare(
                     'DELETE FROM agendamentos
                      WHERE id = :id'
+                    // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
                 )->execute([':id' => $agendamentoId]);
 
+                // Confirma a transação e grava definitivamente todas as alterações realizadas no bloco.
                 $pdo->commit();
 
-                // Redireciona indicando sucesso na exclusão
+                // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
                 header(
                     'Location: agenda.php?data='
-                    . urlencode($dataSelecionada)
-                    . '&excluido=1'
+                        . urlencode($dataSelecionada)
+                        . '&excluido=1'
                 );
+                // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
                 exit;
+                // Captura uma falha ocorrida no bloco anterior para desfazer operações e exibir uma mensagem controlada.
             } catch (Throwable) {
+                // Confere se existe uma transação aberta antes de tentar desfazê-la.
                 if ($pdo->inTransaction()) {
+                    // Desfaz as alterações da transação atual porque alguma etapa falhou.
                     $pdo->rollBack();
                 }
 
+                // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                 $mensagem = 'Não foi possível excluir o agendamento.';
+                // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                 $tipoMensagem = 'error';
             }
         }
     }
 }
 
-// Bloco que traduz os parâmetros de sucesso/erro vindos via GET (após redirecionamentos)
-// em mensagens amigáveis exibidas ao usuário
+// Trata os parâmetros da URL usados principalmente pdesara exibir mensagens após redirecionamentos.
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Verifica a condição abaixo antes de executar este bloco.
     if (isset($_GET['salvo'])) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Agendamento cadastrado com sucesso!';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'success';
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (isset($_GET['editado'])) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Agendamento atualizado com sucesso!';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'success';
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (isset($_GET['excluido'])) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Agendamento excluído com sucesso!';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'success';
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (isset($_GET['atualizado'])) {
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Status do agendamento atualizado.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'success';
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (isset($_GET['sem_permissao'])) {
-        // Mensagem exibida quando um usuário não-administrador tenta acessar agenda-padrao.php
+        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Somente administradores podem configurar a agenda-padrão.';
+        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
     }
 }
 
-// Lista de pets ativos (com seus tutores/clientes ativos) para popular o <select> do formulário
-$pets = $pdo->query(
-    'SELECT p.id, p.nome, c.nome AS tutor
-     FROM pets p
-     JOIN clientes c
-       ON c.id = p.cliente_id
-     WHERE p.ativo = TRUE
-       AND c.ativo = TRUE
-     ORDER BY p.nome, c.nome'
-)->fetchAll();
-
-// Lista de serviços ativos (exceto categoria "loja"), agrupados por categoria,
-// usada para popular o <select> de serviço no formulário
+// Reúne os serviços ativos disponíveis para seleção, classificação ou resumo.
 $servicos = $pdo->query(
     "SELECT
         s.id,
@@ -487,29 +623,28 @@ $servicos = $pdo->query(
        ON cs.id = s.categoria_id
      WHERE s.ativo = TRUE
        AND cs.ativo = TRUE
-       AND LOWER(cs.nome) <> 'loja'
+       AND LOWER(cs.nome) NOT IN ('loja', 'financeiro')
      ORDER BY cs.nome, s.nome"
+    // Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
 )->fetchAll();
 
-// Conta quantas solicitações de agendamento feitas pelo app mobile ainda estão pendentes
-// (exibido como badge no botão "Solicitações")
+// Calcula/armazena o total de "totalSolicitacoes" que será usado nos resumos e na interface.
 $totalSolicitacoes = (int) $pdo->query(
     "SELECT COUNT(*)
      FROM agendamentos
      WHERE origem = 'MOBILE'
        AND status = 'SOLICITADO'"
+    // Obtém somente a primeira coluna do resultado, útil para contagens, IDs e totais simples.
 )->fetchColumn();
 
-// Busca a agenda-padrão de banho e tosa vigente para a data selecionada
+// Armazena em "padraoBanho" o valor necessário para as próximas etapas deste fluxo.
 $padraoBanho = buscarPadraoBanhoDaData($pdo, $dataSelecionada);
-
-// Busca os horários (blocos de 30 min) e capacidades definidos nessa agenda-padrão
+// Armazena o horário "horariosPadraoBanho" utilizado na regra de agendamento/atendimento.
 $horariosPadraoBanho = $padraoBanho
     ? buscarHorariosPadraoBanho($pdo, (int) $padraoBanho['id'])
     : [];
 
-// Calcula quantas vagas já estão ocupadas em cada horário, considerando os agendamentos
-// já existentes na data (ignorando o próprio agendamento em edição, se houver)
+// Armazena em "ocupacaoBanho" o valor necessário para as próximas etapas deste fluxo.
 $ocupacaoBanho = buscarOcupacaoBanhoTosa(
     $pdo,
     $dataSelecionada,
@@ -517,11 +652,12 @@ $ocupacaoBanho = buscarOcupacaoBanhoTosa(
     $editarId
 );
 
-// Monta a estrutura de slots (horário, capacidade, ocupadas, restantes) que será
-// enviada ao JavaScript para montar dinamicamente o <select> de horários de banho e tosa
+// Armazena a coleção "slotsBanhoJs" carregada para ser percorrida e exibida/processada a seguir.
 $slotsBanhoJs = [];
 
+// Percorre cada item da coleção para processar os registros individualmente.
 foreach ($horariosPadraoBanho as $hora => $capacidade) {
+    // Armazena a coleção "ocupadas" carregada para ser percorrida e exibida/processada a seguir.
     $ocupadas = (int) ($ocupacaoBanho[$hora] ?? 0);
 
     $slotsBanhoJs[] = [
@@ -532,10 +668,7 @@ foreach ($horariosPadraoBanho as $hora => $capacidade) {
     ];
 }
 
-// Consulta principal: busca todos os agendamentos ativos (confirmado/em atendimento/concluído)
-// que ocorrem na data selecionada, incluindo dados do pet, tutor, endereço, serviços e categorias.
-// A condição de data cobre tanto agendamentos de dia único quanto os que têm intervalo
-// (ex.: hospedagem no hotel, que pode abranger vários dias)
+// Prepara uma consulta em "agendamentos" para carregar os dados necessários a esta etapa.
 $stmt = $pdo->prepare(
     "SELECT
         a.id,
@@ -555,8 +688,8 @@ $stmt = $pdo->prepare(
         c.cidade,
         c.estado,
         uc.nome AS registrado_por,
-        GROUP_CONCAT(DISTINCT s.nome ORDER BY s.nome SEPARATOR ', ') AS servicos,
-        GROUP_CONCAT(DISTINCT cs.nome ORDER BY cs.nome SEPARATOR ', ') AS categorias
+        STRING_AGG(DISTINCT s.nome, ', ' ORDER BY s.nome) AS servicos,
+        STRING_AGG(DISTINCT cs.nome, ', ' ORDER BY cs.nome) AS categorias
      FROM agendamentos a
      JOIN pets p
        ON p.id = a.pet_id
@@ -572,12 +705,12 @@ $stmt = $pdo->prepare(
        ON cs.id = s.categoria_id
      WHERE a.status IN ('CONFIRMADO', 'EM_ATENDIMENTO', 'CONCLUIDO')
        AND (
-            DATE(a.data_hora_inicio) = :data_inicio
+            a.data_hora_inicio::date = :data_inicio
             OR (
                 a.data_hora_fim IS NOT NULL
                 AND :data_intervalo BETWEEN
-                    DATE(a.data_hora_inicio)
-                    AND DATE(a.data_hora_fim)
+                    a.data_hora_inicio::date
+                    AND a.data_hora_fim::date
             )
        )
      GROUP BY
@@ -601,15 +734,16 @@ $stmt = $pdo->prepare(
      ORDER BY a.data_hora_inicio, p.nome"
 );
 
+// Executa a instrução preparada enviando os parâmetros de forma separada e segura.
 $stmt->execute([
     ':data_inicio'    => $dataSelecionada,
     ':data_intervalo' => $dataSelecionada,
 ]);
 
+// Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
 $agendamentos = $stmt->fetchAll();
 
-// Estrutura que agrupará os agendamentos por tipo de serviço, para exibição
-// em seções separadas (creche, hotel, banho e tosa, veterinário, taxidog)
+// Armazena a coleção "grupos" carregada para ser percorrida e exibida/processada a seguir.
 $grupos = [
     'creche'      => [],
     'hotel'       => [],
@@ -618,166 +752,176 @@ $grupos = [
     'taxidog'     => [],
 ];
 
-// Classifica cada agendamento em um dos grupos acima, com base no texto combinado
-// de categorias + nomes de serviços (normalizado para comparação simples por substring)
+// Percorre cada item da coleção para processar os registros individualmente.
 foreach ($agendamentos as $agendamento) {
+    // Armazena em "identificacao" o valor necessário para as próximas etapas deste fluxo.
     $identificacao = normalizarCategoriaAgenda(
         ($agendamento['categorias'] ?? '')
-        . ' '
-        . ($agendamento['servicos'] ?? '')
+            . ' '
+            . ($agendamento['servicos'] ?? '')
     );
 
-    // Agendamentos de "loja" não fazem parte da agenda operacional, são ignorados aqui
+    // Verifica a condição abaixo antes de executar este bloco.
     if (str_contains($identificacao, 'loja')) {
         continue;
     }
 
+    // Verifica a condição abaixo antes de executar este bloco.
     if (str_contains($identificacao, 'hotel')) {
         $grupos['hotel'][] = $agendamento;
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (str_contains($identificacao, 'creche')) {
         $grupos['creche'][] = $agendamento;
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (
         str_contains($identificacao, 'taxi')
         || str_contains($identificacao, 'taxidog')
     ) {
         $grupos['taxidog'][] = $agendamento;
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (
         str_contains($identificacao, 'veterin')
         || str_contains($identificacao, 'consulta')
     ) {
         $grupos['veterinario'][] = $agendamento;
+        // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (ehBanhoTosa($identificacao)) {
         $grupos['banho_tosa'][] = $agendamento;
     }
 }
 
-// Calcula a data do dia anterior, usada no botão de navegação "<"
+// Calcula a data anterior para permitir navegar para o período precedente.
 $dataAnterior = (new DateTime($dataSelecionada))
     ->modify('-1 day')
     ->format('Y-m-d');
 
-// Calcula a data do dia seguinte, usada no botão de navegação ">"
+// Calcula a data seguinte para permitir navegar para o próximo período.
 $dataSeguinte = (new DateTime($dataSelecionada))
     ->modify('+1 day')
     ->format('Y-m-d');
 
-// Determina se o formulário de agendamento deve ser exibido:
-// quando o usuário clicou em "Novo agendamento", está editando um existente,
-// ou quando houve um erro de validação (para o usuário corrigir os dados)
+// Guarda uma condição booleana em "mostrarFormulario" para controlar o fluxo ou a exibição da página.
 $mostrarFormulario = isset($_GET['novo'])
     || $editarId !== null
     || ($mensagem !== '' && $tipoMensagem === 'error');
 
-// Fonte dos dados para preencher o formulário quando em modo de edição
+// Armazena em "dadosFormulario" o valor necessário para as próximas etapas deste fluxo.
 $dadosFormulario = $agendamentoEdicao ?? [];
 
-// Serviço selecionado no formulário: prioriza o valor reenviado via POST (erro de validação),
-// senão usa o valor vindo do agendamento em edição
+// Preserva o valor selecionado de "servicoSelecionado" para preencher o formulário corretamente.
 $servicoSelecionado = (string) (
     $_POST['servico_id']
     ?? $dadosFormulario['servico_id']
     ?? ''
 );
 
-// Pet selecionado no formulário, com a mesma lógica de prioridade acima
+// Preserva o valor selecionado de "petSelecionado" para preencher o formulário corretamente.
 $petSelecionado = (string) (
     $_POST['pet_id']
     ?? $dadosFormulario['pet_id']
     ?? ''
 );
 
-// Horário manual (para serviços que não são banho e tosa), extraído do timestamp de início
-// quando vindo de um agendamento existente em edição
+// Preserva o valor selecionado de "petSelecionadoId" para preencher o formulário corretamente.
+$petSelecionadoId = inteiroOuNull($petSelecionado);
+// Preserva o valor selecionado de "petBuscaSelecionado" para preencher o formulário corretamente.
+$petBuscaSelecionado = buscarPetParaCampo($pdo, $petSelecionadoId);
+// Preserva o valor selecionado de "rotuloPetSelecionado" para preencher o formulário corretamente.
+$rotuloPetSelecionado = $petBuscaSelecionado
+    ? $petBuscaSelecionado['nome'] . ' — ' . $petBuscaSelecionado['tutor']
+    : '';
+
+// Preserva o valor selecionado de "horaManualSelecionada" para preencher o formulário corretamente.
 $horaManualSelecionada = (string) (
     $_POST['hora']
     ?? (
         !empty($dadosFormulario['data_hora_inicio'])
-            ? substr((string) $dadosFormulario['data_hora_inicio'], 11, 5)
-            : ''
+        ? substr((string) $dadosFormulario['data_hora_inicio'], 11, 5)
+        : ''
     )
 );
 
-// Horário de banho e tosa selecionado, seguindo a mesma lógica do campo manual acima
+// Preserva o valor selecionado de "horaBanhoSelecionada" para preencher o formulário corretamente.
 $horaBanhoSelecionada = (string) (
     $_POST['hora_banho']
     ?? (
         !empty($dadosFormulario['data_hora_inicio'])
-            ? substr((string) $dadosFormulario['data_hora_inicio'], 11, 5)
-            : ''
+        ? substr((string) $dadosFormulario['data_hora_inicio'], 11, 5)
+        : ''
     )
 );
 
-// Duração (em minutos) do serviço de banho e tosa: calculada a partir da diferença
-// entre início e fim do agendamento em edição, ou 60 minutos como padrão
+// Preserva o valor selecionado de "duracaoSelecionada" para preencher o formulário corretamente.
 $duracaoSelecionada = (int) (
     $_POST['duracao_minutos']
     ?? (
         !empty($dadosFormulario['data_hora_inicio'])
         && !empty($dadosFormulario['data_hora_fim'])
-            ? max(
-                30,
-                (int) (
-                    (
-                        strtotime((string) $dadosFormulario['data_hora_fim'])
-                        - strtotime((string) $dadosFormulario['data_hora_inicio'])
-                    ) / 60
-                )
+        ? max(
+            30,
+            (int) (
+                (
+                    strtotime((string) $dadosFormulario['data_hora_fim'])
+                    - strtotime((string) $dadosFormulario['data_hora_inicio'])
+                ) / 60
             )
-            : 60
+        )
+        : 60
     )
 );
 
-// Data de término (para serviços manuais com intervalo), extraída do agendamento em edição
+// Preserva o valor selecionado de "dataFimSelecionada" para preencher o formulário corretamente.
 $dataFimSelecionada = (string) (
     $_POST['data_fim']
     ?? (
         !empty($dadosFormulario['data_hora_fim'])
-            ? substr((string) $dadosFormulario['data_hora_fim'], 0, 10)
-            : ''
+        ? substr((string) $dadosFormulario['data_hora_fim'], 0, 10)
+        : ''
     )
 );
 
-// Horário de término (para serviços manuais com intervalo), extraído do agendamento em edição
+// Preserva o valor selecionado de "horaFimSelecionada" para preencher o formulário corretamente.
 $horaFimSelecionada = (string) (
     $_POST['hora_fim']
     ?? (
         !empty($dadosFormulario['data_hora_fim'])
-            ? substr((string) $dadosFormulario['data_hora_fim'], 11, 5)
-            : ''
+        ? substr((string) $dadosFormulario['data_hora_fim'], 11, 5)
+        : ''
     )
 );
 
-// Texto de observações do agendamento, vindo do POST ou do registro em edição
+// Armazena a coleção "observacoesSelecionadas" carregada para ser percorrida e exibida/processada a seguir.
 $observacoesSelecionadas = (string) (
     $_POST['observacoes']
     ?? $dadosFormulario['observacoes_internas']
     ?? ''
 );
 
-// Metadados da página usados pelo template de topo (título da aba, item de menu ativo)
+// Define o título exibido na aba/navegador pelo template compartilhado.
 $tituloPagina = 'Agenda';
+// Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'agenda';
+// Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php';
 ?>
 
-<div class="page agenda-page">
+<div class="page agenda-page google-agenda-page">
+    <!-- Bloco visual "page-heading agenda-heading" que organiza esta parte da interface. -->
     <div class="page-heading agenda-heading">
         <div>
             <h1>Agenda</h1>
-            <small>Organize os serviços confirmados do Beauty Pet.</small>
+            <small>Clique em um horário ou em uma categoria para adicionar um agendamento.</small>
         </div>
 
+        <!-- Bloco visual "agenda-heading-actions" que organiza esta parte da interface. -->
         <div class="agenda-heading-actions">
             <?php if ($administrador): ?>
-                <!-- Link para a página de agenda-padrão, visível apenas para administradores -->
                 <a class="secondary-action-button" href="agenda-padrao.php">
-                    <i class="fa-solid fa-clock"></i>
+                    <i class="fa-solid fa-sliders"></i>
                     Agenda-padrão
                 </a>
             <?php endif; ?>
 
-            <!-- Link para a lista de solicitações de agendamento (feitas pelo app mobile),
-                 exibindo um contador quando há solicitações pendentes -->
             <a class="secondary-action-button" href="solicitacoes-agendamento.php">
                 <i class="fa-solid fa-calendar-check"></i>
                 Solicitações
@@ -785,127 +929,354 @@ require __DIR__ . '/../includes/topo.php';
                     <span class="request-count"><?= $totalSolicitacoes ?></span>
                 <?php endif; ?>
             </a>
-
-            <!-- Botão que abre o formulário de novo agendamento, mantendo a data atual -->
-            <a
-                class="primary-action-button"
-                href="agenda.php?data=<?= escapar($dataSelecionada) ?>&novo=1">
-                <i class="fa-solid fa-plus"></i>
-                Novo agendamento
-            </a>
         </div>
     </div>
 
     <?php if ($mensagem !== ''): ?>
-        <!-- Exibe a mensagem de feedback (sucesso ou erro) processada anteriormente -->
         <div class="message <?= escapar($tipoMensagem) ?>">
             <?= escapar($mensagem) ?>
         </div>
     <?php endif; ?>
 
-    <!-- Barra de navegação de datas: dia anterior, seletor de data, dia seguinte -->
-    <div class="agenda-date-bar">
-        <a href="agenda.php?data=<?= escapar($dataAnterior) ?>" title="Dia anterior">
-            <i class="fa-solid fa-chevron-left"></i>
-        </a>
+    <div class="google-calendar-toolbar">
+        <a class="calendar-today-button" href="agenda.php?data=<?= escapar(date('Y-m-d')) ?>">Hoje</a>
 
-        <form method="get" action="agenda.php">
-            <label for="dataAgenda">Data da agenda</label>
-            <input id="dataAgenda" name="data" type="date"
-                value="<?= escapar($dataSelecionada) ?>">
+        <div class="calendar-nav-buttons">
+            <a href="agenda.php?data=<?= escapar($dataAnterior) ?>" aria-label="Dia anterior">
+                <i class="fa-solid fa-chevron-left"></i>
+            </a>
+            <a href="agenda.php?data=<?= escapar($dataSeguinte) ?>" aria-label="Dia seguinte">
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
+        <form class="calendar-date-form" method="get" action="agenda.php">
+            <!-- Rótulo do campo "Data", indicando ao usuário qual informação deve ser preenchida. -->
+            <label for="dataAgenda">Data</label>
+            <!-- Campo "data" utilizado para enviar esta informação no formulário. -->
+            <input id="dataAgenda" name="data" type="date" value="<?= escapar($dataSelecionada) ?>">
             <button type="submit">Abrir</button>
         </form>
 
-        <a href="agenda.php?data=<?= escapar($dataSeguinte) ?>" title="Dia seguinte">
-            <i class="fa-solid fa-chevron-right"></i>
-        </a>
+        <strong class="calendar-date-title">
+            <?= escapar(formatarData($dataSelecionada)) ?>
+        </strong>
     </div>
 
-    <?php if ($mostrarFormulario): ?>
-        <!-- Formulário de criação/edição de agendamento, exibido condicionalmente -->
+    <?php
+    // Armazena em "banhosPorHora" o valor necessário para as próximas etapas deste fluxo.
+    $banhosPorHora = [];
+
+    // Percorre cada item da coleção para processar os registros individualmente.
+    foreach ($grupos['banho_tosa'] as $itemBanho) {
+        // Armazena o horário "horaItem" utilizado na regra de agendamento/atendimento.
+        $horaItem = substr((string) $itemBanho['data_hora_inicio'], 11, 5);
+        $banhosPorHora[$horaItem][] = $itemBanho;
+    }
+    ?>
+
+    <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
+    <section class="google-calendar-card bath-calendar-card">
+        <div class="google-calendar-card-header">
+            <div>
+                <span class="calendar-category-icon"><i class="fa-solid fa-scissors"></i></span>
+                <div>
+                    <h2>Banho e tosa</h2>
+                    <small>Clique em um horário livre para agendar.</small>
+                </div>
+            </div>
+            <span class="calendar-count"><?= count($grupos['banho_tosa']) ?> agendamento(s)</span>
+        </div>
+
+        <?php if (!$horariosPadraoBanho): ?>
+            <div class="calendar-no-schedule">
+                <i class="fa-regular fa-calendar-xmark"></i>
+                <div>
+                    <strong>Sem horários configurados para esta data.</strong>
+                    <small>Cadastre a agenda-padrão para liberar os horários de banho e tosa.</small>
+                </div>
+                <?php if ($administrador): ?>
+                    <a href="agenda-padrao.php">Configurar</a>
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <div class="google-time-grid">
+                <?php foreach ($slotsBanhoJs as $slot): ?>
+                    <?php
+                    // Armazena o horário "horaSlot" utilizado na regra de agendamento/atendimento.
+                    $horaSlot = (string) $slot['hora'];
+                    // Armazena em "restantesSlot" o valor necessário para as próximas etapas deste fluxo.
+                    $restantesSlot = (int) $slot['restantes'];
+                    // Armazena em "itensDoHorario" o valor necessário para as próximas etapas deste fluxo.
+                    $itensDoHorario = $banhosPorHora[$horaSlot] ?? [];
+                    ?>
+                    <div class="google-time-row <?= $restantesSlot <= 0 ? 'is-full' : '' ?>">
+                        <div class="google-time-label"><?= escapar($horaSlot) ?></div>
+
+                        <div class="google-time-content">
+                            <?php if ($itensDoHorario): ?>
+                                <div class="time-events">
+                                    <?php foreach ($itensDoHorario as $item): ?>
+                                        <?php
+                                        // Armazena em "duracaoItem" o valor necessário para as próximas etapas deste fluxo.
+                                        $duracaoItem = null;
+                                        // Verifica a condição abaixo antes de executar este bloco.
+                                        if (!empty($item['data_hora_fim'])) {
+                                            // Armazena em "duracaoItem" o valor necessário para as próximas etapas deste fluxo.
+                                            $duracaoItem = (int) ((
+                                                strtotime((string) $item['data_hora_fim'])
+                                                - strtotime((string) $item['data_hora_inicio'])
+                                            ) / 60);
+                                        }
+                                        ?>
+                                        <article class="calendar-event bath-event">
+                                            <div class="calendar-event-main">
+                                                <strong><?= escapar($item['pet']) ?></strong>
+                                                <span><?= escapar($item['servicos'] ?: 'Banho e tosa') ?></span>
+                                                <small>
+                                                    <?= escapar($item['tutor']) ?>
+                                                    <?php if ($duracaoItem !== null): ?>
+                                                        • <?= escapar(formatarDuracaoAgenda($duracaoItem)) ?>
+                                                    <?php endif; ?>
+                                                </small>
+                                            </div>
+
+                                            <span class="status-badge <?= escapar(classeStatusAgendamento($item['status'])) ?>">
+                                                <?= escapar(nomeStatusAgendamento($item['status'])) ?>
+                                            </span>
+
+                                            <?php renderizarAcoesAgenda($item, $dataSelecionada); ?>
+                                        </article>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <button
+                                class="time-add-button"
+                                type="button"
+                                data-open-agenda
+                                data-category="banho_tosa"
+                                data-time="<?= escapar($horaSlot) ?>"
+                                <?= $restantesSlot <= 0 ? 'disabled' : '' ?>>
+                                <?php if ($restantesSlot > 0): ?>
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Adicionar</span>
+                                    <small><?= $restantesSlot ?> vaga(s) livre(s)</small>
+                                <?php else: ?>
+                                    <span>Lotado</span>
+                                <?php endif; ?>
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </section>
+
+    <?php
+    // Armazena em "categoriasDia" o valor necessário para as próximas etapas deste fluxo.
+    $categoriasDia = [
+        'creche' => [
+            'titulo' => 'Creche',
+            'icone' => 'fa-solid fa-house',
+            'itens' => $grupos['creche'],
+            'textoAdicionar' => 'Adicionar pet na creche',
+            'vazio' => 'Nenhum pet na creche nesta data.',
+        ],
+        'hotel' => [
+            'titulo' => 'Hotel',
+            'icone' => 'fa-solid fa-hotel',
+            'itens' => $grupos['hotel'],
+            'textoAdicionar' => 'Adicionar hospedagem',
+            'vazio' => 'Nenhuma hospedagem nesta data.',
+        ],
+        'veterinario' => [
+            'titulo' => 'Consulta veterinária',
+            'icone' => 'fa-solid fa-stethoscope',
+            'itens' => $grupos['veterinario'],
+            'textoAdicionar' => 'Adicionar consulta',
+            'vazio' => 'Nenhuma consulta nesta data.',
+        ],
+        'taxidog' => [
+            'titulo' => 'Taxidog',
+            'icone' => 'fa-solid fa-car-side',
+            'itens' => $grupos['taxidog'],
+            'textoAdicionar' => 'Adicionar Taxidog',
+            'vazio' => 'Nenhum Taxidog nesta data.',
+        ],
+    ];
+    ?>
+
+    <div class="calendar-category-grid">
+        <?php foreach ($categoriasDia as $chave => $categoria): ?>
+            <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
+            <section class="google-calendar-card category-day-card">
+                <button
+                    class="category-add-header"
+                    type="button"
+                    data-open-agenda
+                    data-category="<?= escapar($chave) ?>">
+                    <span class="calendar-category-icon"><i class="<?= escapar($categoria['icone']) ?>"></i></span>
+                    <span class="category-heading-text">
+                        <strong><?= escapar($categoria['titulo']) ?></strong>
+                        <small><?= count($categoria['itens']) ?> agendamento(s)</small>
+                    </span>
+                    <span class="category-plus"><i class="fa-solid fa-plus"></i></span>
+                </button>
+
+                <div class="category-day-events">
+                    <?php if (!$categoria['itens']): ?>
+                        <button
+                            class="category-empty-add"
+                            type="button"
+                            data-open-agenda
+                            data-category="<?= escapar($chave) ?>">
+                            <i class="fa-solid fa-plus"></i>
+                            <?= escapar($categoria['textoAdicionar']) ?>
+                        </button>
+                    <?php else: ?>
+                        <?php foreach ($categoria['itens'] as $item): ?>
+                            <article class="calendar-event category-event">
+                                <div class="calendar-event-main">
+                                    <strong><?= escapar($item['pet']) ?></strong>
+                                    <span><?= escapar($item['servicos'] ?: $categoria['titulo']) ?></span>
+                                    <small>
+                                        <?= escapar($item['tutor']) ?>
+
+                                        <?php if ($chave === 'hotel'): ?>
+                                            • até <?= escapar(formatarData(substr((string) $item['data_hora_fim'], 0, 10))) ?>
+                                        <?php elseif ($chave === 'veterinario' || $chave === 'taxidog'): ?>
+                                            • <?= escapar(formatarHoraAgenda($item['data_hora_inicio'])) ?>
+                                        <?php endif; ?>
+                                    </small>
+
+                                    <?php if ($chave === 'taxidog'): ?>
+                                        <small class="agenda-address">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            <?= escapar(enderecoAbreviadoAgenda($item)) ?>
+                                        </small>
+                                    <?php endif; ?>
+                                </div>
+
+                                <span class="status-badge <?= escapar(classeStatusAgendamento($item['status'])) ?>">
+                                    <?= escapar(nomeStatusAgendamento($item['status'])) ?>
+                                </span>
+
+                                <?php renderizarAcoesAgenda($item, $dataSelecionada); ?>
+                            </article>
+                        <?php endforeach; ?>
+
+                        <button
+                            class="category-inline-add"
+                            type="button"
+                            data-open-agenda
+                            data-category="<?= escapar($chave) ?>">
+                            <i class="fa-solid fa-plus"></i>
+                            <?= escapar($categoria['textoAdicionar']) ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </section>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<div
+    class="agenda-event-modal <?= $mostrarFormulario ? 'is-open' : '' ?>"
+    id="agendaEventModal"
+    aria-hidden="<?= $mostrarFormulario ? 'false' : 'true' ?>">
+    <div class="agenda-event-dialog" role="dialog" aria-modal="true" aria-labelledby="agendaModalTitle">
+        <!-- Bloco visual "agenda-modal-header" que organiza esta parte da interface. -->
+        <div class="agenda-modal-header">
+            <div>
+                <span class="agenda-modal-category" id="agendaModalCategory">Novo agendamento</span>
+                <h2 id="agendaModalTitle"><?= $editarId !== null ? 'Editar agendamento' : 'Adicionar agendamento' ?></h2>
+            </div>
+            <button class="agenda-modal-close" id="agendaModalClose" type="button" aria-label="Fechar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
         <form
-            class="agenda-form-card"
+            class="agenda-modal-form"
+            id="agendaEventForm"
             method="post"
-            action="agenda.php?data=<?= escapar($dataSelecionada) ?>">
+            action="agenda.php?data=<?= escapar($dataSelecionada) ?>"
+            data-editing="<?= $editarId !== null ? '1' : '0' ?>">
             <input
+                id="agendaFormAction"
                 type="hidden"
                 name="acao"
                 value="<?= $editarId !== null ? 'editar_agendamento' : 'criar_agendamento' ?>">
+            <input
+                id="agendaFormId"
+                type="hidden"
+                name="agendamento_id"
+                value="<?= $editarId !== null ? (int) $editarId : '' ?>">
 
-            <?php if ($editarId !== null): ?>
-                <!-- ID do agendamento, presente apenas em modo de edição -->
-                <input type="hidden" name="agendamento_id" value="<?= $editarId ?>">
-            <?php endif; ?>
-
-            <div class="agenda-card-title">
-                <div>
-                    <h2><?= $editarId !== null ? 'Editar agendamento' : 'Novo agendamento' ?></h2>
-                    <small>
-                        Banho e tosa usa vagas de 30 em 30 minutos.
-                    </small>
+            <!-- Bloco visual "agenda-modal-grid" que organiza esta parte da interface. -->
+            <div class="agenda-modal-grid">
+                <div class="field span-12">
+                    <!-- Rótulo do campo "Pet", indicando ao usuário qual informação deve ser preenchida. -->
+                    <label for="petAgendaBusca">Pet</label>
+                    <div
+                        class="search-picker"
+                        data-search-picker="pet"
+                        data-required="1">
+                        <!-- Bloco visual "search-picker-input-wrap" que organiza esta parte da interface. -->
+                        <div class="search-picker-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input
+                                id="petAgendaBusca"
+                                data-search-input
+                                type="search"
+                                autocomplete="off"
+                                value="<?= escapar($rotuloPetSelecionado) ?>"
+                                data-selected-label="<?= escapar($rotuloPetSelecionado) ?>"
+                                placeholder="Digite o nome do pet ou do tutor"
+                                required>
+                            <input
+                                id="petAgenda"
+                                data-search-value
+                                type="hidden"
+                                name="pet_id"
+                                value="<?= $petSelecionadoId !== null ? (int) $petSelecionadoId : '' ?>">
+                        </div>
+                        <!-- Bloco visual "search-picker-results" que organiza esta parte da interface. -->
+                        <div class="search-picker-results" data-search-results hidden></div>
+                    </div>
                 </div>
 
-                <!-- Fecha o formulário voltando para a agenda sem o parâmetro ?novo=1/?editar=ID -->
-                <a href="agenda.php?data=<?= escapar($dataSelecionada) ?>" aria-label="Fechar">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
-            </div>
-
-            <div class="form-grid">
-                <!-- Seleção do pet, listando nome do pet e nome do tutor -->
-                <div class="field span-6">
-                    <label for="petAgenda">Pet</label>
-                    <select id="petAgenda" name="pet_id" required>
-                        <option value="">Selecione o pet</option>
-
-                        <?php foreach ($pets as $pet): ?>
-                            <option
-                                value="<?= (int) $pet['id'] ?>"
-                                <?= $petSelecionado === (string) $pet['id'] ? 'selected' : '' ?>>
-                                <?= escapar($pet['nome']) ?> — <?= escapar($pet['tutor']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Seleção do serviço, agrupado por categoria via <optgroup>.
-                     Cada <option> carrega data-banho-tosa, usado pelo JS para
-                     alternar entre os campos de horário manual x banho e tosa -->
-                <div class="field span-6">
+                <div class="field span-12">
+                    <!-- Rótulo do campo "Serviço", indicando ao usuário qual informação deve ser preenchida. -->
                     <label for="servicoAgenda">Serviço</label>
+                    <!-- Lista de seleção "servico_id" com as opções válidas para este dado. -->
                     <select id="servicoAgenda" name="servico_id" required>
                         <option value="">Selecione o serviço</option>
-                        <?php $categoriaAtual = null; ?>
-
                         <?php foreach ($servicos as $servico): ?>
-                            <?php if ($categoriaAtual !== $servico['categoria']): ?>
-                                <?php if ($categoriaAtual !== null): ?></optgroup><?php endif; ?>
-                                <optgroup label="<?= escapar(nomeCategoriaAgenda($servico['categoria'])) ?>">
-                                <?php $categoriaAtual = $servico['categoria']; ?>
-                            <?php endif; ?>
-
+                            <?php $chaveServico = chaveCategoriaAgenda((string) $servico['categoria']); ?>
                             <option
                                 value="<?= (int) $servico['id'] ?>"
-                                data-banho-tosa="<?= ehBanhoTosa($servico['categoria'], $servico['nome']) ? '1' : '0' ?>"
+                                data-category="<?= escapar($chaveServico) ?>"
+                                data-banho-tosa="<?= $chaveServico === 'banho_tosa' ? '1' : '0' ?>"
                                 <?= $servicoSelecionado === (string) $servico['id'] ? 'selected' : '' ?>>
                                 <?= escapar($servico['nome']) ?>
                             </option>
                         <?php endforeach; ?>
-
-                        <?php if ($categoriaAtual !== null): ?></optgroup><?php endif; ?>
                     </select>
                 </div>
 
-                <!-- Data do agendamento: somente leitura, pois é definida pela agenda do dia atual -->
-                <div class="field span-3">
+                <div class="field span-6">
                     <label>Data</label>
                     <input type="date" value="<?= escapar($dataSelecionada) ?>" readonly>
                 </div>
 
-                <!-- Campo de duração, visível apenas quando o serviço é banho e tosa
-                     (controlado via JS, classe .bath-schedule-field) -->
-                <div class="field span-3 bath-schedule-field" id="duracaoBanhoBox">
+                <div class="field span-6 bath-schedule-field" id="duracaoBanhoBox">
+                    <!-- Rótulo do campo "Duração", indicando ao usuário qual informação deve ser preenchida. -->
                     <label for="duracaoBanho">Duração</label>
+                    <!-- Lista de seleção "duracao_minutos" com as opções válidas para este dado. -->
                     <select id="duracaoBanho" name="duracao_minutos">
                         <?php for ($minutos = 30; $minutos <= 480; $minutos += 30): ?>
                             <option
@@ -915,39 +1286,22 @@ require __DIR__ . '/../includes/topo.php';
                             </option>
                         <?php endfor; ?>
                     </select>
-                    <small class="field-help">A duração avança de 30 em 30 minutos.</small>
                 </div>
 
-                <!-- Campo de horário disponível para banho e tosa: as <option>s são
-                     geradas dinamicamente pelo JS (função atualizarHorariosBanho),
-                     com base nos slots calculados no PHP ($slotsBanhoJs) -->
-                <div class="field span-6 bath-schedule-field" id="horaBanhoBox">
-                    <label for="horaBanho">Horário disponível</label>
+                <div class="field span-12 bath-schedule-field" id="horaBanhoBox">
+                    <!-- Rótulo do campo "Horário", indicando ao usuário qual informação deve ser preenchida. -->
+                    <label for="horaBanho">Horário</label>
                     <select
                         id="horaBanho"
                         name="hora_banho"
                         data-selected="<?= escapar($horaBanhoSelecionada) ?>">
-                        <option value="">Selecione a duração primeiro</option>
+                        <option value="">Selecione o horário</option>
                     </select>
-
-                    <?php if (!$horariosPadraoBanho): ?>
-                        <!-- Aviso quando não existe agenda-padrão cadastrada para a data selecionada -->
-                        <small class="field-help warning-text">
-                            Não existe agenda-padrão para esta data.
-                            <?php if ($administrador): ?>
-                                <a href="agenda-padrao.php">Cadastrar agenda-padrão</a>
-                            <?php endif; ?>
-                        </small>
-                    <?php else: ?>
-                        <small class="field-help">
-                            O sistema verifica todas as faixas de 30 minutos usadas pelo serviço.
-                        </small>
-                    <?php endif; ?>
+                    <small class="field-help">As vagas são verificadas automaticamente pela duração.</small>
                 </div>
 
-                <!-- Campo de horário manual, visível apenas para serviços que NÃO são
-                     banho e tosa (classe .manual-schedule-field, controlada via JS) -->
-                <div class="field span-3 manual-schedule-field" id="horaManualBox">
+                <div class="field span-6 manual-schedule-field" id="horaManualBox">
+                    <!-- Rótulo do campo "Horário", indicando ao usuário qual informação deve ser preenchida. -->
                     <label for="horaInicio">Horário</label>
                     <input
                         id="horaInicio"
@@ -956,28 +1310,26 @@ require __DIR__ . '/../includes/topo.php';
                         value="<?= escapar($horaManualSelecionada) ?>">
                 </div>
 
-                <!-- Data de término opcional, usada em serviços manuais com intervalo (ex.: hotel) -->
-                <div class="field span-3 manual-schedule-field">
-                    <label for="dataFim">Término — data</label>
+                <div class="field span-6 hotel-schedule-field" id="dataFimHotelBox">
+                    <!-- Rótulo do campo "Saída do hotel", indicando ao usuário qual informação deve ser preenchida. -->
+                    <label for="dataFim">Saída do hotel</label>
                     <input
                         id="dataFim"
                         name="data_fim"
                         type="date"
+                        min="<?= escapar($dataSelecionada) ?>"
                         value="<?= escapar($dataFimSelecionada) ?>">
                 </div>
 
-                <!-- Horário de término opcional, correspondente à data de término acima -->
-                <div class="field span-3 manual-schedule-field">
-                    <label for="horaFim">Término — horário</label>
-                    <input
-                        id="horaFim"
-                        name="hora_fim"
-                        type="time"
-                        value="<?= escapar($horaFimSelecionada) ?>">
+                <div class="field span-12 creche-info-field" id="crecheInfoBox">
+                    <div class="agenda-simple-note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Na creche não precisa escolher horário. É só adicionar o pet neste dia.</span>
+                    </div>
                 </div>
 
-                <!-- Campo livre de observações internas sobre o agendamento -->
                 <div class="field span-12">
+                    <!-- Rótulo do campo "Observações", indicando ao usuário qual informação deve ser preenchida. -->
                     <label for="observacoesAgenda">Observações</label>
                     <textarea
                         id="observacoesAgenda"
@@ -986,420 +1338,343 @@ require __DIR__ . '/../includes/topo.php';
                 </div>
             </div>
 
-            <div class="form-actions">
+            <!-- Bloco visual "agenda-modal-actions" que organiza esta parte da interface. -->
+            <div class="agenda-modal-actions">
+                <button class="secondary-action-button" id="agendaModalCancel" type="button">Cancelar</button>
                 <button class="save-button" type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i>
-                    <?= $editarId !== null ? 'Salvar alterações' : 'Salvar agendamento' ?>
+                    <i class="fa-solid fa-check"></i>
+                    <?= $editarId !== null ? 'Salvar alterações' : 'Adicionar' ?>
                 </button>
             </div>
         </form>
-    <?php endif; ?>
-
-    <?php
-    // Configuração das seções "compactas" (listagem em cards), usadas para
-    // Creche e Hotel — grupos com layout mais simples que as tabelas abaixo
-    $compactos = [
-        [
-            'titulo' => 'Creche',
-            'icone'  => 'fa-solid fa-house',
-            'itens'  => $grupos['creche'],
-            'vazio'  => 'Nenhum pet na creche nesta data.',
-            'entrada'=> 'Entrada',
-            'saida'  => 'Saída',
-            'dataCompleta' => false, // exibe apenas hora, não data completa
-        ],
-        [
-            'titulo' => 'Hotel',
-            'icone'  => 'fa-solid fa-hotel',
-            'itens'  => $grupos['hotel'],
-            'vazio'  => 'Nenhuma hospedagem nesta data.',
-            'entrada'=> 'Check-in',
-            'saida'  => 'Check-out',
-            'dataCompleta' => true, // exibe data e hora completas (hospedagem pode passar de um dia)
-        ],
-    ];
-    ?>
-
-    <?php foreach ($compactos as $grupo): ?>
-        <section class="agenda-section">
-            <div class="agenda-section-title">
-                <div>
-                    <i class="<?= escapar($grupo['icone']) ?>"></i>
-                    <h2><?= escapar($grupo['titulo']) ?></h2>
-                </div>
-                <span><?= count($grupo['itens']) ?> agendamento(s)</span>
-            </div>
-
-            <?php if (!$grupo['itens']): ?>
-                <div class="agenda-empty"><?= escapar($grupo['vazio']) ?></div>
-            <?php else: ?>
-                <div class="agenda-compact-list">
-                    <?php foreach ($grupo['itens'] as $item): ?>
-                        <article class="agenda-compact-item has-actions">
-                            <div class="agenda-pet">
-                                <?php if (!empty($item['foto_url'])): ?>
-                                    <img src="<?= escapar($item['foto_url']) ?>" alt="">
-                                <?php else: ?>
-                                    <!-- Ícone de fallback quando o pet não tem foto cadastrada -->
-                                    <span class="agenda-pet-fallback">
-                                        <i class="fa-solid fa-paw"></i>
-                                    </span>
-                                <?php endif; ?>
-
-                                <div>
-                                    <strong><?= escapar($item['pet']) ?></strong>
-                                    <small>Tutor: <?= escapar($item['tutor']) ?></small>
-                                </div>
-                            </div>
-
-                            <!-- Exibe entrada/saída (ou check-in/check-out) conforme o tipo de grupo,
-                                 formatando como data+hora ou apenas hora dependendo de 'dataCompleta' -->
-                            <div class="agenda-times">
-                                <span>
-                                    <?= escapar($grupo['entrada']) ?>:
-                                    <strong>
-                                        <?= escapar(
-                                            $grupo['dataCompleta']
-                                                ? formatarDataHoraAgenda($item['data_hora_inicio'])
-                                                : formatarHoraAgenda($item['data_hora_inicio'])
-                                        ) ?>
-                                    </strong>
-                                </span>
-                                <span>
-                                    <?= escapar($grupo['saida']) ?>:
-                                    <strong>
-                                        <?= escapar(
-                                            $grupo['dataCompleta']
-                                                ? formatarDataHoraAgenda($item['data_hora_fim'])
-                                                : formatarHoraAgenda($item['data_hora_fim'])
-                                        ) ?>
-                                    </strong>
-                                </span>
-                            </div>
-
-                            <span class="status-badge <?= escapar(classeStatusAgendamento($item['status'])) ?>">
-                                <?= escapar(nomeStatusAgendamento($item['status'])) ?>
-                            </span>
-
-                            <?php renderizarAcoesAgenda($item, $dataSelecionada); ?>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </section>
-    <?php endforeach; ?>
-
-    <?php
-    // Configuração das seções em formato de tabela: banho e tosa, consulta veterinária
-    // e taxidog — grupos com mais informações por linha (horário, duração, endereço etc.)
-    $tabelas = [
-        [
-            'titulo' => 'Banho e tosa',
-            'icone'  => 'fa-solid fa-scissors',
-            'itens'  => $grupos['banho_tosa'],
-            'vazio'  => 'Nenhum banho ou tosa agendado nesta data.',
-            'tipo'   => 'banho',
-        ],
-        [
-            'titulo' => 'Consulta veterinária',
-            'icone'  => 'fa-solid fa-stethoscope',
-            'itens'  => $grupos['veterinario'],
-            'vazio'  => 'Nenhuma consulta veterinária agendada nesta data.',
-            'tipo'   => 'consulta',
-        ],
-        [
-            'titulo' => 'Taxidog',
-            'icone'  => 'fa-solid fa-car-side',
-            'itens'  => $grupos['taxidog'],
-            'vazio'  => 'Nenhum Taxidog agendado nesta data.',
-            'tipo'   => 'taxidog',
-        ],
-    ];
-    ?>
-
-    <?php foreach ($tabelas as $grupo): ?>
-        <section class="agenda-section">
-            <div class="agenda-section-title">
-                <div>
-                    <i class="<?= escapar($grupo['icone']) ?>"></i>
-                    <h2><?= escapar($grupo['titulo']) ?></h2>
-                </div>
-                <span><?= count($grupo['itens']) ?> agendamento(s)</span>
-            </div>
-
-            <?php if (!$grupo['itens']): ?>
-                <div class="agenda-empty"><?= escapar($grupo['vazio']) ?></div>
-            <?php else: ?>
-                <div class="agenda-table-wrap">
-                    <table class="agenda-table">
-                        <thead>
-                            <tr>
-                                <th>Pet</th>
-                                <!-- Coluna de tutor mostra também o endereço quando o grupo é Taxidog -->
-                                <th>Tutor<?= $grupo['tipo'] === 'taxidog' ? ' e endereço' : '' ?></th>
-                                <th>Horário</th>
-                                <th>Serviço</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <?php foreach ($grupo['itens'] as $item): ?>
-                                <?php
-                                // Calcula a duração em minutos do item, quando início e fim
-                                // estão disponíveis (usado para exibir "até HH:MM • Xh")
-                                $duracaoItem = null;
-
-                                if (
-                                    !empty($item['data_hora_inicio'])
-                                    && !empty($item['data_hora_fim'])
-                                ) {
-                                    $duracaoItem = (int) (
-                                        (
-                                            strtotime((string) $item['data_hora_fim'])
-                                            - strtotime((string) $item['data_hora_inicio'])
-                                        ) / 60
-                                    );
-                                }
-                                ?>
-                                <tr>
-                                    <td>
-                                        <div class="agenda-table-pet">
-                                            <?php if (!empty($item['foto_url'])): ?>
-                                                <img src="<?= escapar($item['foto_url']) ?>" alt="">
-                                            <?php else: ?>
-                                                <span class="agenda-pet-fallback">
-                                                    <i class="fa-solid fa-paw"></i>
-                                                </span>
-                                            <?php endif; ?>
-
-                                            <strong><?= escapar($item['pet']) ?></strong>
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <strong><?= escapar($item['tutor']) ?></strong>
-
-                                        <?php if ($grupo['tipo'] === 'taxidog'): ?>
-                                            <!-- Endereço abreviado, exibido apenas para agendamentos de Taxidog -->
-                                            <small class="agenda-address">
-                                                <i class="fa-solid fa-location-dot"></i>
-                                                <?= escapar(enderecoAbreviadoAgenda($item)) ?>
-                                            </small>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <td>
-                                        <strong><?= escapar(formatarHoraAgenda($item['data_hora_inicio'])) ?></strong>
-
-                                        <?php if ($grupo['tipo'] === 'banho' && $duracaoItem !== null): ?>
-                                            <!-- Para banho e tosa, mostra também o horário de término e a duração -->
-                                            <small class="agenda-duration-label">
-                                                até <?= escapar(formatarHoraAgenda($item['data_hora_fim'])) ?>
-                                                • <?= escapar(formatarDuracaoAgenda($duracaoItem)) ?>
-                                            </small>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <td><?= escapar($item['servicos'] ?: 'Não informado') ?></td>
-
-                                    <td>
-                                        <span class="status-badge <?= escapar(classeStatusAgendamento($item['status'])) ?>">
-                                            <?= escapar(nomeStatusAgendamento($item['status'])) ?>
-                                        </span>
-                                    </td>
-
-                                    <td><?php renderizarAcoesAgenda($item, $dataSelecionada); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </section>
-    <?php endforeach; ?>
+    </div>
 </div>
 
+<!-- Script responsável pelas interações desta parte da página no navegador. -->
 <script>
-(() => {
-    // Slots de horário de banho e tosa (hora, capacidade, ocupadas, restantes),
-    // calculados no PHP e usados para montar o <select> de horário dinamicamente
-    const slots = <?= json_encode(
-        $slotsBanhoJs,
-        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-    ) ?>;
+    (() => {
+        // Armazena em "slots" um valor usado pela lógica executada no navegador.
+        const slots = <?= json_encode(
+                            $slotsBanhoJs,
+                            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                        ) ?>;
 
-    // Referências aos elementos do formulário manipulados pelo script
-    const servico = document.querySelector('#servicoAgenda');
-    const duracao = document.querySelector('#duracaoBanho');
-    const horaBanho = document.querySelector('#horaBanho');
-    const bathFields = document.querySelectorAll('.bath-schedule-field');
-    const manualFields = document.querySelectorAll('.manual-schedule-field');
-    const horaManual = document.querySelector('#horaInicio');
+        // Obtém a referência do elemento "modal" para ler ou alterar seu conteúdo/comportamento.
+        const modal = document.querySelector('#agendaEventModal');
+        // Obtém a referência do elemento "form" para ler ou alterar seu conteúdo/comportamento.
+        const form = document.querySelector('#agendaEventForm');
+        // Obtém a referência do elemento "fechar" para ler ou alterar seu conteúdo/comportamento.
+        const fechar = document.querySelector('#agendaModalClose');
+        // Obtém a referência do elemento "cancelar" para ler ou alterar seu conteúdo/comportamento.
+        const cancelar = document.querySelector('#agendaModalCancel');
+        // Obtém a referência do elemento "botoesAbrir" para ler ou alterar seu conteúdo/comportamento.
+        const botoesAbrir = document.querySelectorAll('[data-open-agenda]');
+        // Obtém a referência do elemento "titulo" para ler ou alterar seu conteúdo/comportamento.
+        const titulo = document.querySelector('#agendaModalTitle');
+        // Obtém a referência do elemento "categoriaTexto" para ler ou alterar seu conteúdo/comportamento.
+        const categoriaTexto = document.querySelector('#agendaModalCategory');
+        // Obtém a referência do elemento "acao" para ler ou alterar seu conteúdo/comportamento.
+        const acao = document.querySelector('#agendaFormAction');
+        // Obtém a referência do elemento "agendamentoId" para ler ou alterar seu conteúdo/comportamento.
+        const agendamentoId = document.querySelector('#agendaFormId');
+        // Obtém a referência do elemento "petInput" para ler ou alterar seu conteúdo/comportamento.
+        const petInput = document.querySelector('#petAgendaBusca');
+        // Obtém a referência do elemento "petValue" para ler ou alterar seu conteúdo/comportamento.
+        const petValue = document.querySelector('#petAgenda');
+        // Obtém a referência do elemento "servico" para ler ou alterar seu conteúdo/comportamento.
+        const servico = document.querySelector('#servicoAgenda');
+        // Obtém a referência do elemento "duracao" para ler ou alterar seu conteúdo/comportamento.
+        const duracao = document.querySelector('#duracaoBanho');
+        // Obtém a referência do elemento "horaBanho" para ler ou alterar seu conteúdo/comportamento.
+        const horaBanho = document.querySelector('#horaBanho');
+        // Obtém a referência do elemento "horaManual" para ler ou alterar seu conteúdo/comportamento.
+        const horaManual = document.querySelector('#horaInicio');
+        // Obtém a referência do elemento "dataFim" para ler ou alterar seu conteúdo/comportamento.
+        const dataFim = document.querySelector('#dataFim');
+        // Obtém a referência do elemento "observacoes" para ler ou alterar seu conteúdo/comportamento.
+        const observacoes = document.querySelector('#observacoesAgenda');
+        // Obtém a referência do elemento "bathFields" para ler ou alterar seu conteúdo/comportamento.
+        const bathFields = document.querySelectorAll('.bath-schedule-field');
+        // Obtém a referência do elemento "manualFields" para ler ou alterar seu conteúdo/comportamento.
+        const manualFields = document.querySelectorAll('.manual-schedule-field');
+        // Obtém a referência do elemento "hotelFields" para ler ou alterar seu conteúdo/comportamento.
+        const hotelFields = document.querySelectorAll('.hotel-schedule-field');
+        // Obtém a referência do elemento "crecheFields" para ler ou alterar seu conteúdo/comportamento.
+        const crecheFields = document.querySelectorAll('.creche-info-field');
 
-    // Se o campo de serviço não existir na página (formulário não está visível), encerra o script
-    if (!servico) {
-        return;
-    }
+        // Armazena em "nomesCategorias" um valor usado pela lógica executada no navegador.
+        const nomesCategorias = {
+            banho_tosa: 'Banho e tosa',
+            creche: 'Creche',
+            hotel: 'Hotel',
+            veterinario: 'Consulta veterinária',
+            taxidog: 'Taxidog'
+        };
 
-    // Converte uma hora "HH:MM" em minutos desde 00:00, para facilitar comparações
-    const minutos = (hora) => {
-        const [h, m] = hora.split(':').map(Number);
-        return (h * 60) + m;
-    };
+        // Armazena em "categoriaAtual" um valor usado pela lógica executada no navegador.
+        let categoriaAtual = '';
 
-    // Formata uma duração em minutos como texto amigável (ex.: "1h30", "45 min", "2h")
-    const formatarDuracao = (total) => {
-        const horas = Math.floor(total / 60);
-        const minutosRestantes = total % 60;
+        // Armazena em "minutos" um valor usado pela lógica executada no navegador.
+        const minutos = (hora) => {
+            // Armazena em "partes" um valor usado pela lógica executada no navegador.
+            const partes = String(hora || '').split(':').map(Number);
+            return ((partes[0] || 0) * 60) + (partes[1] || 0);
+        };
 
-        if (horas === 0) {
-            return `${minutosRestantes} min`;
-        }
+        // Armazena em "formatarDuracao" um valor usado pela lógica executada no navegador.
+        const formatarDuracao = (total) => {
+            // Armazena em "horas" um valor usado pela lógica executada no navegador.
+            const horas = Math.floor(total / 60);
+            // Armazena em "resto" um valor usado pela lógica executada no navegador.
+            const resto = total % 60;
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (!horas) return `${resto} min`;
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (!resto) return `${horas}h`;
+            return `${horas}h${String(resto).padStart(2, '0')}`;
+        };
 
-        if (minutosRestantes === 0) {
-            return `${horas}h`;
-        }
+        // Armazena em "abrirModal" um valor usado pela lógica executada no navegador.
+        const abrirModal = () => {
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('agenda-modal-open');
+        };
 
-        return `${horas}h${String(minutosRestantes).padStart(2, '0')}`;
-    };
+        // Armazena em "fecharModal" um valor usado pela lógica executada no navegador.
+        const fecharModal = () => {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('agenda-modal-open');
+        };
 
-    // Recalcula e repopula o <select> de horários disponíveis para banho e tosa,
-    // considerando a duração selecionada (que pode exigir vários blocos consecutivos de 30 min)
-    const atualizarHorariosBanho = () => {
-        if (!duracao || !horaBanho) {
-            return;
-        }
+        // Armazena em "mostrar" um valor usado pela lógica executada no navegador.
+        const mostrar = (elementos, ativo) => {
+            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
+            elementos.forEach((elemento) => {
+                elemento.hidden = !ativo;
+            });
+        };
 
-        // Preserva a seleção atual (ou a inicial vinda do PHP, em modo de edição)
-        // para tentar mantê-la selecionada após a grade ser reconstruída
-        const selecionadoAnterior =
-            horaBanho.value || horaBanho.dataset.selected || '';
+        // Armazena em "categoriaDoServico" um valor usado pela lógica executada no navegador.
+        const categoriaDoServico = () => {
+            // Armazena em "opcao" um valor usado pela lógica executada no navegador.
+            const opcao = servico.options[servico.selectedIndex];
+            return opcao?.dataset?.category || '';
+        };
 
-        const duracaoMinutos = Number(duracao.value || 30);
-        // Quantidade de blocos de 30 minutos necessários para cobrir a duração escolhida
-        const blocos = Math.ceil(duracaoMinutos / 30);
-        const opcoes = [];
+        // Armazena em "filtrarServicos" um valor usado pela lógica executada no navegador.
+        const filtrarServicos = (categoria, manterSelecionado = false) => {
+            // Armazena em "quantidade" um valor usado pela lógica executada no navegador.
+            let quantidade = 0;
+            // Armazena em "unicoValor" um valor usado pela lógica executada no navegador.
+            let unicoValor = '';
+            // Armazena em "valorAtual" um valor usado pela lógica executada no navegador.
+            const valorAtual = servico.value;
 
-        // Para cada slot de horário, verifica se há blocos consecutivos suficientes
-        // e com vagas disponíveis para acomodar toda a duração do serviço
-        slots.forEach((slot, indice) => {
-            let valido = true;
-            let menorRestante = Infinity;
-            const inicio = minutos(slot.hora);
-
-            for (let bloco = 0; bloco < blocos; bloco++) {
-                const atual = slots[indice + bloco];
-                const esperado = inicio + (bloco * 30);
-
-                // Inválido se o bloco não existir, não for consecutivo (esperado)
-                // ou não tiver vagas restantes
-                if (
-                    !atual
-                    || minutos(atual.hora) !== esperado
-                    || Number(atual.restantes) <= 0
-                ) {
-                    valido = false;
-                    break;
+            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
+            Array.from(servico.options).forEach((opcao, indice) => {
+                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+                if (indice === 0) {
+                    opcao.hidden = false;
+                    opcao.disabled = false;
+                    return;
                 }
 
-                // A vaga disponível para o horário como um todo é limitada
-                // pelo bloco com menor quantidade de vagas restantes
-                menorRestante = Math.min(
-                    menorRestante,
-                    Number(atual.restantes)
-                );
+                // Armazena em "pertence" um valor usado pela lógica executada no navegador.
+                const pertence = opcao.dataset.category === categoria;
+                opcao.hidden = !pertence;
+                opcao.disabled = !pertence;
+
+                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+                if (pertence) {
+                    quantidade += 1;
+                    unicoValor = opcao.value;
+                }
+            });
+
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (manterSelecionado && valorAtual) {
+                // Armazena em "atual" um valor usado pela lógica executada no navegador.
+                const atual = Array.from(servico.options).find((opcao) => opcao.value === valorAtual);
+                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+                if (atual && !atual.disabled) {
+                    servico.value = valorAtual;
+                    return;
+                }
             }
 
-            if (valido) {
-                opcoes.push({
-                    hora: slot.hora,
-                    vagas: menorRestante
-                });
+            servico.value = quantidade === 1 ? unicoValor : '';
+        };
+
+        // Armazena em "atualizarHorariosBanho" um valor usado pela lógica executada no navegador.
+        const atualizarHorariosBanho = (horarioPreferido = '') => {
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (!duracao || !horaBanho) return;
+
+            // Armazena em "anterior" um valor usado pela lógica executada no navegador.
+            const anterior = horarioPreferido || horaBanho.value || horaBanho.dataset.selected || '';
+            // Armazena em "duracaoMinutos" um valor usado pela lógica executada no navegador.
+            const duracaoMinutos = Number(duracao.value || 30);
+            // Armazena em "blocos" um valor usado pela lógica executada no navegador.
+            const blocos = Math.ceil(duracaoMinutos / 30);
+            // Armazena em "opcoes" um valor usado pela lógica executada no navegador.
+            const opcoes = [];
+
+            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
+            slots.forEach((slot, indice) => {
+                // Armazena em "valido" um valor usado pela lógica executada no navegador.
+                let valido = true;
+                // Armazena em "menorRestante" um valor usado pela lógica executada no navegador.
+                let menorRestante = Infinity;
+                // Armazena em "inicio" um valor usado pela lógica executada no navegador.
+                const inicio = minutos(slot.hora);
+
+                for (let bloco = 0; bloco < blocos; bloco += 1) {
+                    // Armazena em "atual" um valor usado pela lógica executada no navegador.
+                    const atual = slots[indice + bloco];
+                    // Armazena em "esperado" um valor usado pela lógica executada no navegador.
+                    const esperado = inicio + (bloco * 30);
+
+                    // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+                    if (!atual || minutos(atual.hora) !== esperado || Number(atual.restantes) <= 0) {
+                        valido = false;
+                        break;
+                    }
+
+                    menorRestante = Math.min(menorRestante, Number(atual.restantes));
+                }
+
+                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+                if (valido) {
+                    opcoes.push({
+                        hora: slot.hora,
+                        vagas: menorRestante
+                    });
+                }
+            });
+
+            horaBanho.innerHTML = '<option value="">Selecione o horário</option>';
+
+            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
+            opcoes.forEach((opcao) => {
+                // Armazena em "elemento" um valor usado pela lógica executada no navegador.
+                const elemento = document.createElement('option');
+                elemento.value = opcao.hora;
+                elemento.textContent = `${opcao.hora} — ${opcao.vagas} vaga(s) livre(s) para ${formatarDuracao(duracaoMinutos)}`;
+                elemento.selected = opcao.hora === anterior;
+                horaBanho.appendChild(elemento);
+            });
+
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (!opcoes.length) {
+                horaBanho.options[0].textContent = 'Nenhum horário disponível';
+            }
+        };
+
+        // Armazena em "configurarCategoria" um valor usado pela lógica executada no navegador.
+        const configurarCategoria = (categoria, horarioPreferido = '') => {
+            categoriaAtual = categoria;
+            categoriaTexto.textContent = nomesCategorias[categoria] || 'Novo agendamento';
+
+            mostrar(bathFields, categoria === 'banho_tosa');
+            mostrar(crecheFields, categoria === 'creche');
+            mostrar(hotelFields, categoria === 'hotel');
+            mostrar(manualFields, categoria === 'veterinario' || categoria === 'taxidog');
+
+            horaManual.required = categoria === 'veterinario' || categoria === 'taxidog';
+            dataFim.required = categoria === 'hotel';
+            duracao.required = categoria === 'banho_tosa';
+            horaBanho.required = categoria === 'banho_tosa';
+
+            filtrarServicos(categoria, form.dataset.editing === '1');
+
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (categoria === 'banho_tosa') {
+                atualizarHorariosBanho(horarioPreferido);
+            }
+        };
+
+        // Armazena em "prepararNovo" um valor usado pela lógica executada no navegador.
+        const prepararNovo = (categoria, horario = '') => {
+            form.dataset.editing = '0';
+            acao.value = 'criar_agendamento';
+            agendamentoId.value = '';
+            titulo.textContent = 'Adicionar agendamento';
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (petInput) {
+                petInput.value = '';
+                petInput.dataset.selectedLabel = '';
+            }
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (petValue) petValue.value = '';
+            observacoes.value = '';
+            horaManual.value = '';
+            dataFim.value = '';
+            duracao.value = '30';
+            horaBanho.dataset.selected = horario;
+
+            configurarCategoria(categoria, horario);
+            abrirModal();
+            petInput?.focus();
+        };
+
+        // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
+        botoesAbrir.forEach((botao) => {
+            // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
+            botao.addEventListener('click', () => {
+                prepararNovo(botao.dataset.category || '', botao.dataset.time || '');
+            });
+        });
+
+        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
+        servico.addEventListener('change', () => {
+            // Armazena em "categoria" um valor usado pela lógica executada no navegador.
+            const categoria = categoriaDoServico();
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (categoria && categoria !== categoriaAtual) {
+                configurarCategoria(categoria);
             }
         });
 
-        // Limpa e reconstrói as opções do select de horário
-        horaBanho.innerHTML = '';
-
-        // Opção inicial/placeholder, cujo texto varia conforme há ou não horários disponíveis
-        const primeira = document.createElement('option');
-        primeira.value = '';
-        primeira.textContent = opcoes.length
-            ? 'Selecione o horário'
-            : 'Nenhum horário disponível';
-        horaBanho.appendChild(primeira);
-
-        // Adiciona uma <option> para cada horário válido, exibindo a quantidade de vagas
-        opcoes.forEach((opcao) => {
-            const elemento = document.createElement('option');
-            elemento.value = opcao.hora;
-            elemento.textContent =
-                `${opcao.hora} — ${opcao.vagas} vaga(s) para ${formatarDuracao(duracaoMinutos)}`;
-
-            // Restaura a seleção anterior, se o horário ainda estiver disponível na lista
-            if (opcao.hora === selecionadoAnterior) {
-                elemento.selected = true;
-            }
-
-            horaBanho.appendChild(elemento);
-        });
-    };
-
-    // Alterna a exibição dos campos do formulário conforme o serviço selecionado seja
-    // (ou não) do tipo banho e tosa, e ajusta quais campos são obrigatórios
-    const atualizarTipoServico = () => {
-        const option = servico.options[servico.selectedIndex];
-        const banhoTosa = option?.dataset?.banhoTosa === '1';
-
-        // Mostra os campos de banho e tosa (duração/horário com vagas) apenas quando aplicável
-        bathFields.forEach((campo) => {
-            campo.hidden = !banhoTosa;
-        });
-
-        // Mostra os campos manuais (horário livre, término) apenas quando NÃO é banho e tosa
-        manualFields.forEach((campo) => {
-            campo.hidden = banhoTosa;
-        });
-
-        if (duracao) {
-            duracao.required = banhoTosa;
-        }
-
-        if (horaBanho) {
-            horaBanho.required = banhoTosa;
-        }
-
-        if (horaManual) {
-            horaManual.required = !banhoTosa;
-        }
-
-        // Se o serviço for banho e tosa, já recalcula os horários disponíveis
-        if (banhoTosa) {
-            atualizarHorariosBanho();
-        }
-    };
-
-    // Sempre que o serviço selecionado mudar, reavalia qual conjunto de campos exibir
-    servico.addEventListener('change', atualizarTipoServico);
-
-    if (duracao) {
-        // Ao trocar a duração, limpa a seleção prévia de horário (pois pode não ser
-        // mais válida para a nova duração) e recalcula as opções disponíveis
+        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         duracao.addEventListener('change', () => {
-            if (horaBanho) {
-                horaBanho.dataset.selected = '';
-            }
-
+            horaBanho.dataset.selected = '';
             atualizarHorariosBanho();
         });
-    }
 
-    // Execução inicial ao carregar a página, garantindo que os campos corretos
-    // já estejam visíveis/ocultos conforme o serviço pré-selecionado (edição)
-    atualizarTipoServico();
-})();
+        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
+        fechar.addEventListener('click', fecharModal);
+        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
+        cancelar.addEventListener('click', fecharModal);
+
+        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
+        modal.addEventListener('click', (event) => {
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (event.target === modal) {
+                fecharModal();
+            }
+        });
+
+        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
+        document.addEventListener('keydown', (event) => {
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                fecharModal();
+            }
+        });
+
+        // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+        if (form.dataset.editing === '1' || modal.classList.contains('is-open')) {
+            // Armazena em "categoriaInicial" um valor usado pela lógica executada no navegador.
+            const categoriaInicial = categoriaDoServico();
+            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
+            if (categoriaInicial) {
+                configurarCategoria(categoriaInicial, horaBanho.dataset.selected || '');
+                abrirModal();
+            }
+        }
+    })();
 </script>
 
 <?php require __DIR__ . '/../includes/rodape.php'; ?>
