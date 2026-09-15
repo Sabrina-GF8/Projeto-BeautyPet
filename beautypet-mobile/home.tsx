@@ -14,9 +14,19 @@ import {
   Wallet,
 } from "lucide-react-native";
 
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { useNotifications } from "./notificationContext";
 
 export default function Home() {
+
+   const router = useRouter();
+
+  const { notifications } = useNotifications();
+
+  const possuiNotificacao = notifications.some(
+    (notification) => !notification.read
+  );
 
   // ================= CARROSSEL =================
 
@@ -71,16 +81,21 @@ export default function Home() {
 
           {/* Botão de notificação */}
 
-          <TouchableOpacity style={styles.notification}>
+          <TouchableOpacity
+  style={styles.notification}
+  onPress={() => router.push("/notificacao")}
+>
 
-            <Bell
-              size={20}
-              color="#FFFFFF"
-            />
+  <Bell 
+    size={20} 
+    color="#FFFFFF" 
+  />
 
-          </TouchableOpacity>
+  {possuiNotificacao && (
+    <View style={styles.notificationBadge} />
+  )}
 
-
+</TouchableOpacity>
           {/* Logo */}
 
           <Image
@@ -102,80 +117,92 @@ export default function Home() {
         </Text>
 
 
-        <TouchableOpacity style={styles.promotionCard}>
+        {/* SOMBRA DO CARROSSEL */}
 
-          {/* IMAGEM DO CARROSSEL */}
+        <View style={styles.promotionShadow}>
 
-          <Image
-            source={imagens[imagemAtual]}
-            style={styles.promotionImage}
-          />
+          <TouchableOpacity style={styles.promotionCard}>
+
+            {/* IMAGEM DO CARROSSEL */}
+
+            <Image
+              source={imagens[imagemAtual]}
+              style={styles.promotionImage}
+            />
 
 
-          <View style={styles.promotionText}>
+            <View style={styles.promotionText}>
 
-            <Text style={styles.promotionTitle}>
-              Promoção relâmpago
-            </Text>
+              <Text style={styles.promotionTitle}>
+                Promoção relâmpago
+              </Text>
 
-            <Text style={styles.promotionDiscount}>
-              30% OFF em vacinas
-            </Text>
+              <Text style={styles.promotionDiscount}>
+                30% OFF em vacinas
+              </Text>
 
-          </View>
+            </View>
 
-        </TouchableOpacity>
+          </TouchableOpacity>
+
+        </View>
 
       </View>
 
 
       {/* ================= PRÓXIMO AGENDAMENTO ================= */}
 
-      <View style={styles.appointmentCard}>
+      <View style={styles.cardServicos}>
 
-        <View style={styles.calendarIcon}>
+  <Text style={styles.tituloServico}>
+    Serviço
+  </Text>
 
-          <CalendarDays
-            size={18}
-            color="#555555"
-          />
+  <View style={styles.appointmentCard}>
 
-        </View>
+    <View style={styles.calendarIcon}>
 
+      <CalendarDays
+        size={20}
+        color="#555555"
+      />
 
-        <View style={styles.appointmentInfo}>
+    </View>
 
-          <Text style={styles.appointmentLabel}>
-            Próximo agendamento
-          </Text>
+    <View style={styles.appointmentInfo}>
 
-          <Text style={styles.appointmentService}>
-            Creche
-          </Text>
+      <Text style={styles.appointmentLabel}>
+        Próximo agendamento
+      </Text>
 
-          <Text style={styles.appointmentDate}>
-            19 Jun, 2026 • 10:00
-          </Text>
+      <Text style={styles.appointmentService}>
+        Creche
+      </Text>
 
-        </View>
+      <Text style={styles.appointmentDate}>
+        19 Jun, 2026 • 10:00
+      </Text>
 
-      </View>
+    </View>
 
+  </View>
 
-      {/* ================= BOTÃO AGENDAR ================= */}
+  <TouchableOpacity style={styles.scheduleButton}>
 
-      <TouchableOpacity style={styles.scheduleButton}>
+    <Scissors
+      size={20}
+      color="#333333"
+    />
 
-        <Scissors
-          size={17}
-          color="#333333"
-        />
+    <Text style={styles.scheduleText}>
+      Agendar serviço
+    </Text>
 
-        <Text style={styles.scheduleText}>
-          Agendar serviço
-        </Text>
-        
-      </TouchableOpacity>
+  </TouchableOpacity>
+
+</View>
+
+      {/* ================= MENU INFERIOR ================= */}
 
       <View style={styles.bottomMenu}>
 
@@ -192,6 +219,7 @@ export default function Home() {
 
         </TouchableOpacity>
 
+
         <TouchableOpacity style={styles.menuItem}>
 
           <CalendarDays
@@ -205,6 +233,7 @@ export default function Home() {
 
         </TouchableOpacity>
 
+
         <TouchableOpacity style={styles.menuItem}>
 
           <Wallet
@@ -217,6 +246,7 @@ export default function Home() {
           </Text>
 
         </TouchableOpacity>
+
 
         <TouchableOpacity style={styles.menuItem}>
 
@@ -243,12 +273,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFF4A8",
   },
-
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-
     paddingHorizontal: 12,
     paddingTop: 10,
   },
@@ -261,33 +289,41 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     color: "#111111",
-
     fontFamily: "Poppins_700Bold",
-
     marginTop: 8,
   },
   titlePet: {
     fontSize: 21,
     color: "#FF3038",
-
     fontFamily: "Poppins_700Bold",
   },
   headerRight: {
+    flexDirection:"row",
     alignItems: "center",
   },
   notification: {
-    width: 26,
-    height: 26,
+    width: 43,
+    height: 43,
     borderRadius: 20,
     backgroundColor: "#EF3038",
     justifyContent: "center",
     alignItems: "center",
     marginTop: 25,
-    marginBottom: 8,
+    marginRight: 12,
+    marginBottom: 20,
   },
-  logo:{
-    width: 65,
-    height: 65,
+  notificationBadge: {
+  position: "absolute",
+  top: -2,
+  right: -2,
+  width: 8,
+  height: 8,
+  borderRadius: 10,
+  backgroundColor: "#000000",
+},
+  logo: {
+    width: 90,
+    height: 90,
     borderRadius: 40,
     resizeMode: "contain",
   },
@@ -300,6 +336,20 @@ const styles = StyleSheet.create({
     color: "#555555",
     fontFamily: "Poppins_400Regular",
     marginBottom: 8,
+  },
+  promotionShadow: {
+    width: "100%",
+  height: 200,
+  borderRadius: 10,
+  elevation: 8,
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 4,
+  },
+  shadowOpacity: 0.30,
+  shadowRadius: 6,
+  backgroundColor: "#FFFFFF",
   },
   promotionCard: {
     width: "100%",
@@ -328,22 +378,21 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: "Poppins_700Bold",
   },
-  appointmentCard: {
-    height: 68,
-    marginHorizontal: 42,
-    marginTop: 25,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    elevation: 2,
-  },
+ appointmentCard: {
+  height: 68,
+  marginTop: 15,
+  backgroundColor: "#FFF4A8",
+  borderRadius: 10,
+  flexDirection: "row",
+  alignItems: "center",
+  paddingHorizontal: 8, 
+
+},
   calendarIcon: {
     width: 50,
     height: 50,
     borderRadius: 20,
-    backgroundColor: "#fff8d9",
+    backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -351,25 +400,25 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   appointmentLabel: {
-    fontSize: 10,
+    fontSize: 12,
     color: "#999999",
     fontFamily: "Poppins_400Regular",
   },
   appointmentService: {
-    fontSize: 12,
+    fontSize: 13,
     color: "#222222",
     fontFamily: "Poppins_700Bold",
+    marginBottom: 2,
   },
   appointmentDate: {
-    fontSize: 8,
+    fontSize: 10,
     color: "#777777",
     fontFamily: "Poppins_400Regular",
   },
-
   scheduleButton: {
     alignSelf: "center",
     height: 48,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     marginTop: 24,
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
@@ -377,14 +426,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     elevation: 2,
+    borderWidth: 1,
+    borderColor: "#9b9b9b",
   },
   scheduleText: {
     marginLeft: 5,
-    fontSize: 13,
+    fontSize: 14,
     color: "#333333",
     fontFamily: "Poppins_600SemiBold",
   },
-
   bottomMenu: {
     position: "absolute",
     bottom: 2,
@@ -401,7 +451,6 @@ const styles = StyleSheet.create({
   menuItem: {
     alignItems: "center",
     justifyContent: "center",
-
     width: 70,
   },
   menuText: {
@@ -416,5 +465,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontFamily: "Poppins_600SemiBold",
   },
-
+  cardServicos: {
+    marginHorizontal: 42,
+  marginTop: 25,
+  padding: 15,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 10,
+  elevation: 2, 
+  },
+  tituloServico: {
+   fontSize: 18,
+  fontFamily: "Poppins_700Bold", 
+  },
 });
