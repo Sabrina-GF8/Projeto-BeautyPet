@@ -8594,3 +8594,16 @@ body.monthly-modal-open {
     flex-direction: column-reverse
   }
 }
+.sidebar nav details > .submenu{
+    display:none;
+}
+
+.sidebar nav details:hover > .submenu,
+.sidebar nav details:focus-within > .submenu{
+    display:flex;
+}
+
+.sidebar nav details:hover > summary .arrow,
+.sidebar nav details:focus-within > summary .arrow{
+    transform:rotate(180deg);
+}
