@@ -1,9 +1,9 @@
 import {
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: "#FFF4A8",
+    backgroundColor: "#fff4ab",
     paddingHorizontal: 12,
   },
 
@@ -163,28 +163,29 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 16,
+    fontSize: 22,
     color: "#222222",
     fontFamily: "Poppins_500Medium",
+    marginTop:35,
   },
 
   subtitle: {
-    fontSize: 9,
+    fontSize: 13,
     color: "#555555",
     marginTop: 3,
     fontFamily: "Poppins_400Regular",
   },
 
   notificationList: {
-    marginTop: 30,
+    marginTop: 32,
   },
 
   notificationCard: {
-    minHeight: 70,
+    height: 98,
     backgroundColor: "#FFFFFF",
     borderRadius: 10,
     marginBottom: 12,
-    padding: 12,
+    padding: 15,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
@@ -197,13 +198,13 @@ const styles = StyleSheet.create({
   },
 
   notificationTitle: {
-    fontSize: 13,
+    fontSize: 15,
     color: "#222222",
     fontFamily: "Poppins_500Medium",
   },
 
   notificationText: {
-    fontSize: 9,
+    fontSize: 12,
     color: "#444444",
     marginTop: 2,
     fontFamily: "Poppins_400Regular",
