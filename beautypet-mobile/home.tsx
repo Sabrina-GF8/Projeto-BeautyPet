@@ -1,17 +1,20 @@
 import {
   Image,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 import {
-  Bell, CalendarDays, Home as HomeIcon,
-  Scissors,
+  Bell,
+  CalendarDays,
+  ChevronRight,
+  Home as HomeIcon,
   UserRound,
-  Wallet,
+  Wallet
 } from "lucide-react-native";
 
 import { useRouter } from "expo-router";
@@ -19,8 +22,7 @@ import { useEffect, useState } from "react";
 import { useNotifications } from "./notificationContext";
 
 export default function Home() {
-
-   const router = useRouter();
+  const router = useRouter();
 
   const { notifications } = useNotifications();
 
@@ -31,450 +33,569 @@ export default function Home() {
   // ================= CARROSSEL =================
 
   const imagens = [
-    require("../assets/dog1.jpg"),
-    require("../assets/dog2.jpg"),
-    require("../assets/dog3.jpg"),
+    require("../assets/car_01.jpeg"),
+    require("../assets/car_02.jpeg"),
+    require("../assets/car_03.jpeg"),
   ];
 
   const [imagemAtual, setImagemAtual] = useState(0);
 
   useEffect(() => {
-
     const intervalo = setInterval(() => {
-
-      setImagemAtual((imagemAtual) =>
-        (imagemAtual + 1) % imagens.length
-      );
-
+      setImagemAtual((imagemAtual) => (imagemAtual + 1) % imagens.length);
     }, 3500);
 
     return () => clearInterval(intervalo);
-
   }, []);
 
-
   return (
-    
     <SafeAreaView style={styles.container}>
-      {/* ================= HEADER ================= */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* ================= HEADER ================= */}
 
-      <View style={styles.header}>
+        <View style={styles.header}>
+          <View style={styles.headerText}>
+            <Text style={styles.greeting}>Olá Marina!</Text>
 
-        <View>
+            <Text style={styles.title}>Bem-vindo ao</Text>
 
-          <Text style={styles.greeting}>
-            Olá Marina !
-          </Text>
+            <Text style={styles.titlePet}>Beauty Pet</Text>
 
-          <Text style={styles.title}>
-            Bem-vindo ao
-          </Text>
+            <Text style={styles.subtitle}>
+              Cuidado e bem-estar para quem você ama.
+            </Text>
+          </View>
 
-          <Text style={styles.titlePet}>
-            Beauty Pet
-          </Text>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={styles.notification}
+              onPress={() => router.push("/notificacao")}
+              activeOpacity={0.8}
+            >
+              <Bell size={21} color="#FFFFFF" />
 
-        </View>
-
-
-        <View style={styles.headerRight}>
-
-          {/* Botão de notificação */}
-
-          <TouchableOpacity
-  style={styles.notification}
-  onPress={() => router.push("/notificacao")}
->
-
-  <Bell 
-    size={20} 
-    color="#FFFFFF" 
-  />
-
-  {possuiNotificacao && (
-    <View style={styles.notificationBadge} />
-  )}
-
-</TouchableOpacity>
-          {/* Logo */}
-
-          <Image
-            source={require("../assets/img1.png")}
-            style={styles.logo}
-          />
-
-        </View>
-
-      </View>
-
-
-      {/* ================= PROMOÇÃO ================= */}
-
-      <View style={styles.promotionSection}>
-
-        <Text style={styles.sectionTitle}>
-          Promoções especiais
-        </Text>
-
-
-        {/* SOMBRA DO CARROSSEL */}
-
-        <View style={styles.promotionShadow}>
-
-          <TouchableOpacity style={styles.promotionCard}>
-
-            {/* IMAGEM DO CARROSSEL */}
+              {possuiNotificacao && (
+                <View style={styles.notificationBadge} />
+              )}
+            </TouchableOpacity>
 
             <Image
-              source={imagens[imagemAtual]}
-              style={styles.promotionImage}
+              source={require("../assets/img1.png")}
+              style={styles.logo}
             />
-
-
-            <View style={styles.promotionText}>
-
-              <Text style={styles.promotionTitle}>
-                Promoção relâmpago
-              </Text>
-
-              <Text style={styles.promotionDiscount}>
-                30% OFF em vacinas
-              </Text>
-
-            </View>
-
-          </TouchableOpacity>
-
+          </View>
         </View>
 
-      </View>
+        {/* ================= PROMOÇÃO ================= */}
 
+        <View style={styles.promotionSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              Promoções especiais
+            </Text>
 
-      {/* ================= PRÓXIMO AGENDAMENTO ================= */}
+          </View>
 
-      <View style={styles.cardServicos}>
+          <View style={styles.promotionShadow}>
+            <TouchableOpacity
+              style={styles.promotionCard}
+              activeOpacity={0.9}
+            >
+              <Image
+                source={imagens[imagemAtual]}
+                style={styles.promotionImage}
+              />
 
-  <Text style={styles.tituloServico}>
-    Serviço
-  </Text>
+              
+            </TouchableOpacity>
+          </View>
 
-  <View style={styles.appointmentCard}>
+          {/* INDICADORES DO CARROSSEL */}
 
-    <View style={styles.calendarIcon}>
+          <View style={styles.dots}>
+            {imagens.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  imagemAtual === index && styles.dotActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
 
-      <CalendarDays
-        size={20}
-        color="#555555"
-      />
+        {/* ================= SERVIÇO ================= */}
 
-    </View>
+        <View style={styles.serviceSection}>
+          <Text style={styles.tituloServico}>
+            Serviço
+          </Text>
 
-    <View style={styles.appointmentInfo}>
+          <View style={styles.appointmentCard}>
+            <View style={styles.calendarIcon}>
+              <CalendarDays
+                size={24}
+                color="#272727"
+              />
+            </View>
 
-      <Text style={styles.appointmentLabel}>
-        Próximo agendamento
-      </Text>
+            <View style={styles.appointmentInfo}>
+              <Text style={styles.appointmentLabel}>
+                Próximo agendamento
+              </Text>
 
-      <Text style={styles.appointmentService}>
-        Creche
-      </Text>
+              <Text style={styles.appointmentService}>
+                Creche
+              </Text>
 
-      <Text style={styles.appointmentDate}>
-        19 Jun, 2026 • 10:00
-      </Text>
+              <Text style={styles.appointmentDate}>
+                19 Jun, 2026 • 10:00
+              </Text>
+            </View>
 
-    </View>
+            <ChevronRight
+              size={24}
+              color="#333333"
+            />
+          </View>
 
-  </View>
+          <TouchableOpacity
+            style={styles.scheduleButton}
+            activeOpacity={0.85}
+          >
+            <CalendarDays
+              size={23}
+              color="#FFFFFF"
+            />
 
-  <TouchableOpacity style={styles.scheduleButton}>
+            <Text style={styles.scheduleText}>
+              Agendar serviço
+            </Text>
 
-    <Scissors
-      size={20}
-      color="#333333"
-    />
-
-    <Text style={styles.scheduleText}>
-      Agendar serviço
-    </Text>
-
-  </TouchableOpacity>
-
-</View>
+            <ChevronRight
+              size={22}
+              color="#FFFFFF"
+            />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       {/* ================= MENU INFERIOR ================= */}
 
       <View style={styles.bottomMenu}>
-
         <TouchableOpacity style={styles.menuItem}>
-
           <HomeIcon
-            size={24}
-            color="#FF4D55"
+            size={25}
+            color="#EF3038"
           />
 
           <Text style={styles.menuTextActive}>
             Home
           </Text>
 
+          <View style={styles.activeLine} />
         </TouchableOpacity>
 
-
-        <TouchableOpacity style={styles.menuItem}>
-
+        <TouchableOpacity style={styles.menuItem}
+        onPress={() => router.push("/agenda")}>
           <CalendarDays
-            size={23}
-            color="#777777"
+            size={24}
+            color="#5F6269"
           />
 
           <Text style={styles.menuText}>
+            
             Agenda
           </Text>
-
         </TouchableOpacity>
 
-
-        <TouchableOpacity style={styles.menuItem}>
-
+        <TouchableOpacity style={styles.menuItem}
+        onPress={() => router.push("/financeiro")}>
           <Wallet
-            size={23}
-            color="#777777"
+            size={24}
+            color="#5F6269"
           />
 
           <Text style={styles.menuText}>
             Financeiro
           </Text>
-
         </TouchableOpacity>
 
-
         <TouchableOpacity style={styles.menuItem}>
-
           <UserRound
-            size={23}
-            color="#777777"
+            size={24}
+            color="#5F6269"
           />
 
           <Text style={styles.menuText}>
             Perfil
           </Text>
-
         </TouchableOpacity>
-
       </View>
-
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  // ================= TELA =================
 
   container: {
     flex: 1,
-    backgroundColor: "#FFF4A8",
+    backgroundColor: "#FFF4AB",
   },
+
+  scrollContent: {
+    paddingBottom: 115,
+  },
+
+  // ================= HEADER =================
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingHorizontal: 12,
-    paddingTop: 10,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
+
+  headerText: {
+    flex: 1,
+    paddingTop: 35,
+  },
+
   greeting: {
     fontSize: 20,
-    color: "#333333",
+    color: "#303037",
     fontFamily: "Poppins_400Regular",
-    marginTop: 70,
   },
+
   title: {
-    fontSize: 22,
-    color: "#111111",
+    marginTop: 14,
+    fontSize: 28,
+    lineHeight: 34,
+    color: "#202126",
     fontFamily: "Poppins_700Bold",
-    marginTop: 8,
   },
+
   titlePet: {
-    fontSize: 21,
-    color: "#FF3038",
+    fontSize: 28,
+    lineHeight: 34,
+    color: "#EF3038",
     fontFamily: "Poppins_700Bold",
   },
-  headerRight: {
-    flexDirection:"row",
-    alignItems: "center",
+
+  subtitle: {
+    marginTop: 7,
+    maxWidth: 260,
+    fontSize: 13,
+    lineHeight: 19,
+    color: "#66666C",
+    fontFamily: "Poppins_400Regular",
   },
+
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
   notification: {
-    width: 43,
-    height: 43,
-    borderRadius: 20,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    marginTop: 18,
+    marginRight: 8,
     backgroundColor: "#EF3038",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 25,
-    marginRight: 12,
-    marginBottom: 20,
+
+    elevation: 4,
+
+    shadowColor: "#EF3038",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 5,
   },
+
   notificationBadge: {
-  position: "absolute",
-  top: -2,
-  right: -2,
-  width: 8,
-  height: 8,
-  borderRadius: 10,
-  backgroundColor: "#000000",
-},
+    position: "absolute",
+    top: 2,
+    right: 2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderColor: "#EF3038",
+  },
+
   logo: {
-    width: 90,
-    height: 90,
-    borderRadius: 40,
+    width: 96,
+    height: 96,
     resizeMode: "contain",
   },
+
+  // ================= PROMOÇÃO =================
+
   promotionSection: {
     marginTop: 34,
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
   },
+
+  sectionHeader: {
+    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
   sectionTitle: {
-    fontSize: 20,
-    color: "#555555",
-    fontFamily: "Poppins_400Regular",
-    marginBottom: 8,
+    fontSize: 21,
+    color: "#202126",
+    fontFamily: "Poppins_700Bold",
   },
+
   promotionShadow: {
     width: "100%",
-  height: 200,
-  borderRadius: 10,
-  elevation: 8,
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 4,
+    height: 205,
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+
+    elevation: 7,
+
+    shadowColor: "#6E642E",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
-  shadowOpacity: 0.30,
-  shadowRadius: 6,
-  backgroundColor: "#FFFFFF",
-  },
+
   promotionCard: {
     width: "100%",
-    height: 200,
-    borderRadius: 10,
+    height: "100%",
+    borderRadius: 22,
     overflow: "hidden",
     backgroundColor: "#FFFFFF",
   },
+
   promotionImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
+
   promotionText: {
     position: "absolute",
-    bottom: 7,
-    left: 7,
+    left: 20,
+    bottom: 20,
   },
-  promotionTitle: {
-    color: "#000",
-    fontSize: 12,
-    fontFamily: "Poppins_700Bold",
-  },
-  promotionDiscount: {
-    color: "#000",
-    fontSize: 9,
-    fontFamily: "Poppins_700Bold",
-  },
- appointmentCard: {
-  height: 68,
-  marginTop: 15,
-  backgroundColor: "#FFF4A8",
-  borderRadius: 10,
-  flexDirection: "row",
-  alignItems: "center",
-  paddingHorizontal: 8, 
 
-},
-  calendarIcon: {
-    width: 50,
-    height: 50,
+  promotionTag: {
+    alignSelf: "flex-start",
+    marginBottom: 8,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
     borderRadius: 20,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#EF3038",
+  },
+
+  promotionTagText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontFamily: "Poppins_600SemiBold",
+  },
+
+  promotionDiscount: {
+    color: "#FFFFFF",
+    fontSize: 27,
+    lineHeight: 31,
+    fontFamily: "Poppins_700Bold",
+  },
+
+  promotionDescription: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontFamily: "Poppins_600SemiBold",
+  },
+
+  dots: {
+    marginTop: 12,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
+  },
+
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "rgba(50,50,50,0.22)",
+  },
+
+  dotActive: {
+    width: 20,
+    backgroundColor: "#EF3038",
+  },
+
+  // ================= SERVIÇO =================
+
+  serviceSection: {
+    marginHorizontal: 20,
+    marginTop: 26,
+  },
+
+  tituloServico: {
+    marginBottom: 12,
+    fontSize: 21,
+    color: "#202126",
+    fontFamily: "Poppins_700Bold",
+  },
+
+  appointmentCard: {
+    minHeight: 92,
+    backgroundColor: "#FFFBE1",
+    borderRadius: 18,
+
+    flexDirection: "row",
+    alignItems: "center",
+
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+
+    borderWidth: 1,
+    borderColor: "#E9D86D",
+  },
+
+  calendarIcon: {
+    width: 55,
+    height: 55,
+    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
   },
+
   appointmentInfo: {
-    marginLeft: 8,
+    flex: 1,
+    marginLeft: 13,
   },
+
   appointmentLabel: {
     fontSize: 12,
-    color: "#999999",
+    color: "#797980",
     fontFamily: "Poppins_400Regular",
   },
+
   appointmentService: {
-    fontSize: 13,
-    color: "#222222",
+    marginTop: 1,
+    fontSize: 16,
+    color: "#202126",
     fontFamily: "Poppins_700Bold",
-    marginBottom: 2,
   },
+
   appointmentDate: {
-    fontSize: 10,
-    color: "#777777",
+    marginTop: 1,
+    fontSize: 11,
+    color: "#696970",
     fontFamily: "Poppins_400Regular",
   },
+
+  // BOTÃO PRINCIPAL
+
   scheduleButton: {
-    alignSelf: "center",
-    height: 48,
-    paddingHorizontal: 20,
-    marginTop: 24,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    width: "100%",
+    height: 58,
+    marginTop: 14,
+
+    backgroundColor: "#EF3038",
+    borderRadius: 17,
+
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: "#9b9b9b",
+
+    elevation: 5,
+
+    shadowColor: "#EF3038",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 7,
   },
+
   scheduleText: {
-    marginLeft: 5,
-    fontSize: 14,
-    color: "#333333",
-    fontFamily: "Poppins_600SemiBold",
+    marginHorizontal: 10,
+    fontSize: 16,
+    color: "#FFFFFF",
+    fontFamily: "Poppins_700Bold",
   },
+
+  // ================= MENU =================
+
   bottomMenu: {
     position: "absolute",
-    bottom: 2,
+    bottom: 0,
     left: 0,
     right: 0,
-    height: 70,
+
+    height: 82,
+
     backgroundColor: "#FFFFFF",
+
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#EEEEEE",
+
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+
+    elevation: 15,
+
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: -3,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
+
   menuItem: {
+    height: 62,
+    minWidth: 70,
     alignItems: "center",
     justifyContent: "center",
-    width: 70,
   },
+
   menuText: {
-    fontSize: 12,
-    color: "#777777",
-    marginTop: 2,
+    marginTop: 3,
+    fontSize: 11,
     fontFamily: "Poppins_400Regular",
   },
+
   menuTextActive: {
-    fontSize: 12,
-    color: "#FF4D55",
-    marginTop: 2,
+    marginTop: 3,
+    fontSize: 11,
+    color: "#EF3038",
     fontFamily: "Poppins_600SemiBold",
   },
-  cardServicos: {
-    marginHorizontal: 42,
-  marginTop: 25,
-  padding: 15,
-  backgroundColor: "#FFFFFF",
-  borderRadius: 10,
-  elevation: 2, 
-  },
-  tituloServico: {
-   fontSize: 18,
-  fontFamily: "Poppins_700Bold", 
+
+  activeLine: {
+    position: "absolute",
+    bottom: 0,
+    width: 28,
+    height: 3,
+    borderRadius: 5,
+    backgroundColor: "#EF3038",
   },
 });
