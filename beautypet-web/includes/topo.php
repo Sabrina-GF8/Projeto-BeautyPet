@@ -49,6 +49,12 @@ $podeCriarUsuario = !$usuariosAtivos
     
     <!-- Utilização da constante BASE_URL unificada para garantir caminhos absolutos -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style.css?v=fechamento-mensal-v1-20260907">
+
+    <?php if (($paginaAtiva ?? '') === 'dashboard'): ?>
+        <!-- MERGE DASHBOARD: estilos usados somente pela tela do Dashboard (cards, graficos, abas).
+             Carregado depois do style.css e so nesta pagina, para que nenhuma outra tela mude. -->
+        <link rel="stylesheet" href="<?= BASE_URL ?>/assets/dashboard.css?v=dashboard-v1">
+    <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>

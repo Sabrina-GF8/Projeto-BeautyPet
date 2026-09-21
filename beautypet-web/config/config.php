@@ -1,7 +1,25 @@
 <?php
 
-// Define a URL base da aplicação web para o roteamento de assets e links
-define('BASE_URL', '/Projeto-BeautyPet/beautypet-web');
+// Define a URL base da aplicação web para o roteamento de assets e links.
+// O caminho é descoberto sozinho, comparando a pasta do projeto com a raiz do servidor,
+// para que o sistema continue funcionando mesmo se a pasta for renomeada ou movida.
+$pastaDoProjeto = str_replace(DIRECTORY_SEPARATOR, '/', (string) realpath(dirname(__DIR__)));
+$raizDoServidor = str_replace(DIRECTORY_SEPARATOR, '/', (string) realpath($_SERVER['DOCUMENT_ROOT'] ?? ''));
+
+// Compara os dois caminhos em minúsculas porque no Windows a mesma pasta
+// pode aparecer escrita de formas diferentes ("C:/xampp" e "c:/xampp").
+$comparavelProjeto = strtolower($pastaDoProjeto);
+$comparavelRaiz    = strtolower($raizDoServidor);
+
+// Quando o projeto está dentro da raiz do servidor, a URL base é o que sobra do caminho.
+if ($comparavelRaiz !== '' && str_starts_with($comparavelProjeto, $comparavelRaiz)) {
+    $urlBase = substr($pastaDoProjeto, strlen($raizDoServidor));
+} else {
+    // Fora desse caso o projeto responde na própria raiz do endereço.
+    $urlBase = '';
+}
+
+define('BASE_URL', rtrim($urlBase, '/'));
 
 // Carrega a função responsável por ler o arquivo .env
 require_once __DIR__ . '/env.php';
