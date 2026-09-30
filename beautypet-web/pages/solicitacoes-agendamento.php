@@ -190,11 +190,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['reagendado'])) {
 // Agrupa os totais calculados para exibição no resumo financeiro da página.
 $totais = $pdo->query(
     "SELECT
-        SUM(status = 'SOLICITADO') AS pendentes,
-        SUM(status = 'CONFIRMADO') AS confirmadas
+        COALESCE(SUM(CASE WHEN status = 'SOLICITADO' THEN 1 ELSE 0 END), 0) AS pendentes,
+        COALESCE(SUM(CASE WHEN status = 'CONFIRMADO' THEN 1 ELSE 0 END), 0) AS confirmadas
      FROM agendamentos
      WHERE origem = 'MOBILE'"
-// Obtém a próxima linha retornada pela consulta como um registro associativo.
 )->fetch();
 
 // Calcula/armazena o total de "totalPendentes" que será usado nos resumos e na interface.
@@ -218,22 +217,18 @@ $stmt = $pdo->prepare(
         p.nome AS pet,
         p.foto_url,
         c.nome AS tutor,
-        GROUP_CONCAT(
-            DISTINCT s.nome
-            ORDER BY s.nome
-            SEPARATOR ', '
-        ) AS servicos
+        STRING_AGG(DISTINCT s.nome, ', ' ORDER BY s.nome) AS servicos
      FROM agendamentos a
      JOIN pets p
-       ON p.id = a.pet_id
+        ON p.id = a.pet_id
      JOIN clientes c
-       ON c.id = p.cliente_id
+        ON c.id = p.cliente_id
      LEFT JOIN agendamento_itens ai
-       ON ai.agendamento_id = a.id
+        ON ai.agendamento_id = a.id
      LEFT JOIN servicos s
-       ON s.id = ai.servico_id
+        ON s.id = ai.servico_id
      WHERE a.origem = 'MOBILE'
-       AND a.status = :status
+        AND a.status = :status
      GROUP BY
         a.id,
         a.data_hora_inicio,

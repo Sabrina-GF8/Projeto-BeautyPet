@@ -35,38 +35,51 @@ try {
         // Armazena em "contem" o valor necessário para as próximas etapas deste fluxo.
         $contem = '%' . $termo . '%';
 
-        // Prepara uma consulta em "pets" para carregar os dados necessários a esta etapa.
-        $stmt = $pdo->prepare(
-            'SELECT p.id, p.nome, c.nome AS tutor
+$stmt = $pdo->prepare(
+            'SELECT p.id, p.nome, c.nome AS tutor, r.nome AS raca
              FROM pets p
              JOIN clientes c ON c.id = p.cliente_id
+             LEFT JOIN racas r ON r.id = p.raca_id
              WHERE p.ativo = TRUE
                AND c.ativo = TRUE
                AND (
                     p.nome LIKE ?
                     OR c.nome LIKE ?
+                    OR r.nome LIKE ?
                )
              ORDER BY
                 CASE
                     WHEN p.nome LIKE ? THEN 0
                     WHEN c.nome LIKE ? THEN 1
-                    ELSE 2
+                    WHEN r.nome LIKE ? THEN 2
+                    ELSE 3
                 END,
                 p.nome,
                 c.nome
              LIMIT ' . $limite
         );
-        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
-        $stmt->execute([$contem, $contem, $inicio, $inicio]);
+        $stmt->execute([$contem, $contem, $contem, $inicio, $inicio, $inicio]);
 
         // Armazena o resultado final da operação ou consulta que será devolvido ou exibido pela página.
         $resultado = array_map(
-            static fn (array $item): array => [
-                'id' => (int) $item['id'],
-                'label' => (string) $item['nome'] . ' — ' . (string) $item['tutor'],
-                'detail' => 'Pet • tutor responsável',
-            ],
-            // Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
+            static function (array $item): array {
+                $raca = trim((string) ($item['raca'] ?? ''));
+                $partes = [(string) $item['nome']];
+
+                if ($raca !== '') {
+                    $partes[] = $raca;
+                }
+
+                $partes[] = (string) $item['tutor'];
+
+                return [
+                    'id' => (int) $item['id'],
+                    'label' => implode(' — ', $partes),
+                    'detail' => $raca !== ''
+                        ? 'Pet • Raça: ' . $raca . ' • tutor responsável'
+                        : 'Pet • raça não informada • tutor responsável',
+                ];
+            },
             $stmt->fetchAll()
         );
 
@@ -173,17 +186,17 @@ try {
 
         // Armazena em "petsStmt" o valor necessário para as próximas etapas deste fluxo.
         $petsStmt = $pdo->prepare(
-            'SELECT p.id, p.nome, c.nome AS tutor
+            'SELECT p.id, p.nome, c.nome AS tutor, r.nome AS raca
              FROM pets p
              JOIN clientes c ON c.id = p.cliente_id
+             LEFT JOIN racas r ON r.id = p.raca_id
              WHERE p.ativo = TRUE
                AND c.ativo = TRUE
-               AND (p.nome LIKE ? OR c.nome LIKE ?)
+               AND (p.nome LIKE ? OR c.nome LIKE ? OR r.nome LIKE ?)
              ORDER BY p.nome
              LIMIT 8'
         );
-        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
-        $petsStmt->execute([$contem, $contem]);
+        $petsStmt->execute([$contem, $contem, $contem]);
 
         // Armazena em "tutoresStmt" o valor necessário para as próximas etapas deste fluxo.
         $tutoresStmt = $pdo->prepare(
@@ -202,10 +215,14 @@ try {
 
         // Percorre cada item da coleção para processar os registros individualmente.
         foreach ($petsStmt->fetchAll() as $item) {
+            $raca = trim((string) ($item['raca'] ?? ''));
+
             $resultado[] = [
                 'id' => (int) $item['id'],
                 'label' => (string) $item['nome'],
-                'detail' => 'Pet • Tutor: ' . (string) $item['tutor'],
+                'detail' => 'Pet'
+                    . ($raca !== '' ? ' • ' . $raca : ' • raça não informada')
+                    . ' • Tutor: ' . (string) $item['tutor'],
                 'url' => 'ficha-pet.php?id=' . (int) $item['id'],
                 'kind' => 'pet',
             ];
@@ -355,14 +372,13 @@ try {
                 l.pet_id,
                 p.nome AS pet,
                 c.nome AS tutor,
+                r.nome AS raca,
                 l.servico_id,
-                l.pet_pacote_id,
-                l.creditos_pacote_usados,
-                l.valor_servico,
-                l.descricao
+                ...
              FROM lancamentos_diarios l
              JOIN pets p ON p.id = l.pet_id
              JOIN clientes c ON c.id = p.cliente_id
+             LEFT JOIN racas r ON r.id = p.raca_id
              WHERE l.id IN ($placeholders)
              ORDER BY l.id"
         );
@@ -423,7 +439,7 @@ try {
             "SELECT
                 COALESCE(SUM(CASE WHEN fp.nome = 'Dinheiro' THEN p.valor ELSE 0 END), 0) AS dinheiro,
                 COALESCE(SUM(CASE WHEN fp.nome = 'Pix' THEN p.valor ELSE 0 END), 0) AS pix,
-                COALESCE(SUM(CASE WHEN fp.nome IN ('Cartão', 'Cartão de débito', 'Cartão de crédito') THEN p.valor ELSE 0 END), 0) AS cartao
+                COALESCE(SUM(CASE WHEN LOWER(fp.nome) LIKE 'cart%' THEN p.valor ELSE 0 END), 0) AS cartao
              FROM pagamentos p
              JOIN formas_pagamento fp ON fp.id = p.forma_pagamento_id
              WHERE p.estornado = FALSE
@@ -450,7 +466,14 @@ try {
         echo json_encode([
             'registro' => $registro,
             'pet_id' => (int) $linhas[0]['pet_id'],
-            'pet_label' => (string) $linhas[0]['pet'] . ' — ' . (string) $linhas[0]['tutor'],
+            'pet_label' => implode(
+                ' — ',
+                array_values(array_filter([
+                    (string) $linhas[0]['pet'],
+                    trim((string) ($linhas[0]['raca'] ?? '')),
+                    (string) $linhas[0]['tutor'],
+                ], static fn (string $parte): bool => $parte !== ''))
+            ),
             'servicos' => $servicos,
             'pagamentos' => [
                 'dinheiro' => (float) ($pagamentos['dinheiro'] ?? 0),

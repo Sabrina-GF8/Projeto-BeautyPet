@@ -112,11 +112,7 @@ $sqlHistorico = '
     LEFT JOIN (
         SELECT
             p.lancamento_diario_id,
-            GROUP_CONCAT(
-                DISTINCT fp.nome
-                ORDER BY fp.nome
-                SEPARATOR \' + \'
-            ) AS formas
+            STRING_AGG(DISTINCT fp.nome, \' + \' ORDER BY fp.nome) AS formas
         FROM pagamentos p
         JOIN formas_pagamento fp
             ON fp.id = p.forma_pagamento_id
@@ -129,7 +125,7 @@ $sqlHistorico = '
     LEFT JOIN (
         SELECT
             lancamento_diario_id,
-            GROUP_CONCAT(
+            STRING_AGG(
                 DISTINCT CASE
                     WHEN tipo_saldo = \'CREDITO\' AND operacao = \'SAIDA\'
                         THEN \'Crédito utilizado\'
@@ -139,8 +135,8 @@ $sqlHistorico = '
                         THEN \'Débito pendente\'
                     WHEN tipo_saldo = \'DEBITO\' AND operacao = \'SAIDA\'
                         THEN \'Débito pago\'
-                END
-                SEPARATOR \' + \'
+                END,
+                \' + \'
             ) AS movimentos
         FROM movimentacoes_cliente
         WHERE lancamento_diario_id IS NOT NULL

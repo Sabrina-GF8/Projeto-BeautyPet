@@ -1,7 +1,7 @@
 <?php
 
 // Carrega o arquivo de configuração do sistema.
-require __DIR__ . '/config.php';
+require __DIR__ . '/../config/config.php';
 
 // Obtém o ID do tutor informado pela URL.
 // O valor é validado para garantir que seja um número inteiro.
@@ -67,7 +67,7 @@ if (!$tutor) {
 
 // Consulta os pets vinculados ao tutor,
 // incluindo informações de espécie, raça e pacotes.
-$sqlPets = '
+$sqlPets = <<<'SQL'
     SELECT
         p.id,
         p.nome,
@@ -89,13 +89,12 @@ $sqlPets = '
             pet_id,
             COUNT(*) AS pacotes_ativos,
             SUM(creditos_restantes) AS creditos_restantes,
-            GROUP_CONCAT(
-                CONCAT(pacote, \': \', creditos_restantes, \' restante(s)\')
-                ORDER BY pacote
-                SEPARATOR \', \'
+            STRING_AGG(
+                CONCAT(pacote, ': ', creditos_restantes, ' restante(s)'),
+                ', ' ORDER BY pacote
             ) AS resumo_pacotes
         FROM vw_saldo_pacotes
-        WHERE status = \'ATIVO\'
+        WHERE status = 'ATIVO'
           AND creditos_restantes > 0
         GROUP BY pet_id
     ) pkg
@@ -103,7 +102,7 @@ $sqlPets = '
     WHERE p.cliente_id = :cliente_id
       AND p.ativo = TRUE
     ORDER BY p.nome
-';
+SQL;
 
 // Prepara a consulta dos pets.
 $stmt = $pdo->prepare($sqlPets);
@@ -116,23 +115,19 @@ $pets = $stmt->fetchAll();
 
 // Consulta o histórico financeiro do tutor,
 // incluindo pagamentos e movimentações de crédito e débito.
-$sqlHistorico = '
+$sqlHistorico = <<<'SQL'
     SELECT
         h.*,
         COALESCE(
-            NULLIF(CONCAT_WS(\' + \', pg.formas, mov.movimentos), \'\'),
-            \'Não informado\'
+            NULLIF(CONCAT_WS(' + ', pg.formas, mov.movimentos), ''),
+            'Não informado'
         ) AS forma_pagamento
     FROM vw_historico_cliente h
 
     LEFT JOIN (
         SELECT
             p.lancamento_diario_id,
-            GROUP_CONCAT(
-                DISTINCT fp.nome
-                ORDER BY fp.nome
-                SEPARATOR \' + \'
-            ) AS formas
+            STRING_AGG(DISTINCT fp.nome, ' + ' ORDER BY fp.nome) AS formas
         FROM pagamentos p
         JOIN formas_pagamento fp
             ON fp.id = p.forma_pagamento_id
@@ -145,18 +140,18 @@ $sqlHistorico = '
     LEFT JOIN (
         SELECT
             lancamento_diario_id,
-            GROUP_CONCAT(
+            STRING_AGG(
                 DISTINCT CASE
-                    WHEN tipo_saldo = \'CREDITO\' AND operacao = \'SAIDA\'
-                        THEN \'Crédito utilizado\'
-                    WHEN tipo_saldo = \'CREDITO\' AND operacao = \'ENTRADA\'
-                        THEN \'Crédito gerado\'
-                    WHEN tipo_saldo = \'DEBITO\' AND operacao = \'ENTRADA\'
-                        THEN \'Débito pendente\'
-                    WHEN tipo_saldo = \'DEBITO\' AND operacao = \'SAIDA\'
-                        THEN \'Débito pago\'
-                END
-                SEPARATOR \' + \'
+                    WHEN tipo_saldo = 'CREDITO' AND operacao = 'SAIDA'
+                        THEN 'Crédito utilizado'
+                    WHEN tipo_saldo = 'CREDITO' AND operacao = 'ENTRADA'
+                        THEN 'Crédito gerado'
+                    WHEN tipo_saldo = 'DEBITO' AND operacao = 'ENTRADA'
+                        THEN 'Débito pendente'
+                    WHEN tipo_saldo = 'DEBITO' AND operacao = 'SAIDA'
+                        THEN 'Débito pago'
+                END,
+                ' + '
             ) AS movimentos
         FROM movimentacoes_cliente
         WHERE lancamento_diario_id IS NOT NULL
@@ -167,7 +162,7 @@ $sqlHistorico = '
     WHERE h.cliente_id = :cliente_id
     ORDER BY h.data_fechamento DESC, h.lancamento_diario_id DESC
     LIMIT 100
-';
+SQL;
 
 // Prepara a consulta do histórico financeiro.
 $stmt = $pdo->prepare($sqlHistorico);
@@ -185,7 +180,7 @@ $tituloPagina = 'Ficha de ' . $tutor['nome'];
 $paginaAtiva = 'fichas-tutores';
 
 // Carrega o topo da página.
-require __DIR__ . '/includes/topo.php';
+require __DIR__ . '/../includes/topo.php';
 ?>
 
 <!-- Área principal da ficha do tutor. -->
@@ -196,6 +191,17 @@ require __DIR__ . '/includes/topo.php';
         <i class="fa-solid fa-arrow-left"></i>
         Voltar para fichas dos tutores
     </a>
+
+    <?php if (isset($_GET['editado'])): ?>
+        <div class="message success detail-edit-message">Dados atualizados com sucesso!</div>
+    <?php endif; ?>
+
+    <div class="detail-page-actions">
+        <a class="detail-edit-button" href="cadastro-tutor.php?editar=<?= (int) $id ?>">
+            <i class="fa-solid fa-pen"></i>
+            Editar tutor
+        </a>
+    </div>
 
     <!-- Organiza as informações principais do tutor. -->
     <div class="detail-layout">
@@ -341,11 +347,11 @@ require __DIR__ . '/includes/topo.php';
                        href="ficha-pet.php?id=<?= (int) $pet['id'] ?>">
 
                         <!-- Verifica se existe uma foto cadastrada. -->
-                        <?php if (!empty($pet['foto_url'])): ?>
+                        <?php $fotoPet = urlFotoPet($pet['foto_url'] ?? null); ?>
+                        <?php if ($fotoPet): ?>
 
-                            <!-- Exibe a foto do pet. -->
-                            <img
-                                src="<?= escapar($pet['foto_url']) ?>"
+                            <img 
+                                src="<?= escapar($fotoPet) ?>" 
                                 alt="Foto de <?= escapar($pet['nome']) ?>">
 
                         <?php else: ?>
@@ -499,6 +505,6 @@ require __DIR__ . '/includes/topo.php';
 <?php
 
 // Carrega o rodapé da página.
-require __DIR__ . '/includes/rodape.php';
+require __DIR__ . '/../includes/rodape.php';
 
 ?>

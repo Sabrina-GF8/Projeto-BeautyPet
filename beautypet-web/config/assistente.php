@@ -381,7 +381,7 @@ function assistenteSugestoes(?string $chaveAtual = null, int $quantidade = 4): a
 /**
  * Padroniza o formato de qualquer resposta do assistente.
  */
-function assistenteMontarResposta(string $chave, string $resposta, array $itens): array
+function assistenteMontarResposta(string $chave, string $resposta, array $itens, string $evidencia = '', string $fonte = ''): array
 {
     // Busca o titulo do assunto respondido no catalogo.
     $assunto = assistenteAssuntoPorChave($chave);
@@ -392,6 +392,8 @@ function assistenteMontarResposta(string $chave, string $resposta, array $itens)
         'titulo'    => $assunto['titulo'],
         'resposta'  => $resposta,
         'itens'     => $itens,
+        'evidencia' => $evidencia,
+        'fonte'     => $fonte,
         'sugestoes' => assistenteSugestoes($chave),
     ];
 }
@@ -431,6 +433,8 @@ function assistenteResponder(PDO $pdo, string $pergunta): array
             'titulo'    => 'Pergunta em branco',
             'resposta'  => 'Escreva a sua pergunta que eu consulto os dados do Beauty Pet para você.',
             'itens'     => [],
+            'evidencia' => '',
+            'fonte'     => '',
             'sugestoes' => assistenteSugestoes(null),
         ];
     }
@@ -453,8 +457,10 @@ function assistenteResponder(PDO $pdo, string $pergunta): array
         return [
             'chave'     => 'nao-entendi',
             'titulo'    => 'Não entendi a pergunta',
-            'resposta'  => 'Sobre isso eu não sei responder. Pode me perguntar sobre os pets, a agenda, os serviços, os pagamentos e o faturamento do Beauty Pet.',
+            'resposta'  => 'Ainda não sei responder sobre isso. Eu só falo sobre o que está registrado no Beauty Pet: faturamento, serviços, agenda, pagamentos, pets afastados e as análises do sistema.',
             'itens'     => [],
+            'evidencia' => 'Nenhum assunto do catálogo combinou com o texto enviado',
+            'fonte'     => '',
             'sugestoes' => assistenteSugestoes(null, 5),
         ];
     }

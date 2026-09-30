@@ -1,51 +1,64 @@
 <?php
+$scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+$diretorioScript = rtrim(str_replace('\\', '/', dirname($scriptName)), '/.');
 
-// Define a URL base da aplicação web para o roteamento de assets e links.
-// O caminho é descoberto sozinho, comparando a pasta do projeto com a raiz do servidor,
-// para que o sistema continue funcionando mesmo se a pasta for renomeada ou movida.
-$pastaDoProjeto = str_replace(DIRECTORY_SEPARATOR, '/', (string) realpath(dirname(__DIR__)));
-$raizDoServidor = str_replace(DIRECTORY_SEPARATOR, '/', (string) realpath($_SERVER['DOCUMENT_ROOT'] ?? ''));
+$documentRoot = str_replace('\\', '/', (string) realpath($_SERVER['DOCUMENT_ROOT'] ?? ''));
+$projectRoot  = str_replace('\\', '/', (string) realpath(dirname(__DIR__)));
 
-// Compara os dois caminhos em minúsculas porque no Windows a mesma pasta
-// pode aparecer escrita de formas diferentes ("C:/xampp" e "c:/xampp").
-$comparavelProjeto = strtolower($pastaDoProjeto);
-$comparavelRaiz    = strtolower($raizDoServidor);
-
-// Quando o projeto está dentro da raiz do servidor, a URL base é o que sobra do caminho.
-if ($comparavelRaiz !== '' && str_starts_with($comparavelProjeto, $comparavelRaiz)) {
-    $urlBase = substr($pastaDoProjeto, strlen($raizDoServidor));
+if ($documentRoot !== '' && $projectRoot !== '' && str_starts_with(strtolower($projectRoot), strtolower($documentRoot))) {
+    $baseUrlCalculada = substr($projectRoot, strlen($documentRoot));
 } else {
-    // Fora desse caso o projeto responde na própria raiz do endereço.
-    $urlBase = '';
+    $baseUrlCalculada = $diretorioScript === '/' ? '' : $diretorioScript;
 }
 
-define('BASE_URL', rtrim($urlBase, '/'));
+if (!defined('BASE_URL')) {
+    define('BASE_URL', rtrim($baseUrlCalculada, '/'));
+}
 
 // Carrega a função responsável por ler o arquivo .env
 require_once __DIR__ . '/env.php';
 
-try {
-    // Carrega as variáveis de ambiente (onde a DATABASE_URL do Supabase deve estar)
-    carregarEnv(__DIR__ . '/.env');
-    $databaseUrl = $_ENV['DATABASE_URL'];
-    
-    // Extrai os dados da string de conexão nativa do Supabase
-    $dadosConexao = parse_url($databaseUrl);
+// Carrega as variáveis de ambiente (onde a DATABASE_URL do Supabase deve estar)
+carregarEnv(__DIR__ . '/.env');
+$databaseUrl = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') ?: '';
 
-    // Cria a conexão PDO forçando o driver pgsql e sslmode requerido pelo Supabase
+if ($databaseUrl === '') {
+    exit('DATABASE_URL não configurada. Copie a string de conexão PostgreSQL do Supabase para config/.env.');
+}
+
+if (!in_array('pgsql', PDO::getAvailableDrivers(), true)) {
+    exit('O driver PDO_PGSQL não está habilitado no PHP. Ative extension=pdo_pgsql no php.ini e reinicie o Apache.');
+}
+
+$partesBanco = parse_url($databaseUrl);
+
+if ($partesBanco === false || empty($partesBanco['host']) || empty($partesBanco['user'])) {
+    exit('DATABASE_URL inválida. Use a string PostgreSQL exibida em Supabase > Project Settings > Database.');
+}
+
+$hostBanco = (string) $partesBanco['host'];
+$portaBanco = (int) ($partesBanco['port'] ?? 5432);
+$nomeBanco = ltrim((string) ($partesBanco['path'] ?? '/postgres'), '/');
+$usuarioBanco = urldecode((string) $partesBanco['user']);
+$senhaBanco = urldecode((string) ($partesBanco['pass'] ?? ''));
+
+$dsnBanco = "pgsql:host={$hostBanco};port={$portaBanco};dbname={$nomeBanco};sslmode=require";
+$usarPrepareEmulado = $portaBanco === 6543;
+
+try {
     $pdo = new PDO(
-        "pgsql:host={$dadosConexao['host']};port={$dadosConexao['port']};dbname=" . ltrim($dadosConexao['path'], '/') . ";sslmode=require",
-        $dadosConexao['user'],
-        $dadosConexao['pass'],
+        $dsnBanco,
+        $usuarioBanco,
+        $senhaBanco,
         [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_EMULATE_PREPARES   => $usarPrepareEmulado,
         ]
     );
-
+    $pdo->exec("SET TIME ZONE 'America/Sao_Paulo'");
 } catch (PDOException $erro) {
-    exit('Não foi possível conectar ao banco de dados: ' . $erro->getMessage());
+    exit('Não foi possível conectar ao Supabase/PostgreSQL: ' . $erro->getMessage());
 } catch (Exception $erro) {
     exit('Erro na configuração de ambiente: ' . $erro->getMessage());
 }
@@ -54,6 +67,12 @@ function escapar(?string $valor): string
 {
     // Devolve o resultado calculado para o ponto que chamou esta função.
     return htmlspecialchars($valor ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+/** Retorna o último ID gerado por uma sequência PostgreSQL nesta conexão. */
+function ultimoIdInserido(PDO $pdo): int
+{
+    return (int) $pdo->query('SELECT LASTVAL()')->fetchColumn();
 }
 
 /**
@@ -493,12 +512,17 @@ function buscarPetParaCampo(PDO $pdo, ?int $petId): ?array
 
     // Prepara uma consulta em "pets" para carregar os dados necessários a esta etapa.
     $stmt = $pdo->prepare(
-        'SELECT p.id, p.nome, c.nome AS tutor
-         FROM pets p
-         JOIN clientes c ON c.id = p.cliente_id
-         WHERE p.id = :id
-           AND p.ativo = TRUE
-           AND c.ativo = TRUE
+        'SELECT 
+            p.id, 
+            p.nome, 
+            c.nome AS tutor, 
+            r.nome AS raca 
+         FROM pets p 
+         JOIN clientes c ON c.id = p.cliente_id 
+         LEFT JOIN racas r ON r.id = p.raca_id 
+         WHERE p.id = :id 
+           AND p.ativo = TRUE 
+           AND c.ativo = TRUE 
          LIMIT 1'
     );
     // Executa a instrução preparada enviando os parâmetros de forma separada e segura.

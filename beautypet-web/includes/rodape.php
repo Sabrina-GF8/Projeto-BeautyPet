@@ -345,6 +345,93 @@ if (globalSearch) {
     // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
     input?.addEventListener("blur", () => setTimeout(closeGlobal, 140));
 }
-</script>
-</body>
-</html>
+// ============================================================ <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+// NOTIFICAÇÕES DE SOLICITAÇÕES DO MOBILE <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+// ============================================================ <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+// O sistema consulta o servidor periodicamente para que o sino acenda <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+// mesmo se a funcionária estiver usando outra tela do sistema. <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+const requestNotificationBell = document.querySelector("#requestNotificationBell"); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+const requestNotificationBadge = document.querySelector("#requestNotificationBadge"); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+if (requestNotificationBell && requestNotificationBadge) { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+    let ultimoTotalSolicitacoes = Number( <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        requestNotificationBell.dataset.initialCount || 0 <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+    ); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+    const atualizarVisualSino = total => { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        const possuiPendentes = total > 0; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+        requestNotificationBell.classList.toggle( <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            "has-notifications", <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            possuiPendentes <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        ); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+        requestNotificationBadge.hidden = !possuiPendentes; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        requestNotificationBadge.textContent = total > 99 ? "99+" : String(total); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+        requestNotificationBell.setAttribute( <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            "aria-label", <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            possuiPendentes <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                ? `${total} solicitação(ões) de agendamento pendente(s)` <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                : "Nenhuma solicitação de agendamento pendente" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        ); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+    }; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+    const consultarSolicitacoesMobile = async () => { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        try { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            const resposta = await fetch( <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                `notificacoes-solicitacoes.php?_=${Date.now()}`, <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                    cache: "no-store", <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                    headers: { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                        "X-Requested-With": "XMLHttpRequest" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                    } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            ); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+            if (!resposta.ok) { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                return; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+            const dados = await resposta.json(); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+            if (!dados.sucesso) { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                return; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+            const totalAtual = Number(dados.total || 0); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+            // Quando chega uma nova solicitação enquanto a página já está aberta, <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            // além de acender o sino fazemos um pulso rápido para chamar atenção. <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            if (totalAtual > ultimoTotalSolicitacoes) { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                requestNotificationBell.classList.remove("notification-arrived"); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                void requestNotificationBell.offsetWidth; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                requestNotificationBell.classList.add("notification-arrived"); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+                window.setTimeout(() => { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                    requestNotificationBell.classList.remove("notification-arrived"); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                }, 800); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+            atualizarVisualSino(totalAtual); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            ultimoTotalSolicitacoes = totalAtual; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        } catch (erro) { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            // Uma falha temporária de rede não interfere no restante da página. <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+    }; <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+    atualizarVisualSino(ultimoTotalSolicitacoes); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+    // Consulta a cada 8 segundos. <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+    window.setInterval(consultarSolicitacoesMobile, 8000); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+    // Também confere imediatamente quando o usuário volta para esta aba. <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+    document.addEventListener("visibilitychange", () => { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        if (!document.hidden) { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+            consultarSolicitacoesMobile(); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+        } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+    }); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+} <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+</script> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
+</body> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
+</html> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>

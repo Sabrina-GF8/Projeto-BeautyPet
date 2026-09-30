@@ -259,7 +259,11 @@ $stmt = $pdo->prepare(
     "SELECT
         v.*,
         COALESCE(op.quantidade_servicos, 0) AS quantidade_servicos_operacionais,
-        COALESCE(op.quantidade_pets, 0) AS quantidade_pets_operacionais
+        COALESCE(op.quantidade_pets, 0) AS quantidade_pets_operacionais,
+        COALESCE(pg_real.dinheiro, 0) AS pagamento_dinheiro_real,
+        COALESCE(pg_real.pix, 0) AS pagamento_pix_real,
+        COALESCE(pg_real.cartao, 0) AS pagamento_cartao_real,
+        COALESCE(pg_real.total_recebido, 0) AS pagamento_total_real
      FROM vw_fechamento_diario v
      LEFT JOIN (
         SELECT
@@ -272,6 +276,27 @@ $stmt = $pdo->prepare(
         WHERE LOWER(cs.nome) <> 'financeiro'
         GROUP BY l.fechamento_diario_id
      ) op ON op.fechamento_diario_id = v.fechamento_diario_id
+     LEFT JOIN (
+        SELECT
+            p.fechamento_diario_id,
+            SUM(CASE
+                WHEN LOWER(fp.nome) = 'dinheiro' THEN p.valor
+                ELSE 0
+            END) AS dinheiro,
+            SUM(CASE
+                WHEN LOWER(fp.nome) = 'pix' THEN p.valor
+                ELSE 0
+            END) AS pix,
+            SUM(CASE
+                WHEN LOWER(fp.nome) LIKE 'cart%' THEN p.valor
+                ELSE 0
+            END) AS cartao,
+            SUM(p.valor) AS total_recebido
+        FROM pagamentos p
+        JOIN formas_pagamento fp ON fp.id = p.forma_pagamento_id
+        WHERE p.estornado = FALSE
+        GROUP BY p.fechamento_diario_id
+     ) pg_real ON pg_real.fechamento_diario_id = v.fechamento_diario_id
      WHERE v.data_fechamento BETWEEN ? AND ?
      ORDER BY v.data_fechamento"
 );
@@ -285,6 +310,12 @@ $dadosPorData = [];
 
 // Percorre cada item da coleção para processar os registros individualmente.
 foreach ($dadosDiasBanco as $diaBanco) {
+    // Recalcula as formas de pagamento diretamente da tabela de pagamentos não estornados
+    $diaBanco['dinheiro'] = (float) ($diaBanco['pagamento_dinheiro_real'] ?? 0);
+    $diaBanco['pix'] = (float) ($diaBanco['pagamento_pix_real'] ?? 0);
+    $diaBanco['cartao'] = (float) ($diaBanco['pagamento_cartao_real'] ?? 0);
+    $diaBanco['total_recebido'] = (float) ($diaBanco['pagamento_total_real'] ?? 0);
+
     $dadosPorData[(string) $diaBanco['data_fechamento']] = $diaBanco;
 }
 

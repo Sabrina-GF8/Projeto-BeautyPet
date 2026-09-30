@@ -1350,59 +1350,42 @@ require __DIR__ . '/../includes/topo.php';
     </div>
 </div>
 
-<!-- Script responsável pelas interações desta parte da página no navegador. -->
+<!-- Script responsável pelas interações da agenda e busca de pets -->
 <script>
     (() => {
-        // Armazena em "slots" um valor usado pela lógica executada no navegador.
         const slots = <?= json_encode(
-                            $slotsBanhoJs,
+                            $slotsBanhoJs ?? [],
                             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
                         ) ?>;
 
-        // Obtém a referência do elemento "modal" para ler ou alterar seu conteúdo/comportamento.
         const modal = document.querySelector('#agendaEventModal');
-        // Obtém a referência do elemento "form" para ler ou alterar seu conteúdo/comportamento.
         const form = document.querySelector('#agendaEventForm');
-        // Obtém a referência do elemento "fechar" para ler ou alterar seu conteúdo/comportamento.
         const fechar = document.querySelector('#agendaModalClose');
-        // Obtém a referência do elemento "cancelar" para ler ou alterar seu conteúdo/comportamento.
         const cancelar = document.querySelector('#agendaModalCancel');
-        // Obtém a referência do elemento "botoesAbrir" para ler ou alterar seu conteúdo/comportamento.
         const botoesAbrir = document.querySelectorAll('[data-open-agenda]');
-        // Obtém a referência do elemento "titulo" para ler ou alterar seu conteúdo/comportamento.
         const titulo = document.querySelector('#agendaModalTitle');
-        // Obtém a referência do elemento "categoriaTexto" para ler ou alterar seu conteúdo/comportamento.
         const categoriaTexto = document.querySelector('#agendaModalCategory');
-        // Obtém a referência do elemento "acao" para ler ou alterar seu conteúdo/comportamento.
         const acao = document.querySelector('#agendaFormAction');
-        // Obtém a referência do elemento "agendamentoId" para ler ou alterar seu conteúdo/comportamento.
         const agendamentoId = document.querySelector('#agendaFormId');
-        // Obtém a referência do elemento "petInput" para ler ou alterar seu conteúdo/comportamento.
+        
+        // Elementos do componente de busca de pet
+        const petPicker = document.querySelector('[data-search-picker="pet"]');
         const petInput = document.querySelector('#petAgendaBusca');
-        // Obtém a referência do elemento "petValue" para ler ou alterar seu conteúdo/comportamento.
         const petValue = document.querySelector('#petAgenda');
-        // Obtém a referência do elemento "servico" para ler ou alterar seu conteúdo/comportamento.
+        const petResults = document.querySelector('[data-search-results]');
+
         const servico = document.querySelector('#servicoAgenda');
-        // Obtém a referência do elemento "duracao" para ler ou alterar seu conteúdo/comportamento.
         const duracao = document.querySelector('#duracaoBanho');
-        // Obtém a referência do elemento "horaBanho" para ler ou alterar seu conteúdo/comportamento.
         const horaBanho = document.querySelector('#horaBanho');
-        // Obtém a referência do elemento "horaManual" para ler ou alterar seu conteúdo/comportamento.
         const horaManual = document.querySelector('#horaInicio');
-        // Obtém a referência do elemento "dataFim" para ler ou alterar seu conteúdo/comportamento.
         const dataFim = document.querySelector('#dataFim');
-        // Obtém a referência do elemento "observacoes" para ler ou alterar seu conteúdo/comportamento.
         const observacoes = document.querySelector('#observacoesAgenda');
-        // Obtém a referência do elemento "bathFields" para ler ou alterar seu conteúdo/comportamento.
+        
         const bathFields = document.querySelectorAll('.bath-schedule-field');
-        // Obtém a referência do elemento "manualFields" para ler ou alterar seu conteúdo/comportamento.
         const manualFields = document.querySelectorAll('.manual-schedule-field');
-        // Obtém a referência do elemento "hotelFields" para ler ou alterar seu conteúdo/comportamento.
         const hotelFields = document.querySelectorAll('.hotel-schedule-field');
-        // Obtém a referência do elemento "crecheFields" para ler ou alterar seu conteúdo/comportamento.
         const crecheFields = document.querySelectorAll('.creche-info-field');
 
-        // Armazena em "nomesCategorias" um valor usado pela lógica executada no navegador.
         const nomesCategorias = {
             banho_tosa: 'Banho e tosa',
             creche: 'Creche',
@@ -1411,93 +1394,158 @@ require __DIR__ . '/../includes/topo.php';
             taxidog: 'Taxidog'
         };
 
-        // Armazena em "categoriaAtual" um valor usado pela lógica executada no navegador.
         let categoriaAtual = '';
+        let debounceTimer = null;
 
-        // Armazena em "minutos" um valor usado pela lógica executada no navegador.
         const minutos = (hora) => {
-            // Armazena em "partes" um valor usado pela lógica executada no navegador.
             const partes = String(hora || '').split(':').map(Number);
             return ((partes[0] || 0) * 60) + (partes[1] || 0);
         };
 
-        // Armazena em "formatarDuracao" um valor usado pela lógica executada no navegador.
         const formatarDuracao = (total) => {
-            // Armazena em "horas" um valor usado pela lógica executada no navegador.
             const horas = Math.floor(total / 60);
-            // Armazena em "resto" um valor usado pela lógica executada no navegador.
             const resto = total % 60;
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (!horas) return `${resto} min`;
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (!resto) return `${horas}h`;
             return `${horas}h${String(resto).padStart(2, '0')}`;
         };
 
-        // Armazena em "abrirModal" um valor usado pela lógica executada no navegador.
+        // Reset do seletor de pet
+        const resetarBuscaPet = () => {
+            if (petInput) {
+                petInput.value = '';
+                petInput.dataset.selectedLabel = '';
+            }
+            if (petValue) {
+                petValue.value = '';
+            }
+            if (petResults) {
+                petResults.hidden = true;
+                petResults.innerHTML = '';
+            }
+        };
+
+        // Busca dinâmica ajustada para o seu arquivo busca-registros.php
+        const buscarPets = async (termo) => {
+            if (!termo || termo.length < 2) {
+                if (petResults) {
+                    petResults.hidden = true;
+                    petResults.innerHTML = '';
+                }
+                return;
+            }
+
+            try {
+                // Rota atualizada com o nome do arquivo correto e tipo=pet
+                const response = await fetch(`busca-registros.php?tipo=pet&q=${encodeURIComponent(termo)}`);
+                const pets = await response.json();
+
+                if (!petResults) return;
+
+                if (!pets || pets.length === 0) {
+                    petResults.innerHTML = '<div class="search-picker-empty" style="padding: 10px; color: #777;">Nenhum pet encontrado</div>';
+                } else {
+                    // Mapeia usando a propriedade 'label' retornada pelo seu PHP
+                    petResults.innerHTML = pets.map(pet => `
+    <button type="button" 
+            class="search-picker-item" 
+            data-pet-id="${pet.id}" 
+            data-pet-name="${pet.label}">
+        ${pet.label}
+    </button>
+`).join('');
+                }
+
+                petResults.hidden = false;
+            } catch (erro) {
+                console.error('Erro ao buscar pets:', erro);
+            }
+        };
+
+        // Evento ao digitar no campo de busca de pet
+        if (petInput) {
+            petInput.addEventListener('input', (e) => {
+                const termo = e.target.value.trim();
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => buscarPets(termo), 300);
+            });
+        }
+
+        // Evento de seleção do pet na lista
+        if (petResults) {
+            petResults.addEventListener('click', (e) => {
+                const item = e.target.closest('[data-pet-id]');
+                if (!item) return;
+
+                const id = item.dataset.petId;
+                const nome = item.dataset.petName;
+
+                if (petValue) petValue.value = id;
+                if (petInput) {
+                    petInput.value = nome;
+                    petInput.dataset.selectedLabel = nome;
+                }
+
+                petResults.hidden = true;
+                petResults.innerHTML = '';
+            });
+        }
+
+        // Oculta a lista de resultados se clicar fora do componente
+        document.addEventListener('click', (e) => {
+            if (petPicker && !petPicker.contains(e.target) && petResults) {
+                petResults.hidden = true;
+            }
+        });
+
         const abrirModal = () => {
             modal.classList.add('is-open');
             modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('agenda-modal-open');
         };
 
-        // Armazena em "fecharModal" um valor usado pela lógica executada no navegador.
         const fecharModal = () => {
             modal.classList.remove('is-open');
             modal.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('agenda-modal-open');
+            resetarBuscaPet();
         };
 
-        // Armazena em "mostrar" um valor usado pela lógica executada no navegador.
         const mostrar = (elementos, ativo) => {
-            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
             elementos.forEach((elemento) => {
                 elemento.hidden = !ativo;
             });
         };
 
-        // Armazena em "categoriaDoServico" um valor usado pela lógica executada no navegador.
         const categoriaDoServico = () => {
-            // Armazena em "opcao" um valor usado pela lógica executada no navegador.
             const opcao = servico.options[servico.selectedIndex];
             return opcao?.dataset?.category || '';
         };
 
-        // Armazena em "filtrarServicos" um valor usado pela lógica executada no navegador.
         const filtrarServicos = (categoria, manterSelecionado = false) => {
-            // Armazena em "quantidade" um valor usado pela lógica executada no navegador.
             let quantidade = 0;
-            // Armazena em "unicoValor" um valor usado pela lógica executada no navegador.
             let unicoValor = '';
-            // Armazena em "valorAtual" um valor usado pela lógica executada no navegador.
             const valorAtual = servico.value;
 
-            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
             Array.from(servico.options).forEach((opcao, indice) => {
-                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
                 if (indice === 0) {
                     opcao.hidden = false;
                     opcao.disabled = false;
                     return;
                 }
 
-                // Armazena em "pertence" um valor usado pela lógica executada no navegador.
                 const pertence = opcao.dataset.category === categoria;
                 opcao.hidden = !pertence;
                 opcao.disabled = !pertence;
 
-                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
                 if (pertence) {
                     quantidade += 1;
                     unicoValor = opcao.value;
                 }
             });
 
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (manterSelecionado && valorAtual) {
-                // Armazena em "atual" um valor usado pela lógica executada no navegador.
                 const atual = Array.from(servico.options).find((opcao) => opcao.value === valorAtual);
-                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
                 if (atual && !atual.disabled) {
                     servico.value = valorAtual;
                     return;
@@ -1507,36 +1555,23 @@ require __DIR__ . '/../includes/topo.php';
             servico.value = quantidade === 1 ? unicoValor : '';
         };
 
-        // Armazena em "atualizarHorariosBanho" um valor usado pela lógica executada no navegador.
         const atualizarHorariosBanho = (horarioPreferido = '') => {
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (!duracao || !horaBanho) return;
 
-            // Armazena em "anterior" um valor usado pela lógica executada no navegador.
             const anterior = horarioPreferido || horaBanho.value || horaBanho.dataset.selected || '';
-            // Armazena em "duracaoMinutos" um valor usado pela lógica executada no navegador.
             const duracaoMinutos = Number(duracao.value || 30);
-            // Armazena em "blocos" um valor usado pela lógica executada no navegador.
             const blocos = Math.ceil(duracaoMinutos / 30);
-            // Armazena em "opcoes" um valor usado pela lógica executada no navegador.
             const opcoes = [];
 
-            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
             slots.forEach((slot, indice) => {
-                // Armazena em "valido" um valor usado pela lógica executada no navegador.
                 let valido = true;
-                // Armazena em "menorRestante" um valor usado pela lógica executada no navegador.
                 let menorRestante = Infinity;
-                // Armazena em "inicio" um valor usado pela lógica executada no navegador.
                 const inicio = minutos(slot.hora);
 
                 for (let bloco = 0; bloco < blocos; bloco += 1) {
-                    // Armazena em "atual" um valor usado pela lógica executada no navegador.
                     const atual = slots[indice + bloco];
-                    // Armazena em "esperado" um valor usado pela lógica executada no navegador.
                     const esperado = inicio + (bloco * 30);
 
-                    // Verifica esta condição antes de alterar a interface ou continuar o processamento.
                     if (!atual || minutos(atual.hora) !== esperado || Number(atual.restantes) <= 0) {
                         valido = false;
                         break;
@@ -1545,7 +1580,6 @@ require __DIR__ . '/../includes/topo.php';
                     menorRestante = Math.min(menorRestante, Number(atual.restantes));
                 }
 
-                // Verifica esta condição antes de alterar a interface ou continuar o processamento.
                 if (valido) {
                     opcoes.push({
                         hora: slot.hora,
@@ -1556,9 +1590,7 @@ require __DIR__ . '/../includes/topo.php';
 
             horaBanho.innerHTML = '<option value="">Selecione o horário</option>';
 
-            // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
             opcoes.forEach((opcao) => {
-                // Armazena em "elemento" um valor usado pela lógica executada no navegador.
                 const elemento = document.createElement('option');
                 elemento.value = opcao.hora;
                 elemento.textContent = `${opcao.hora} — ${opcao.vagas} vaga(s) livre(s) para ${formatarDuracao(duracaoMinutos)}`;
@@ -1566,13 +1598,11 @@ require __DIR__ . '/../includes/topo.php';
                 horaBanho.appendChild(elemento);
             });
 
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (!opcoes.length) {
                 horaBanho.options[0].textContent = 'Nenhum horário disponível';
             }
         };
 
-        // Armazena em "configurarCategoria" um valor usado pela lógica executada no navegador.
         const configurarCategoria = (categoria, horarioPreferido = '') => {
             categoriaAtual = categoria;
             categoriaTexto.textContent = nomesCategorias[categoria] || 'Novo agendamento';
@@ -1589,25 +1619,19 @@ require __DIR__ . '/../includes/topo.php';
 
             filtrarServicos(categoria, form.dataset.editing === '1');
 
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (categoria === 'banho_tosa') {
                 atualizarHorariosBanho(horarioPreferido);
             }
         };
 
-        // Armazena em "prepararNovo" um valor usado pela lógica executada no navegador.
         const prepararNovo = (categoria, horario = '') => {
             form.dataset.editing = '0';
             acao.value = 'criar_agendamento';
             agendamentoId.value = '';
             titulo.textContent = 'Adicionar agendamento';
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
-            if (petInput) {
-                petInput.value = '';
-                petInput.dataset.selectedLabel = '';
-            }
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
-            if (petValue) petValue.value = '';
+            
+            resetarBuscaPet();
+
             observacoes.value = '';
             horaManual.value = '';
             dataFim.value = '';
@@ -1616,59 +1640,45 @@ require __DIR__ . '/../includes/topo.php';
 
             configurarCategoria(categoria, horario);
             abrirModal();
-            petInput?.focus();
+            
+            setTimeout(() => petInput?.focus(), 50);
         };
 
-        // Percorre os elementos encontrados e aplica a mesma regra a cada um deles.
         botoesAbrir.forEach((botao) => {
-            // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
             botao.addEventListener('click', () => {
                 prepararNovo(botao.dataset.category || '', botao.dataset.time || '');
             });
         });
 
-        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         servico.addEventListener('change', () => {
-            // Armazena em "categoria" um valor usado pela lógica executada no navegador.
             const categoria = categoriaDoServico();
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (categoria && categoria !== categoriaAtual) {
                 configurarCategoria(categoria);
             }
         });
 
-        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         duracao.addEventListener('change', () => {
             horaBanho.dataset.selected = '';
             atualizarHorariosBanho();
         });
 
-        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         fechar.addEventListener('click', fecharModal);
-        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         cancelar.addEventListener('click', fecharModal);
 
-        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         modal.addEventListener('click', (event) => {
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (event.target === modal) {
                 fecharModal();
             }
         });
 
-        // Registra um evento para executar a lógica quando o usuário interagir com este elemento.
         document.addEventListener('keydown', (event) => {
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (event.key === 'Escape' && modal.classList.contains('is-open')) {
                 fecharModal();
             }
         });
 
-        // Verifica esta condição antes de alterar a interface ou continuar o processamento.
         if (form.dataset.editing === '1' || modal.classList.contains('is-open')) {
-            // Armazena em "categoriaInicial" um valor usado pela lógica executada no navegador.
             const categoriaInicial = categoriaDoServico();
-            // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (categoriaInicial) {
                 configurarCategoria(categoriaInicial, horaBanho.dataset.selected || '');
                 abrirModal();
@@ -1676,5 +1686,7 @@ require __DIR__ . '/../includes/topo.php';
         }
     })();
 </script>
+
+
 
 <?php require __DIR__ . '/../includes/rodape.php'; ?>

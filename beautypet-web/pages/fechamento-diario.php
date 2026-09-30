@@ -20,6 +20,7 @@ $administrador = ($usuarioAtual['perfil'] ?? '') === 'ADMINISTRADOR';
 $mensagem = '';
 // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
 $tipoMensagem = '';
+$abrirModalFinalizacao = false;
 // Define a data que a página irá consultar/exibir, usando a data recebida na URL ou o dia atual.
 $dataSelecionada = (string) ($_GET['data'] ?? date('Y-m-d'));
 
@@ -522,6 +523,109 @@ function pagamentosPostFechamento(array $post): array
  * Executa a responsabilidade específica de "inserirFinanceiroRegistroFechamento" e devolve/produz o resultado necessário para o restante do módulo.
  * Mantém esta regra isolada para evitar repetição e facilitar manutenção/testes.
  */
+
+/**
+ * Calcula os números que devem ser conferidos antes de encerrar o dia.
+ *
+ * A contagem usa pets únicos por serviço. Assim, se o mesmo pet tiver dois
+ * lançamentos do mesmo serviço, ele não infla a quantidade conferida.
+ * Os pagamentos são lidos diretamente da tabela "pagamentos".
+ */
+function resumoConferenciaFinalFechamento(
+    PDO $pdo,
+    int $fechamentoId,
+    float $valorAbertura
+): array {
+    $petsPorGrupo = [
+        'banho' => [],
+        'banho_tosa' => [],
+        'higienica' => [],
+        'creche' => [],
+        'hotel' => [],
+    ];
+
+    $stmt = $pdo->prepare(
+        "SELECT DISTINCT
+            l.pet_id,
+            s.nome AS servico,
+            cs.nome AS categoria
+         FROM lancamentos_diarios l
+         JOIN servicos s ON s.id = l.servico_id
+         JOIN categorias_servico cs ON cs.id = s.categoria_id
+         WHERE l.fechamento_diario_id = :fechamento
+           AND LOWER(cs.nome) <> 'financeiro'"
+    );
+    $stmt->execute([':fechamento' => $fechamentoId]);
+
+    foreach ($stmt->fetchAll() as $linha) {
+        $petId = (int) $linha['pet_id'];
+        $servico = normalizarCategoriaAgenda((string) ($linha['servico'] ?? ''));
+        $categoria = normalizarCategoriaAgenda((string) ($linha['categoria'] ?? ''));
+        $texto = trim($categoria . ' ' . $servico);
+
+        if (str_contains($texto, 'creche')) {
+            $petsPorGrupo['creche'][$petId] = true;
+            continue;
+        }
+
+        if (str_contains($texto, 'hotel')) {
+            $petsPorGrupo['hotel'][$petId] = true;
+            continue;
+        }
+
+        if (str_contains($servico, 'higien')) {
+            $petsPorGrupo['higienica'][$petId] = true;
+            continue;
+        }
+
+        if (str_contains($servico, 'banho') && str_contains($servico, 'tosa')) {
+            $petsPorGrupo['banho_tosa'][$petId] = true;
+            continue;
+        }
+
+        if (str_contains($servico, 'banho')) {
+            $petsPorGrupo['banho'][$petId] = true;
+        }
+    }
+
+    $stmt = $pdo->prepare(
+        "SELECT
+            COALESCE(SUM(CASE
+                WHEN LOWER(fp.nome) = 'dinheiro' THEN p.valor
+                ELSE 0
+            END), 0) AS dinheiro,
+            COALESCE(SUM(CASE
+                WHEN LOWER(fp.nome) = 'pix' THEN p.valor
+                ELSE 0
+            END), 0) AS pix,
+            COALESCE(SUM(CASE
+                WHEN fp.nome IN ('Cartão', 'Cartão de débito', 'Cartão de crédito')
+                    THEN p.valor
+                ELSE 0
+            END), 0) AS cartao
+         FROM pagamentos p
+         JOIN formas_pagamento fp ON fp.id = p.forma_pagamento_id
+         WHERE p.estornado = FALSE
+           AND p.fechamento_diario_id = :fechamento"
+    );
+    $stmt->execute([':fechamento' => $fechamentoId]);
+    $pagamentos = $stmt->fetch() ?: [];
+
+    return [
+        'banho' => count($petsPorGrupo['banho']),
+        'banho_tosa' => count($petsPorGrupo['banho_tosa']),
+        'higienica' => count($petsPorGrupo['higienica']),
+        'creche' => count($petsPorGrupo['creche']),
+        'hotel' => count($petsPorGrupo['hotel']),
+        'dinheiro' => round(
+            $valorAbertura + (float) ($pagamentos['dinheiro'] ?? 0),
+            2
+        ),
+        'pix' => round((float) ($pagamentos['pix'] ?? 0), 2),
+        'cartao' => round((float) ($pagamentos['cartao'] ?? 0), 2),
+    ];
+}
+
 function inserirFinanceiroRegistroFechamento(
     PDO $pdo,
     int $fechamentoId,
@@ -712,6 +816,12 @@ $formasPorNome = [];
 foreach ($formasPagamento as $forma) {
     $formasPorNome[normalizarCategoriaAgenda((string) $forma['nome'])] = (int) $forma['id'];
 }
+
+$conferenciaFechamento = resumoConferenciaFinalFechamento(
+    $pdo,
+    $fechamentoId,
+    (float) ($fechamento['valor_abertura_caixa'] ?? 0)
+);
 
 // Armazena em "tiposAdicional" o valor necessário para as próximas etapas deste fluxo.
 $tiposAdicional = $pdo->query(
@@ -1670,13 +1780,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     elseif ($acao === 'finalizar_fechamento') {
-        // Guarda o valor de dinheiro que a equipe informou ter contado fisicamente no caixa.
+        // Guarda os valores informados pela equipe para a conferência final.
         $dinheiroContado = valorFechamento($_POST['valor_dinheiro_contado'] ?? 0);
+        $pixConferido = valorFechamento($_POST['valor_pix_conferido'] ?? 0);
+        $cartaoConferido = valorFechamento($_POST['valor_cartao_conferido'] ?? 0);
+
+        $quantidadesConferidas = [
+            'banho' => max(0, (int) ($_POST['quantidade_banho'] ?? 0)),
+            'banho_tosa' => max(0, (int) ($_POST['quantidade_banho_tosa'] ?? 0)),
+            'higienica' => max(0, (int) ($_POST['quantidade_higienica'] ?? 0)),
+            'creche' => max(0, (int) ($_POST['quantidade_creche'] ?? 0)),
+            'hotel' => max(0, (int) ($_POST['quantidade_hotel'] ?? 0)),
+        ];
+
         // Guarda observações informadas pela equipe para acompanhar o cadastro, agendamento ou lançamento.
         $observacoes = textoOuNull($_POST['observacoes_fechamento'] ?? null);
 
-        // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
-        try {
+        $divergencias = [];
+        $rotulosQuantidade = [
+            'banho' => 'Banho',
+            'banho_tosa' => 'Banho e tosa',
+            'higienica' => 'Tosa higiênica',
+            'creche' => 'Creche',
+            'hotel' => 'Hotel',
+        ];
+
+        foreach ($rotulosQuantidade as $chave => $rotulo) {
+            $esperado = (int) ($conferenciaFechamento[$chave] ?? 0);
+            $informado = (int) ($quantidadesConferidas[$chave] ?? 0);
+
+            if ($esperado !== $informado) {
+                $divergencias[] = $rotulo
+                    . ': sistema ' . $esperado
+                    . ', conferido ' . $informado;
+            }
+        }
+
+        $conferenciasFinanceiras = [
+            'Dinheiro' => [$dinheiroContado, (float) ($conferenciaFechamento['dinheiro'] ?? 0)],
+            'Pix' => [$pixConferido, (float) ($conferenciaFechamento['pix'] ?? 0)],
+            'Cartão' => [$cartaoConferido, (float) ($conferenciaFechamento['cartao'] ?? 0)],
+        ];
+
+        foreach ($conferenciasFinanceiras as $rotulo => [$informado, $esperado]) {
+            if (abs($informado - $esperado) > 0.009) {
+                $divergencias[] = $rotulo
+                    . ': sistema ' . formatarMoeda($esperado)
+                    . ', conferido ' . formatarMoeda($informado);
+            }
+        }
+
+        if ($divergencias) {
+            $mensagem = 'A conferência não bate. '
+                . implode(' | ', $divergencias)
+                . '. Corrija os valores antes de finalizar.';
+            $tipoMensagem = 'error';
+            $abrirModalFinalizacao = true;
+        } else {
+            // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
+            try {
             // Inicia uma transação para garantir que todas as alterações deste processo sejam salvas em conjunto.
             $pdo->beginTransaction();
 
@@ -1845,6 +2007,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
         }
+    }
     }
 
     // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
@@ -2164,8 +2327,19 @@ $stmt->execute([':id' => $fechamentoId]);
 // Obtém a próxima linha retornada pela consulta como um registro associativo.
 $resumoPagamentos = $stmt->fetch() ?: ['dinheiro' => 0, 'pix' => 0, 'cartao' => 0];
 
+$resumo['dinheiro'] = (float) ($resumoPagamentos['dinheiro'] ?? 0);
+$resumo['pix'] = (float) ($resumoPagamentos['pix'] ?? 0);
+$resumo['cartao'] = (float) ($resumoPagamentos['cartao'] ?? 0);
+$resumo['total_recebido'] = $resumo['dinheiro'] + $resumo['pix'] + $resumo['cartao'];
+
+$conferenciaFechamento = resumoConferenciaFinalFechamento(
+    $pdo,
+    $fechamentoId,
+    (float) ($fechamento['valor_abertura_caixa'] ?? 0)
+);
+
 // Calcula quanto dinheiro físico deveria existir no caixa conforme os lançamentos registrados.
-$dinheiroEsperado = round((float) ($fechamento['valor_abertura_caixa'] ?? 0) + (float) ($resumoPagamentos['dinheiro'] ?? 0), 2);
+$dinheiroEsperado = (float) ($conferenciaFechamento['dinheiro'] ?? 0);
 // Armazena em "dinheiroContadoAtual" o valor necessário para as próximas etapas deste fluxo.
 $dinheiroContadoAtual = $fechamento['valor_dinheiro_contado'] !== null ? (float) $fechamento['valor_dinheiro_contado'] : null;
 // Armazena em "diferencaDinheiro" o valor necessário para as próximas etapas deste fluxo.
@@ -2808,13 +2982,66 @@ require __DIR__ . '/../includes/topo.php';
             <input type="hidden" name="acao" value="finalizar_fechamento">
             <!-- Bloco visual "daily-modal-body" que organiza esta parte da interface. -->
             <div class="daily-modal-body">
-                <div class="daily-finish-preview"><span>Dinheiro esperado</span><strong><?= formatarMoeda($dinheiroEsperado) ?></strong></div>
-                <div class="daily-form-grid">
-                    <!-- Campo "valor_dinheiro_contado" utilizado para enviar esta informação no formulário. -->
-                    <div class="field span-12"><label>Dinheiro contado no caixa</label><div class="money-input"><span>R$</span><input name="valor_dinheiro_contado" type="number" min="0" step="0.01" required></div></div>
-                    <!-- Área de texto "observacoes_fechamento" para registrar observações livres sobre o registro. -->
-                    <div class="field span-12"><label>Observações <small>(opcional)</small></label><textarea name="observacoes_fechamento" placeholder="Ex.: caixa conferido, diferença explicada..."></textarea></div>
+                <div class="daily-finish-preview">
+                    <span>Conferência final do dia</span>
+                    <strong>Confira os valores e quantidades antes de finalizar.</strong>
                 </div>
+
+                <div class="daily-form-grid">
+                    <div class="field span-12">
+                        <label>Quantidade de pets por serviço</label>
+                    </div>
+
+                    <div class="field span-6">
+                        <label>Banho <small>Esperado: <?= (int) ($conferenciaFechamento['banho'] ?? 0) ?></small></label>
+                        <input name="quantidade_banho" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho'] ?? '')) ?>">
+                    </div>
+
+                    <div class="field span-6">
+                        <label>Banho e tosa <small>Esperado: <?= (int) ($conferenciaFechamento['banho_tosa'] ?? 0) ?></small></label>
+                        <input name="quantidade_banho_tosa" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho_tosa'] ?? '')) ?>">
+                    </div>
+
+                    <div class="field span-6">
+                        <label>Tosa higiênica <small>Esperado: <?= (int) ($conferenciaFechamento['higienica'] ?? 0) ?></small></label>
+                        <input name="quantidade_higienica" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_higienica'] ?? '')) ?>">
+                    </div>
+
+                    <div class="field span-6">
+                        <label>Creche <small>Esperado: <?= (int) ($conferenciaFechamento['creche'] ?? 0) ?></small></label>
+                        <input name="quantidade_creche" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_creche'] ?? '')) ?>">
+                    </div>
+
+                    <div class="field span-6">
+                        <label>Hotel <small>Esperado: <?= (int) ($conferenciaFechamento['hotel'] ?? 0) ?></small></label>
+                        <input name="quantidade_hotel" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_hotel'] ?? '')) ?>">
+                    </div>
+
+                    <div class="field span-12">
+                        <label>Formas de pagamento conferidas</label>
+                    </div>
+
+                    <div class="field span-4">
+                        <label>Dinheiro contado <small>Esperado: <?= formatarMoeda($conferenciaFechamento['dinheiro'] ?? 0) ?></small></label>
+                        <div class="money-input"><span>R$</span><input name="valor_dinheiro_contado" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_dinheiro_contado'] ?? '')) ?>"></div>
+                    </div>
+
+                    <div class="field span-4">
+                        <label>Pix conferido <small>Esperado: <?= formatarMoeda($conferenciaFechamento['pix'] ?? 0) ?></small></label>
+                        <div class="money-input"><span>R$</span><input name="valor_pix_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_pix_conferido'] ?? '')) ?>"></div>
+                    </div>
+
+                    <div class="field span-4">
+                        <label>Cartão conferido <small>Esperado: <?= formatarMoeda($conferenciaFechamento['cartao'] ?? 0) ?></small></label>
+                        <div class="money-input"><span>R$</span><input name="valor_cartao_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_cartao_conferido'] ?? '')) ?>"></div>
+                    </div>
+
+                    <div class="field span-12">
+                        <label>Observações <small>(opcional)</small></label>
+                        <textarea name="observacoes_fechamento" placeholder="Ex.: caixa conferido, diferença explicada..."><?= escapar((string) ($_POST['observacoes_fechamento'] ?? '')) ?></textarea>
+                    </div>
+                </div>
+
                 <div class="daily-final-warning"><i class="fa-solid fa-lock"></i><span>Depois de finalizar, as linhas ficam bloqueadas. Qualquer valor ainda não pago será lançado automaticamente como débito na ficha do tutor. Administradores podem reabrir o dia.</span></div>
             </div>
             <!-- Bloco visual "daily-modal-footer" que organiza esta parte da interface. -->
@@ -2974,6 +3201,10 @@ require __DIR__ . '/../includes/topo.php';
     };
 
     // Armazena em "closeModal" um valor usado pela lógica executada no navegador.
+    <?php if ($abrirModalFinalizacao): ?>
+    setTimeout(() => openModal('finish'), 0);
+    <?php endif; ?>
+
     const closeModal = (modal) => {
         // Verifica esta condição antes de alterar a interface ou continuar o processamento.
         if (!modal) return;
@@ -3684,6 +3915,78 @@ require __DIR__ . '/../includes/topo.php';
         });
     });
 })();
+
+// Adicionar dentro da IIFE existente na tag <script> do fechamento-diario.php
+
+const setupPetSearchPicker = () => {
+    const picker = document.querySelector('#dailyPetPicker');
+    if (!picker) return;
+
+    const input = picker.querySelector('[data-search-input]');
+    const hiddenValue = picker.querySelector('[data-search-value]');
+    const resultsBox = picker.querySelector('[data-search-results]');
+    let debounceTimer = null;
+
+    input.addEventListener('input', () => {
+        const query = input.value.trim();
+        clearTimeout(debounceTimer);
+
+        if (query.length < 2) {
+            resultsBox.hidden = true;
+            resultsBox.innerHTML = '';
+            hiddenValue.value = '';
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            try {
+                const response = await fetch(`busca-registros.php?tipo=pet&q=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error('Erro na requisição');
+
+                const data = await response.json();
+                resultsBox.innerHTML = '';
+
+                if (data.length === 0) {
+                    resultsBox.innerHTML = '<div class="search-picker-no-results" style="padding: 10px; font-size: 0.875rem; color: #666;">Nenhum pet encontrado</div>';
+                } else {
+                    data.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'search-picker-item';
+                        itemDiv.style.cursor = 'pointer';
+                        itemDiv.style.padding = '8px 12px';
+                        itemDiv.textContent = item.label;
+
+                        itemDiv.addEventListener('click', () => {
+                            input.value = item.label;
+                            hiddenValue.value = item.id;
+                            resultsBox.hidden = true;
+
+                            // Dispara evento para atualização automática de pacotes e saldo de débitos
+                            picker.dispatchEvent(new CustomEvent('search-picker:selected', { detail: item }));
+                        });
+
+                        resultsBox.appendChild(itemDiv);
+                    });
+                }
+
+                resultsBox.hidden = false;
+            } catch (error) {
+                console.error('Erro ao consultar pets:', error);
+            }
+        }, 300);
+    });
+
+    // Oculta caixa de resultados ao clicar fora do componente
+    document.addEventListener('click', (event) => {
+        if (!picker.contains(event.target)) {
+            resultsBox.hidden = true;
+        }
+    });
+};
+
+// Executa a inicialização do seletor
+setupPetSearchPicker();
 </script>
 
 <?php require __DIR__ . '/../includes/rodape.php'; ?>
+

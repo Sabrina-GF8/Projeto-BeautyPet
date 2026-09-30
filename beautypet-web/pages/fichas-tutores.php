@@ -62,14 +62,10 @@ if ($busca !== '') {
 
     // Adiciona as condições de pesquisa por nome ou e-mail.
     $sql .= '
-
-        AND (
-
-            c.nome LIKE :nome
-
-            OR c.email LIKE :email
-
-    ';
+    AND (
+        c.nome ILIKE :nome
+        OR c.email ILIKE :email
+';
 
     // Define os parâmetros utilizados na pesquisa.
     $parametros = [

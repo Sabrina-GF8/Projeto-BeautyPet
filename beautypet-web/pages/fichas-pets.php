@@ -74,10 +74,10 @@ if ($busca !== '') {
     // pelo nome do pet, tutor, espécie ou raça.
     $sql .= '
         AND (
-            p.nome LIKE :pet
-            OR c.nome LIKE :tutor
-            OR e.nome LIKE :especie
-            OR r.nome LIKE :raca
+            p.nome ILIKE :pet
+            OR c.nome ILIKE :tutor
+            OR e.nome ILIKE :especie
+            OR r.nome ILIKE :raca
         )
     ';
 
@@ -91,7 +91,7 @@ if ($busca !== '') {
 }
 
 // Organiza os pets em ordem alfabética pelo nome.
-$sql .= ' ORDER BY p.nome';
+$sql .= ' ORDER BY p.nome LIMIT 60';
 
 // Prepara a consulta SQL.
 $stmt = $pdo->prepare($sql);
@@ -171,6 +171,8 @@ require __DIR__ . '/../includes/topo.php';
 
     </form>
 
+    <small class="records-search-note">Mostrando no máximo 60 resultados. Para cadastros maiores, digite o nome do pet ou tutor para localizar rapidamente.</small>
+
     <!-- Verifica se nenhum pet foi encontrado. -->
     <?php if (!$pets): ?>
 
@@ -202,15 +204,15 @@ require __DIR__ . '/../includes/topo.php';
                     <!-- Cabeçalho do card do pet. -->
                     <div class="pet-card-head">
 
-                        <!-- Verifica se o pet possui uma foto cadastrada. -->
-                        <?php if (!empty($pet['foto_url'])): ?>
+                        <?php $fotoPet = urlFotoPet($pet['foto_url'] ?? null); ?>
+<?php if ($fotoPet): ?>
 
-                            <!-- Exibe a foto do pet. -->
-                            <img
-                                src="<?= escapar($pet['foto_url']) ?>"
-                                alt="Foto de <?= escapar($pet['nome']) ?>">
+    <!-- Exibe a foto do pet. -->
+    <img
+        src="<?= escapar($fotoPet) ?>"
+        alt="Foto de <?= escapar($pet['nome']) ?>">
 
-                        <?php else: ?>
+<?php else: ?>
 
                             <!-- Exibe um ícone quando não existe foto. -->
                             <div class="pet-photo-fallback">

@@ -39,6 +39,25 @@ $retornoAtual = paginaRetornoSegura($uriAtual);
 // Guarda uma condição booleana em "podeCriarUsuario" para controlar o fluxo ou a exibição da página.
 $podeCriarUsuario = !$usuariosAtivos
     || (($usuarioAtual['perfil'] ?? null) === 'ADMINISTRADOR');
+
+// Conta as solicitações pendentes vindas do aplicativo mobile.
+// O sino usa esse total para acender imediatamente quando a página é carregada.
+$totalSolicitacoesPendentesTopo = 0;
+
+try {
+    $stmtNotificacaoTopo = $pdo->query(
+        "SELECT COUNT(*)
+         FROM agendamentos
+         WHERE origem = 'MOBILE'
+           AND status = 'SOLICITADO'"
+    );
+
+    $totalSolicitacoesPendentesTopo = (int) $stmtNotificacaoTopo->fetchColumn();
+} catch (Throwable $erroNotificacaoTopo) {
+    // O cabeçalho não deve impedir o restante do sistema de abrir
+    // se houver uma falha momentânea na consulta das notificações.
+    $totalSolicitacoesPendentesTopo = 0;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -61,7 +80,7 @@ $podeCriarUsuario = !$usuariosAtivos
 <div class="container">
     <aside class="sidebar">
         <div class="logo">
-            <img src="<?= BASE_URL ?>/assets/logo.png" alt="Logo Beauty Pet">
+            <img src="<?= BASE_URL ?>/../assets/logo.png" alt="Logo Beauty Pet">
             <div class="logo-text">
                 <h2>Beauty Pet</h2>
                 <small>Sistema de Gestão</small>
@@ -172,7 +191,20 @@ $podeCriarUsuario = !$usuariosAtivos
             </div>
 
             <div class="header-right">
-                <i class="fa-solid fa-bell notification"></i>
+                <a id="requestNotificationBell"
+                    class="notification notification-link <?= $totalSolicitacoesPendentesTopo > 0 ? 'has-notifications' : '' ?>"
+                    href="<?= BASE_URL ?>/pages/solicitacoes-agendamento.php?aba=pendentes&origem=sino#solicitacoes-pendentes"
+                    data-initial-count="<?= $totalSolicitacoesPendentesTopo ?>"
+                    aria-label="<?= $totalSolicitacoesPendentesTopo > 0
+                        ? escapar($totalSolicitacoesPendentesTopo . ' solicitação(ões) de agendamento pendente(s)')
+                        : 'Nenhuma solicitação de agendamento pendente' ?>"
+                    title="Solicitações de agendamento">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="requestNotificationBadge" class="notification-badge"
+                        <?= $totalSolicitacoesPendentesTopo > 0 ? '' : 'hidden' ?>>
+                        <?= $totalSolicitacoesPendentesTopo > 99 ? '99+' : $totalSolicitacoesPendentesTopo ?>
+                    </span>
+                </a>
 
                 <div class="profile-container">
                     <button class="profile" id="profileButton" type="button" aria-haspopup="dialog">
