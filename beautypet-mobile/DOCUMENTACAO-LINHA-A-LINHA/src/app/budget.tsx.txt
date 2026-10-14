@@ -1,0 +1,32 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/app/budget.tsx
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import { api } from "@/lib/api";  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { useLocalSearchParams, useRouter } from "expo-router";  // ← L2: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { ArrowLeft } from "lucide-react-native";  // ← L3: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { useEffect, useState } from "react";  // ← L4: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";  // ← L5: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L6: Linha em branco usada para separar visualmente os blocos do arquivo.
+type Item = { data_fechamento: string; pet: string; servico: string; descricao?: string | null; valor_total: number };  // ← L7: Define a estrutura esperada dos dados no TypeScript.
+  // ← L8: Linha em branco usada para separar visualmente os blocos do arquivo.
+export default function Budget() {  // ← L9: Declara e exporta o componente principal desta tela para o Expo Router.
+  const router = useRouter();  // ← L10: Obtém o roteador do Expo Router para navegar entre as telas.
+  const params = useLocalSearchParams<{ ano?: string; mes?: string }>();  // ← L11: Lê parâmetros enviados pela rota anterior.
+  const [itens, setItens] = useState<Item[]>([]);  // ← L12: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const ano = Number(params.ano || new Date().getFullYear());  // ← L13: Declara uma variável/constante usada por este bloco de lógica.
+  const mes = Number(params.mes || new Date().getMonth() + 1);  // ← L14: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L15: Linha em branco usada para separar visualmente os blocos do arquivo.
+  useEffect(() => { api<{ itens: Item[] }>("budget", { ano, mes }).then(r => setItens(r.itens || [])).catch(() => setItens([])); }, [ano, mes]);  // ← L16: Executa um efeito quando o componente é carregado ou quando suas dependências mudam.
+  const moeda = (v: number) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });  // ← L17: Declara uma variável/constante usada por este bloco de lógica.
+  const total = itens.reduce((s, i) => s + Number(i.valor_total || 0), 0);  // ← L18: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L19: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return <SafeAreaView style={styles.container}><ScrollView contentContainerStyle={styles.content}>  // ← L20: Encerra a função devolvendo este valor ao código que a chamou.
+    <TouchableOpacity onPress={() => router.back()}><ArrowLeft size={24} color="#222" /></TouchableOpacity>  // ← L21: Navega para outra rota/tela do aplicativo.
+    <Text style={styles.title}>Budget Beauty Pet</Text><Text style={styles.subtitle}>Serviços registrados no WEB para a sua ficha e para os seus pets.</Text>  // ← L22: Linha de JSX que monta a interface visual ou renderiza um componente.
+    <View style={styles.total}><Text style={styles.totalLabel}>Total do período</Text><Text style={styles.totalValue}>{moeda(total)}</Text></View>  // ← L23: Linha de JSX que monta a interface visual ou renderiza um componente.
+    {itens.length === 0 ? <Text style={styles.empty}>Nenhum serviço encontrado neste mês.</Text> : itens.map((item, index) => <View key={`${item.data_fechamento}-${item.pet}-${item.servico}-${index}`} style={styles.card}><Text style={styles.pet}>{item.pet}</Text><Text style={styles.service}>{item.servico}</Text><Text style={styles.date}>{new Date(item.data_fechamento + "T12:00:00").toLocaleDateString("pt-BR")}</Text><Text style={styles.value}>{moeda(item.valor_total)}</Text></View>)}  // ← L24: Linha de JSX que monta a interface visual ou renderiza um componente.
+  </ScrollView></SafeAreaView>;  // ← L25: Linha de JSX que monta a interface visual ou renderiza um componente.
+}  // ← L26: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L27: Linha em branco usada para separar visualmente os blocos do arquivo.
+const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: "#FFF59D" }, content: { padding: 22, paddingTop: 45 }, title: { fontFamily: "Poppins_600SemiBold", fontSize: 22, marginTop: 20 }, subtitle: { fontFamily: "Poppins_400Regular", color: "#555", marginTop: 5, marginBottom: 18 }, total: { backgroundColor: "#5d57fb", borderRadius: 14, padding: 16, marginBottom: 16 }, totalLabel: { color: "#FFF", fontFamily: "Poppins_400Regular" }, totalValue: { color: "#FFF", fontFamily: "Poppins_600SemiBold", fontSize: 20 }, card: { backgroundColor: "#FFF", borderRadius: 12, padding: 14, marginBottom: 10 }, pet: { fontFamily: "Poppins_600SemiBold", fontSize: 16 }, service: { fontFamily: "Poppins_400Regular", marginTop: 2 }, date: { color: "#777", marginTop: 5 }, value: { fontFamily: "Poppins_600SemiBold", color: "#5d57fb", marginTop: 5 }, empty: { textAlign: "center", color: "#777", marginTop: 40 } });  // ← L28: Declara uma variável/constante usada por este bloco de lógica.

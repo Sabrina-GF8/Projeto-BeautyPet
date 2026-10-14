@@ -1,0 +1,63 @@
+BEAUTY PET — EXPO GO + SUPABASE
+================================
+
+ESTA É A VERSÃO SUPABASE DO MOBILE.
+Ela não precisa mais do IP do computador, Apache ou api.php para funcionar.
+
+PASSO 1 — BANCO
+---------------
+Use o MESMO projeto Supabase do WEB.
+No SQL Editor, execute:
+
+    supabase/02_mobile_supabase.sql
+
+Esse arquivo adiciona somente o necessário para o mobile e cria as políticas RLS.
+
+PASSO 2 — VARIÁVEIS DO SUPABASE
+-------------------------------
+Copie:
+
+    .env.example
+
+para um novo arquivo chamado:
+
+    .env
+
+Preencha:
+
+    EXPO_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+    EXPO_PUBLIC_SUPABASE_ANON_KEY=SUA_CHAVE_PUBLICA
+
+Nunca coloque a chave service_role dentro do aplicativo.
+
+PASSO 3 — INSTALAR
+------------------
+Na pasta onde está package.json:
+
+    npm.cmd install
+    npm.cmd install @supabase/supabase-js react-native-url-polyfill
+
+Depois:
+
+    npx.cmd expo start -c
+
+O QUE FOI MANTIDO
+-----------------
+- todos os designs atuais;
+- imagens novas dos cards;
+- fundo novo do login/cadastro;
+- Banho, Banho e Tosa e Tosa Higiênica separados;
+- agenda pessoal + agendamentos do Beauty Pet;
+- financeiro pessoal + Gastos Beauty Pet;
+- notificações;
+- cadastro/login e vínculo com a ficha do tutor.
+
+DOCUMENTAÇÃO
+------------
+A pasta DOCUMENTACAO-LINHA-A-LINHA contém cópias pedagógicas do código com
+explicação ao lado de cada linha. Para executar, use os arquivos normais em src/.
+
+LEGADO
+------
+A antiga API/XAMPP e os SQLs MySQL foram preservados em LEGADO-XAMPP apenas
+para consulta. Esta versão do mobile não depende deles.

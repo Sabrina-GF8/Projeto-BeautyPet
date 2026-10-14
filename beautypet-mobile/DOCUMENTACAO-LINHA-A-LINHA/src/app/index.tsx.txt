@@ -1,0 +1,9 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/app/index.tsx
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import { Redirect } from "expo-router";  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L2: Linha em branco usada para separar visualmente os blocos do arquivo.
+export default function Index() {  // ← L3: Declara e exporta o componente principal desta tela para o Expo Router.
+  return <Redirect href="/login" />;  // ← L4: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L5: Abre ou fecha um bloco/objeto/estrutura sintática do código.

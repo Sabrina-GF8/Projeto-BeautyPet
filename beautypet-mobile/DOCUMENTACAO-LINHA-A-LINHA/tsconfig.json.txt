@@ -1,0 +1,24 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: tsconfig.json
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+{  // ← L1: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  "extends": "expo/tsconfig.base",  // ← L2: Define uma propriedade de configuração deste arquivo JSON.
+  "compilerOptions": {  // ← L3: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "strict": true,  // ← L4: Define uma propriedade de configuração deste arquivo JSON.
+    "paths": {  // ← L5: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      "@/*": [  // ← L6: Define uma propriedade de configuração deste arquivo JSON.
+        "./src/*"  // ← L7: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      ],  // ← L8: Fecha a estrutura iniciada nas linhas anteriores.
+      "@/assets/*": [  // ← L9: Define uma propriedade de configuração deste arquivo JSON.
+        "./assets/*"  // ← L10: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      ]  // ← L11: Fecha a estrutura iniciada nas linhas anteriores.
+    }  // ← L12: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  },  // ← L13: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  "include": [  // ← L14: Define uma propriedade de configuração deste arquivo JSON.
+    "**/*.ts",  // ← L15: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    "**/*.tsx",  // ← L16: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    ".expo/types/**/*.ts",  // ← L17: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    "expo-env.d.ts"  // ← L18: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  ]  // ← L19: Fecha a estrutura iniciada nas linhas anteriores.
+}  // ← L20: Abre ou fecha um bloco/objeto/estrutura sintática do código.

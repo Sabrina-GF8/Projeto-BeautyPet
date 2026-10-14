@@ -1,0 +1,46 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: app.json
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+{  // ← L1: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  "expo": {  // ← L2: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "name": "beautypet-app",  // ← L3: Define uma propriedade de configuração deste arquivo JSON.
+    "slug": "beautypet-app",  // ← L4: Define uma propriedade de configuração deste arquivo JSON.
+    "version": "1.0.0",  // ← L5: Define uma propriedade de configuração deste arquivo JSON.
+    "orientation": "portrait",  // ← L6: Define uma propriedade de configuração deste arquivo JSON.
+    "icon": "./assets/images/icon.png",  // ← L7: Define uma propriedade de configuração deste arquivo JSON.
+    "scheme": "beautypetapp",  // ← L8: Define uma propriedade de configuração deste arquivo JSON.
+    "userInterfaceStyle": "automatic",  // ← L9: Define uma propriedade de configuração deste arquivo JSON.
+    "ios": {  // ← L10: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      "icon": "./assets/expo.icon"  // ← L11: Define uma propriedade de configuração deste arquivo JSON.
+    },  // ← L12: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "android": {  // ← L13: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      "adaptiveIcon": {  // ← L14: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        "backgroundColor": "#E6F4FE",  // ← L15: Define uma propriedade de configuração deste arquivo JSON.
+        "foregroundImage": "./assets/images/android-icon-foreground.png",  // ← L16: Define uma propriedade de configuração deste arquivo JSON.
+        "backgroundImage": "./assets/images/android-icon-background.png",  // ← L17: Define uma propriedade de configuração deste arquivo JSON.
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"  // ← L18: Define uma propriedade de configuração deste arquivo JSON.
+      },  // ← L19: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      "predictiveBackGestureEnabled": false  // ← L20: Define uma propriedade de configuração deste arquivo JSON.
+    },  // ← L21: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "web": {  // ← L22: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      "output": "static",  // ← L23: Define uma propriedade de configuração deste arquivo JSON.
+      "favicon": "./assets/images/favicon.png"  // ← L24: Define uma propriedade de configuração deste arquivo JSON.
+    },  // ← L25: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "plugins": [  // ← L26: Define uma propriedade de configuração deste arquivo JSON.
+      "expo-router",  // ← L27: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      [  // ← L28: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        "expo-splash-screen",  // ← L29: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        {  // ← L30: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+          "backgroundColor": "#208AEF",  // ← L31: Define uma propriedade de configuração deste arquivo JSON.
+          "image": "./assets/images/splash-icon.png",  // ← L32: Define uma propriedade de configuração deste arquivo JSON.
+          "imageWidth": 76  // ← L33: Define uma propriedade de configuração deste arquivo JSON.
+        }  // ← L34: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      ]  // ← L35: Fecha a estrutura iniciada nas linhas anteriores.
+    ],  // ← L36: Fecha a estrutura iniciada nas linhas anteriores.
+    "experiments": {  // ← L37: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      "typedRoutes": true,  // ← L38: Define uma propriedade de configuração deste arquivo JSON.
+      "reactCompiler": true  // ← L39: Define uma propriedade de configuração deste arquivo JSON.
+    }  // ← L40: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  }  // ← L41: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L42: Abre ou fecha um bloco/objeto/estrutura sintática do código.

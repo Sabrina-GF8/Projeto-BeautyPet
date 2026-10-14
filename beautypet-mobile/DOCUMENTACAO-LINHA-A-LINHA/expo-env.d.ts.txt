@@ -1,0 +1,7 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: expo-env.d.ts
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+/// <reference types="expo/types" />  // ← L1: Comentário já existente que documenta a intenção deste trecho.
+  // ← L2: Linha em branco usada para separar visualmente os blocos do arquivo.
+// NOTE: This file should not be edited and should be in your git ignore  // ← L3: Comentário já existente que documenta a intenção deste trecho.

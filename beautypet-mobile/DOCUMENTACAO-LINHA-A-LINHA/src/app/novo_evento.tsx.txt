@@ -1,0 +1,374 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/app/novo_evento.tsx
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L2: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { useState } from 'react';  // ← L3: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L4: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { Poppins_400Regular, Poppins_600SemiBold, useFonts, } from '@expo-google-fonts/poppins';  // ← L5: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L6: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { useRouter } from 'expo-router';  // ← L7: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L8: Linha em branco usada para separar visualmente os blocos do arquivo.
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';  // ← L9: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { api } from '../lib/api';  // ← L10: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L11: Linha em branco usada para separar visualmente os blocos do arquivo.
+export default function NovoEvento() {  // ← L12: Declara e exporta o componente principal desta tela para o Expo Router.
+  const router = useRouter();  // ← L13: Obtém o roteador do Expo Router para navegar entre as telas.
+  // ← L14: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const [data, setData] = useState(new Date());  // ← L15: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [mostrarCalendario, setMostrarCalendario] = useState(false);  // ← L16: Cria um estado React e a função usada para atualizar esse valor na tela.
+  // ← L17: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const [horario, setHorario] = useState(new Date());  // ← L18: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [mostrarHorario, setMostrarHorario] = useState(false);  // ← L19: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [tituloEvento, setTituloEvento] = useState('');  // ← L20: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [detalhes, setDetalhes] = useState('');  // ← L21: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [salvando, setSalvando] = useState(false);  // ← L22: Cria um estado React e a função usada para atualizar esse valor na tela.
+  // ← L23: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const [fontsLoaded] = useFonts({Poppins_400Regular, Poppins_600SemiBold,});  // ← L24: Carrega as fontes personalizadas usadas no layout.
+  // ← L25: Linha em branco usada para separar visualmente os blocos do arquivo.
+  function dataSql(valor: Date) {  // ← L26: Declara uma função que agrupa uma regra ou ação reutilizável.
+    const ano = valor.getFullYear();  // ← L27: Declara uma variável/constante usada por este bloco de lógica.
+    const mes = String(valor.getMonth() + 1).padStart(2, '0');  // ← L28: Declara uma variável/constante usada por este bloco de lógica.
+    const dia = String(valor.getDate()).padStart(2, '0');  // ← L29: Declara uma variável/constante usada por este bloco de lógica.
+    return `${ano}-${mes}-${dia}`;  // ← L30: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L31: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L32: Linha em branco usada para separar visualmente os blocos do arquivo.
+  function horaSql(valor: Date) {  // ← L33: Declara uma função que agrupa uma regra ou ação reutilizável.
+    return `${String(valor.getHours()).padStart(2, '0')}:${String(  // ← L34: Encerra a função devolvendo este valor ao código que a chamou.
+      valor.getMinutes()  // ← L35: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    ).padStart(2, '0')}`;  // ← L36: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }  // ← L37: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L38: Linha em branco usada para separar visualmente os blocos do arquivo.
+  async function criarEvento() {  // ← L39: Declara uma função que agrupa uma regra ou ação reutilizável.
+    if (!tituloEvento.trim()) {  // ← L40: Testa uma condição antes de executar o bloco seguinte.
+      Alert.alert('Novo evento', 'Informe o nome do evento.');  // ← L41: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+      return;  // ← L42: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L43: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L44: Linha em branco usada para separar visualmente os blocos do arquivo.
+    if (salvando) {  // ← L45: Testa uma condição antes de executar o bloco seguinte.
+      return;  // ← L46: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L47: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L48: Linha em branco usada para separar visualmente os blocos do arquivo.
+    try {  // ← L49: Inicia um bloco protegido para capturar possíveis erros.
+      setSalvando(true);  // ← L50: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L51: Linha em branco usada para separar visualmente os blocos do arquivo.
+      const resposta = await api<{ mensagem?: string }>('criar_evento', {  // ← L52: Declara uma variável/constante usada por este bloco de lógica.
+        titulo: tituloEvento.trim(),  // ← L53: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        descricao: detalhes.trim(),  // ← L54: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        data: dataSql(data),  // ← L55: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        horario: horaSql(horario),  // ← L56: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      });  // ← L57: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L58: Linha em branco usada para separar visualmente os blocos do arquivo.
+      Alert.alert(  // ← L59: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+        'Novo evento',  // ← L60: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        resposta.mensagem || 'Evento criado com sucesso.',  // ← L61: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        [{ text: 'OK', onPress: () => router.replace('/agenda') }]  // ← L62: Navega para outra rota/tela do aplicativo.
+      );  // ← L63: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    } catch (erro) {  // ← L64: Captura um erro ocorrido no bloco try para tratar a falha.
+      Alert.alert(  // ← L65: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+        'Novo evento',  // ← L66: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        erro instanceof Error ? erro.message : 'Não foi possível criar o evento.'  // ← L67: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      );  // ← L68: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    } finally {  // ← L69: Executa este bloco ao final, com sucesso ou erro.
+      setSalvando(false);  // ← L70: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L71: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  }  // ← L72: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L73: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (!fontsLoaded) {  // ← L74: Testa uma condição antes de executar o bloco seguinte.
+    return null;  // ← L75: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L76: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L77: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return (  // ← L78: Inicia o JSX que será renderizado visualmente na tela.
+    <ScrollView  // ← L79: Linha de JSX que monta a interface visual ou renderiza um componente.
+      style={styles.container}  // ← L80: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      contentContainerStyle={styles.conteudo}  // ← L81: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      showsVerticalScrollIndicator={false}>  // ← L82: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L83: Linha em branco usada para separar visualmente os blocos do arquivo.
+      <View style={styles.cabecalho}>  // ← L84: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L85: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View>  // ← L86: Linha de JSX que monta a interface visual ou renderiza um componente.
+          <Text style={styles.titulo}>  // ← L87: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Minha agenda  // ← L88: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L89: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L90: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.subtitulo}>  // ← L91: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Gerencie os compromissos do seu pet  // ← L92: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L93: Linha de JSX que monta a interface visual ou renderiza um componente.
+        </View>  // ← L94: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L95: Linha em branco usada para separar visualmente os blocos do arquivo.
+       <Image  // ← L96: Linha de JSX que monta a interface visual ou renderiza um componente.
+  source={require('../assets/img1.png')}  // ← L97: Carrega uma imagem local empacotada com o aplicativo.
+  style={styles.iconePet}/>  // ← L98: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L99: Linha em branco usada para separar visualmente os blocos do arquivo.
+      </View>  // ← L100: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L101: Linha em branco usada para separar visualmente os blocos do arquivo.
+      <View style={styles.card}>  // ← L102: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L103: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <Text style={styles.tituloCard}>  // ← L104: Linha de JSX que monta a interface visual ou renderiza um componente.
+          Novo evento  // ← L105: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        </Text>  // ← L106: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L107: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.campoContainer}>  // ← L108: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L109: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.label}>  // ← L110: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Evento  // ← L111: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L112: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L113: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <TextInput  // ← L114: Linha de JSX que monta a interface visual ou renderiza um componente.
+            style={styles.input}  // ← L115: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            placeholder="Ex: Banho e tosa"  // ← L116: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            placeholderTextColor="#777777"  // ← L117: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            value={tituloEvento}  // ← L118: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            onChangeText={setTituloEvento}  // ← L119: Atualiza o estado quando o usuário altera o texto do campo.
+          />  // ← L120: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L121: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </View>  // ← L122: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L123: Linha em branco usada para separar visualmente os blocos do arquivo.
+     <View style={styles.campoContainer}>  // ← L124: Linha de JSX que monta a interface visual ou renderiza um componente.
+  <Text style={styles.label}>  // ← L125: Linha de JSX que monta a interface visual ou renderiza um componente.
+    Horário  // ← L126: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  </Text>  // ← L127: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L128: Linha em branco usada para separar visualmente os blocos do arquivo.
+  <TouchableOpacity  // ← L129: Linha de JSX que monta a interface visual ou renderiza um componente.
+    style={styles.input}  // ← L130: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    activeOpacity={0.7}  // ← L131: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    onPress={() => setMostrarHorario(true)}>  // ← L132: Define a ação executada quando o usuário toca neste elemento.
+    // ← L133: Linha em branco usada para separar visualmente os blocos do arquivo.
+    <Text style={styles.textoHorario}>  // ← L134: Linha de JSX que monta a interface visual ou renderiza um componente.
+      {horario.toLocaleTimeString('pt-BR', {  // ← L135: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        hour: '2-digit',  // ← L136: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        minute: '2-digit',  // ← L137: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      })}  // ← L138: Fecha a estrutura iniciada nas linhas anteriores.
+    </Text>  // ← L139: Linha de JSX que monta a interface visual ou renderiza um componente.
+  </TouchableOpacity>  // ← L140: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L141: Linha em branco usada para separar visualmente os blocos do arquivo.
+  {mostrarHorario && (  // ← L142: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    <DateTimePicker  // ← L143: Linha de JSX que monta a interface visual ou renderiza um componente.
+      value={horario}  // ← L144: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      mode="time"  // ← L145: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      display="default"  // ← L146: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      onChange={(_event: DateTimePickerEvent, selectedTime?: Date) => {  // ← L147: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        setMostrarHorario(false);  // ← L148: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L149: Linha em branco usada para separar visualmente os blocos do arquivo.
+        if (selectedTime) {  // ← L150: Testa uma condição antes de executar o bloco seguinte.
+          setHorario(selectedTime);  // ← L151: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        }  // ← L152: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      }}  // ← L153: Fecha a estrutura iniciada nas linhas anteriores.
+    />  // ← L154: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  )}  // ← L155: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+</View>  // ← L156: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L157: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.campoContainer}>  // ← L158: Linha de JSX que monta a interface visual ou renderiza um componente.
+  <Text style={styles.label}>  // ← L159: Linha de JSX que monta a interface visual ou renderiza um componente.
+    Data  // ← L160: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  </Text>  // ← L161: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L162: Linha em branco usada para separar visualmente os blocos do arquivo.
+  <TouchableOpacity  // ← L163: Linha de JSX que monta a interface visual ou renderiza um componente.
+    style={styles.input}  // ← L164: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    activeOpacity={0.7}  // ← L165: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    onPress={() => setMostrarCalendario(true)}  // ← L166: Define a ação executada quando o usuário toca neste elemento.
+  >  // ← L167: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    <Text style={styles.textoData}>  // ← L168: Linha de JSX que monta a interface visual ou renderiza um componente.
+      {data.toLocaleDateString('pt-BR')}  // ← L169: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    </Text>  // ← L170: Linha de JSX que monta a interface visual ou renderiza um componente.
+  </TouchableOpacity>  // ← L171: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L172: Linha em branco usada para separar visualmente os blocos do arquivo.
+  {mostrarCalendario && (  // ← L173: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    <DateTimePicker  // ← L174: Linha de JSX que monta a interface visual ou renderiza um componente.
+      value={data}  // ← L175: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      mode="date"  // ← L176: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      display="default"  // ← L177: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      onChange={(_event: DateTimePickerEvent, selectedDate?: Date) => {        setMostrarCalendario(false);  // ← L178: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L179: Linha em branco usada para separar visualmente os blocos do arquivo.
+        if (selectedDate) {  // ← L180: Testa uma condição antes de executar o bloco seguinte.
+          setData(selectedDate);  // ← L181: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        }  // ← L182: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      }}  // ← L183: Fecha a estrutura iniciada nas linhas anteriores.
+    />  // ← L184: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  )}  // ← L185: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+</View>  // ← L186: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L187: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.campoContainer}>  // ← L188: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L189: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.label}>  // ← L190: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Detalhes  // ← L191: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L192: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L193: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <TextInput  // ← L194: Linha de JSX que monta a interface visual ou renderiza um componente.
+            style={[styles.input, styles.inputDetalhes]}  // ← L195: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            placeholder="Adicione detalhes sobre o evento..."  // ← L196: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            placeholderTextColor="#777777"  // ← L197: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            multiline  // ← L198: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            textAlignVertical="top"  // ← L199: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            value={detalhes}  // ← L200: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            onChangeText={setDetalhes}  // ← L201: Atualiza o estado quando o usuário altera o texto do campo.
+          />  // ← L202: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L203: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </View>  // ← L204: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L205: Linha em branco usada para separar visualmente os blocos do arquivo.
+      </View>  // ← L206: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L207: Linha em branco usada para separar visualmente os blocos do arquivo.
+      <View style={styles.botoes}>  // ← L208: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L209: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <Pressable  // ← L210: Linha de JSX que monta a interface visual ou renderiza um componente.
+          style={styles.botao}  // ← L211: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          onPress={() => router.back()}  // ← L212: Navega para outra rota/tela do aplicativo.
+        >  // ← L213: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          <Text style={styles.textoBotao}>  // ← L214: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Cancelar  // ← L215: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L216: Linha de JSX que monta a interface visual ou renderiza um componente.
+        </Pressable>  // ← L217: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L218: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <Pressable  // ← L219: Linha de JSX que monta a interface visual ou renderiza um componente.
+          style={styles.botao}  // ← L220: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          onPress={criarEvento}  // ← L221: Define a ação executada quando o usuário toca neste elemento.
+        >  // ← L222: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          <Text style={styles.textoBotao}>  // ← L223: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Criar evento  // ← L224: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L225: Linha de JSX que monta a interface visual ou renderiza um componente.
+        </Pressable>  // ← L226: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L227: Linha em branco usada para separar visualmente os blocos do arquivo.
+      </View>  // ← L228: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L229: Linha em branco usada para separar visualmente os blocos do arquivo.
+    </ScrollView>  // ← L230: Linha de JSX que monta a interface visual ou renderiza um componente.
+  );  // ← L231: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L232: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L233: Linha em branco usada para separar visualmente os blocos do arquivo.
+const styles = StyleSheet.create({  // ← L234: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L235: Linha em branco usada para separar visualmente os blocos do arquivo.
+  container: {  // ← L236: Inicia a configuração de um estilo identificado por esta chave.
+    flex: 1,  // ← L237: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFF59D',  // ← L238: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L239: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L240: Linha em branco usada para separar visualmente os blocos do arquivo.
+  conteudo: {  // ← L241: Inicia a configuração de um estilo identificado por esta chave.
+    paddingTop: 55,  // ← L242: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 20,  // ← L243: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingBottom: 40,  // ← L244: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L245: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L246: Linha em branco usada para separar visualmente os blocos do arquivo.
+  cabecalho: {  // ← L247: Inicia a configuração de um estilo identificado por esta chave.
+    flexDirection: 'row',  // ← L248: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-between',  // ← L249: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L250: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L251: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L252: Linha em branco usada para separar visualmente os blocos do arquivo.
+  titulo: {  // ← L253: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L254: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 20,  // ← L255: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#222222',  // ← L256: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L257: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L258: Linha em branco usada para separar visualmente os blocos do arquivo.
+  subtitulo: {  // ← L259: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L260: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 14,  // ← L261: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#111111',  // ← L262: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 3,  // ← L263: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L264: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L265: Linha em branco usada para separar visualmente os blocos do arquivo.
+  iconePet: {  // ← L266: Inicia a configuração de um estilo identificado por esta chave.
+  width: 55,  // ← L267: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  height: 55,  // ← L268: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  borderRadius: 27.5,  // ← L269: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  resizeMode: 'cover',  // ← L270: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  marginTop: -5,  // ← L271: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+},  // ← L272: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L273: Linha em branco usada para separar visualmente os blocos do arquivo.
+  card: {  // ← L274: Inicia a configuração de um estilo identificado por esta chave.
+    marginTop: 35,  // ← L275: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFFFFF',  // ← L276: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 14,  // ← L277: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 19,  // ← L278: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingTop: 14,  // ← L279: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingBottom: 28,  // ← L280: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowColor: '#000000',  // ← L281: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowOffset: {  // ← L282: Inicia a configuração de um estilo identificado por esta chave.
+      width: 0,  // ← L283: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      height: 3,  // ← L284: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    },  // ← L285: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    shadowOpacity: 0.22,  // ← L286: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowRadius: 4,  // ← L287: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    elevation: 5,  // ← L288: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L289: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L290: Linha em branco usada para separar visualmente os blocos do arquivo.
+  tituloCard: {  // ← L291: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L292: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 19,  // ← L293: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#222222',  // ← L294: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginBottom: 21,  // ← L295: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L296: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L297: Linha em branco usada para separar visualmente os blocos do arquivo.
+  campoContainer: {  // ← L298: Inicia a configuração de um estilo identificado por esta chave.
+    marginBottom: 20,  // ← L299: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L300: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L301: Linha em branco usada para separar visualmente os blocos do arquivo.
+  label: {  // ← L302: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L303: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 13,  // ← L304: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#222222',  // ← L305: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginLeft: 2,  // ← L306: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginBottom: 4,  // ← L307: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L308: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L309: Linha em branco usada para separar visualmente os blocos do arquivo.
+  input: {  // ← L310: Inicia a configuração de um estilo identificado por esta chave.
+    height: 45,  // ← L311: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderWidth: 1,  // ← L312: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderColor: '#D0D0D0',  // ← L313: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 17,  // ← L314: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 12,  // ← L315: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontFamily: 'Poppins_400Regular',  // ← L316: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 12,  // ← L317: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#222222',  // ← L318: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor:'#F2F2F2',  // ← L319: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    textAlignVertical: 'center',  // ← L320: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L321: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L322: Linha em branco usada para separar visualmente os blocos do arquivo.
+  inputDetalhes: {  // ← L323: Inicia a configuração de um estilo identificado por esta chave.
+    height: 78,  // ← L324: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 13,  // ← L325: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingTop: 10,  // ← L326: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L327: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L328: Linha em branco usada para separar visualmente os blocos do arquivo.
+  botoes: {  // ← L329: Inicia a configuração de um estilo identificado por esta chave.
+    flexDirection: 'row',  // ← L330: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-between',  // ← L331: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 48,  // ← L332: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 20,  // ← L333: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L334: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L335: Linha em branco usada para separar visualmente os blocos do arquivo.
+  botao: {  // ← L336: Inicia a configuração de um estilo identificado por esta chave.
+    width: 146,  // ← L337: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 43,  // ← L338: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFFFFF',  // ← L339: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 9,  // ← L340: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L341: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L342: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowColor: '#000000',  // ← L343: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowOffset: {  // ← L344: Inicia a configuração de um estilo identificado por esta chave.
+      width: 0,  // ← L345: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      height: 1,  // ← L346: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    },  // ← L347: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    shadowOpacity: 0.15,  // ← L348: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowRadius: 2,  // ← L349: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    elevation: 2,  // ← L350: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L351: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L352: Linha em branco usada para separar visualmente os blocos do arquivo.
+  textoBotao: {  // ← L353: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L354: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 13,  // ← L355: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#111111',  // ← L356: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L357: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  textoData: {  // ← L358: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L359: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 12,  // ← L360: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#222222',  // ← L361: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    lineHeight: 45,  // ← L362: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L363: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+textoHorario: {  // ← L364: Inicia a configuração de um estilo identificado por esta chave.
+  fontFamily: 'Poppins_400Regular',  // ← L365: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  fontSize: 12,  // ← L366: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  color: '#222222',  // ← L367: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  lineHeight: 45,  // ← L368: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+},  // ← L369: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+});  // ← L370: Abre ou fecha um bloco/objeto/estrutura sintática do código.

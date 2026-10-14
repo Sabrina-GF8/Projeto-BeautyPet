@@ -1,0 +1,1138 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/app/perfil.tsx
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import {  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  ScrollView,  // ← L2: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  StyleSheet,  // ← L3: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Text,  // ← L4: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  TouchableOpacity,  // ← L5: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  View,  // ← L6: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+} from 'react-native';  // ← L7: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L8: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { useEffect, useState } from 'react';  // ← L9: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L10: Linha em branco usada para separar visualmente os blocos do arquivo.
+import {  // ← L11: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  Poppins_400Regular,  // ← L12: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Poppins_600SemiBold,  // ← L13: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  useFonts,  // ← L14: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+} from '@expo-google-fonts/poppins';  // ← L15: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L16: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { Ionicons } from '@expo/vector-icons';  // ← L17: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L18: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { useRouter } from 'expo-router';  // ← L19: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { api, limparSessao } from '../lib/api';  // ← L20: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L21: Linha em branco usada para separar visualmente os blocos do arquivo.
+import {  // ← L22: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  CalendarDays,  // ← L23: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Home as HomeIcon,  // ← L24: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  UserRound,  // ← L25: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Wallet,  // ← L26: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+} from 'lucide-react-native';  // ← L27: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L28: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L29: Linha em branco usada para separar visualmente os blocos do arquivo.
+export default function Perfil() {  // ← L30: Declara e exporta o componente principal desta tela para o Expo Router.
+  // ← L31: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const router = useRouter();  // ← L32: Obtém o roteador do Expo Router para navegar entre as telas.
+  // ← L33: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const [menuAberto, setMenuAberto] = useState(false);  // ← L34: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [dadosPessoaisAberto, setDadosPessoaisAberto] = useState(false);  // ← L35: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [segurancaAberta, setSegurancaAberta] = useState(false);  // ← L36: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [cliente, setCliente] = useState<{  // ← L37: Cria um estado React e a função usada para atualizar esse valor na tela.
+    nome?: string;  // ← L38: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    email?: string | null;  // ← L39: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    telefone_principal?: string | null;  // ← L40: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    cidade?: string | null;  // ← L41: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }>({});  // ← L42: Fecha a estrutura iniciada nas linhas anteriores.
+  const [pets, setPets] = useState<{ id: number; nome: string }[]>([]);  // ← L43: Cria um estado React e a função usada para atualizar esse valor na tela.
+  // ← L44: Linha em branco usada para separar visualmente os blocos do arquivo.
+  useEffect(() => {  // ← L45: Executa um efeito quando o componente é carregado ou quando suas dependências mudam.
+    api<{  // ← L46: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      cliente: {  // ← L47: Inicia a configuração de um estilo identificado por esta chave.
+        nome?: string;  // ← L48: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        email?: string | null;  // ← L49: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        telefone_principal?: string | null;  // ← L50: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        cidade?: string | null;  // ← L51: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      };  // ← L52: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      pets: { id: number; nome: string }[];  // ← L53: Inicia a configuração de um estilo identificado por esta chave.
+    }>('perfil')  // ← L54: Fecha a estrutura iniciada nas linhas anteriores.
+      .then((resposta) => {  // ← L55: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        setCliente(resposta.cliente || {});  // ← L56: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        setPets(resposta.pets || []);  // ← L57: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      })  // ← L58: Fecha a estrutura iniciada nas linhas anteriores.
+      .catch(() => {});  // ← L59: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }, []);  // ← L60: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L61: Linha em branco usada para separar visualmente os blocos do arquivo.
+  async function sair() {  // ← L62: Declara uma função que agrupa uma regra ou ação reutilizável.
+    try {  // ← L63: Inicia um bloco protegido para capturar possíveis erros.
+      await api('logout');  // ← L64: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    } catch {  // ← L65: Captura um erro ocorrido no bloco try para tratar a falha.
+      // Limpa a sessão local mesmo se o servidor estiver indisponível.  // ← L66: Comentário já existente que documenta a intenção deste trecho.
+    }  // ← L67: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L68: Linha em branco usada para separar visualmente os blocos do arquivo.
+    limparSessao();  // ← L69: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    router.replace('/login');  // ← L70: Navega para outra rota/tela do aplicativo.
+  }  // ← L71: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L72: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const [fontsLoaded] = useFonts({  // ← L73: Carrega as fontes personalizadas usadas no layout.
+    Poppins_400Regular,  // ← L74: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    Poppins_600SemiBold,  // ← L75: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  });  // ← L76: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L77: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L78: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (!fontsLoaded) {  // ← L79: Testa uma condição antes de executar o bloco seguinte.
+    return null;  // ← L80: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L81: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L82: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L83: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return (  // ← L84: Inicia o JSX que será renderizado visualmente na tela.
+    <View style={styles.container}>  // ← L85: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L86: Linha em branco usada para separar visualmente os blocos do arquivo.
+      <ScrollView  // ← L87: Linha de JSX que monta a interface visual ou renderiza um componente.
+        style={styles.scroll}  // ← L88: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        contentContainerStyle={styles.conteudo}  // ← L89: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        showsVerticalScrollIndicator={false}  // ← L90: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      >  // ← L91: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L92: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* CABEÇALHO */}  // ← L93: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L94: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.cabecalho}>  // ← L95: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L96: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.titulo}>  // ← L97: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Perfil  // ← L98: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L99: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L100: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L101: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <TouchableOpacity  // ← L102: Linha de JSX que monta a interface visual ou renderiza um componente.
+            style={styles.botaoConfiguracoes}  // ← L103: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            activeOpacity={0.7}  // ← L104: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            onPress={() => setMenuAberto(true)}  // ← L105: Define a ação executada quando o usuário toca neste elemento.
+          >  // ← L106: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L107: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Ionicons  // ← L108: Linha de JSX que monta a interface visual ou renderiza um componente.
+              name="settings-outline"  // ← L109: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              size={25}  // ← L110: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              color="#333333"  // ← L111: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            />  // ← L112: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L113: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </TouchableOpacity>  // ← L114: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L115: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </View>  // ← L116: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L117: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L118: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* FOTO */}  // ← L119: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L120: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.fotoContainer}>  // ← L121: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L122: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.foto} />  // ← L123: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L124: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <TouchableOpacity  // ← L125: Linha de JSX que monta a interface visual ou renderiza um componente.
+            style={styles.botaoCamera}  // ← L126: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            activeOpacity={0.7}  // ← L127: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          >  // ← L128: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L129: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Ionicons  // ← L130: Linha de JSX que monta a interface visual ou renderiza um componente.
+              name="camera-outline"  // ← L131: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              size={22}  // ← L132: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              color="#FFFFFF"  // ← L133: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            />  // ← L134: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L135: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </TouchableOpacity>  // ← L136: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L137: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </View>  // ← L138: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L139: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L140: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* NOME */}  // ← L141: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L142: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <Text style={styles.nome}>  // ← L143: Linha de JSX que monta a interface visual ou renderiza um componente.
+          {cliente.nome || '—'}  // ← L144: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        </Text>  // ← L145: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L146: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L147: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* CARD DE INFORMAÇÕES */}  // ← L148: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L149: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.card}>  // ← L150: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L151: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.cabecalhoCard}>  // ← L152: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L153: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Text style={styles.tituloCard}>  // ← L154: Linha de JSX que monta a interface visual ou renderiza um componente.
+              INFORMAÇÕES  // ← L155: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            </Text>  // ← L156: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L157: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </View>  // ← L158: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L159: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L160: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {/* E-MAIL */}  // ← L161: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L162: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.linha}>  // ← L163: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L164: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View style={styles.iconeContainer}>  // ← L165: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L166: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Ionicons  // ← L167: Linha de JSX que monta a interface visual ou renderiza um componente.
+                name="mail-outline"  // ← L168: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                size={22}  // ← L169: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                color="#333333"  // ← L170: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              />  // ← L171: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L172: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L173: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L174: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View>  // ← L175: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L176: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.label}>  // ← L177: Linha de JSX que monta a interface visual ou renderiza um componente.
+                E-mail  // ← L178: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L179: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L180: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.valorSublinhado}>  // ← L181: Linha de JSX que monta a interface visual ou renderiza um componente.
+                {cliente.email || '—'}  // ← L182: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L183: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L184: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L185: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L186: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </View>  // ← L187: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L188: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L189: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {/* TELEFONE */}  // ← L190: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L191: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.linha}>  // ← L192: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L193: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View style={styles.iconeContainer}>  // ← L194: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L195: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Ionicons  // ← L196: Linha de JSX que monta a interface visual ou renderiza um componente.
+                name="call-outline"  // ← L197: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                size={22}  // ← L198: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                color="#333333"  // ← L199: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              />  // ← L200: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L201: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L202: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L203: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View>  // ← L204: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L205: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.label}>  // ← L206: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Telefone  // ← L207: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L208: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L209: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.valor}>  // ← L210: Linha de JSX que monta a interface visual ou renderiza um componente.
+                {cliente.telefone_principal || '—'}  // ← L211: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L212: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L213: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L214: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L215: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </View>  // ← L216: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L217: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L218: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {/* CIDADE */}  // ← L219: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L220: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.linhaSemBorda}>  // ← L221: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L222: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View style={styles.iconeContainer}>  // ← L223: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L224: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Ionicons  // ← L225: Linha de JSX que monta a interface visual ou renderiza um componente.
+                name="location-outline"  // ← L226: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                size={22}  // ← L227: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                color="#333333"  // ← L228: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              />  // ← L229: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L230: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L231: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L232: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View>  // ← L233: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L234: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.label}>  // ← L235: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Cidade  // ← L236: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L237: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L238: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.valor}>  // ← L239: Linha de JSX que monta a interface visual ou renderiza um componente.
+                {cliente.cidade || '—'}  // ← L240: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L241: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L242: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L243: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L244: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </View>  // ← L245: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L246: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </View>  // ← L247: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L248: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L249: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* CARD MEUS PETS */}  // ← L250: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L251: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.cardPets}>  // ← L252: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L253: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.cabecalhoPets}>  // ← L254: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L255: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Text style={styles.tituloCard}>  // ← L256: Linha de JSX que monta a interface visual ou renderiza um componente.
+              MEUS PETS  // ← L257: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            </Text>  // ← L258: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L259: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <TouchableOpacity onPress={() => router.push('/novo_pet')}>  // ← L260: Navega para outra rota/tela do aplicativo.
+  // ← L261: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.adicionar}>  // ← L262: Linha de JSX que monta a interface visual ou renderiza um componente.
+                + Adicionar  // ← L263: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L264: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L265: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </TouchableOpacity>  // ← L266: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L267: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </View>  // ← L268: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L269: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L270: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {/* ESPAÇO DOS PETS */}  // ← L271: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L272: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {pets.length > 0 ? (  // ← L273: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            pets.map((pet) => (  // ← L274: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              <View key={pet.id} style={styles.semPet}>  // ← L275: Linha de JSX que monta a interface visual ou renderiza um componente.
+                <Text style={styles.textoSemPet}>{pet.nome}</Text>  // ← L276: Linha de JSX que monta a interface visual ou renderiza um componente.
+              </View>  // ← L277: Linha de JSX que monta a interface visual ou renderiza um componente.
+            ))  // ← L278: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          ) : (  // ← L279: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            <View style={styles.semPet}>  // ← L280: Linha de JSX que monta a interface visual ou renderiza um componente.
+              <Text style={styles.textoSemPet}>Nenhum pet cadastrado</Text>  // ← L281: Linha de JSX que monta a interface visual ou renderiza um componente.
+            </View>  // ← L282: Linha de JSX que monta a interface visual ou renderiza um componente.
+          )}  // ← L283: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L284: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L285: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {/* ADICIONAR NOVO PET */}  // ← L286: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L287: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <TouchableOpacity  // ← L288: Linha de JSX que monta a interface visual ou renderiza um componente.
+            style={styles.novoPet}  // ← L289: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            activeOpacity={0.7}  // ← L290: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            onPress={() => router.push('/novo_pet')}  // ← L291: Navega para outra rota/tela do aplicativo.
+          >  // ← L292: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L293: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View style={styles.iconeNovoPet}>  // ← L294: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L295: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Ionicons  // ← L296: Linha de JSX que monta a interface visual ou renderiza um componente.
+                name="paw-outline"  // ← L297: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                size={20}  // ← L298: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                color="#FF5A5A"  // ← L299: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              />  // ← L300: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L301: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L302: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L303: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View>  // ← L304: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L305: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.textoNovoPet}>  // ← L306: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Adicionar novo pet  // ← L307: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L308: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L309: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.subtextoNovoPet}>  // ← L310: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Cadastre mais pets da família  // ← L311: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L312: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L313: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L314: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L315: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </TouchableOpacity>  // ← L316: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L317: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </View>  // ← L318: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L319: Linha em branco usada para separar visualmente os blocos do arquivo.
+      </ScrollView>  // ← L320: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L321: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L322: Linha em branco usada para separar visualmente os blocos do arquivo.
+      {/* MENU LATERAL DE CONFIGURAÇÕES */}  // ← L323: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L324: Linha em branco usada para separar visualmente os blocos do arquivo.
+      {menuAberto && (  // ← L325: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L326: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <View style={styles.menuOverlay}>  // ← L327: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L328: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {/* ÁREA ESCURA PARA FECHAR */}  // ← L329: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L330: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <TouchableOpacity  // ← L331: Linha de JSX que monta a interface visual ou renderiza um componente.
+            style={styles.areaFechar}  // ← L332: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            activeOpacity={1}  // ← L333: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            onPress={() => setMenuAberto(false)}  // ← L334: Define a ação executada quando o usuário toca neste elemento.
+          />  // ← L335: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L336: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L337: Linha em branco usada para separar visualmente os blocos do arquivo.
+          {/* MENU */}  // ← L338: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L339: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.menuLateral}>  // ← L340: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L341: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {/* CABEÇALHO DO MENU */}  // ← L342: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L343: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View style={styles.menuCabecalho}>  // ← L344: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L345: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.menuTitulo}>  // ← L346: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Configurações  // ← L347: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L348: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L349: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <TouchableOpacity  // ← L350: Linha de JSX que monta a interface visual ou renderiza um componente.
+                onPress={() => setMenuAberto(false)}  // ← L351: Define a ação executada quando o usuário toca neste elemento.
+                activeOpacity={0.7}  // ← L352: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              >  // ← L353: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L354: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <Ionicons  // ← L355: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  name="close-outline"  // ← L356: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  size={28}  // ← L357: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  color="#333333"  // ← L358: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                />  // ← L359: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L360: Linha em branco usada para separar visualmente os blocos do arquivo.
+              </TouchableOpacity>  // ← L361: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L362: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </View>  // ← L363: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L364: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L365: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View style={styles.separador} />  // ← L366: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L367: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L368: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {/* DADOS PESSOAIS */}  // ← L369: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L370: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <TouchableOpacity  // ← L371: Linha de JSX que monta a interface visual ou renderiza um componente.
+              style={styles.opcao}  // ← L372: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              activeOpacity={0.7}  // ← L373: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              onPress={() =>  // ← L374: Define a ação executada quando o usuário toca neste elemento.
+                setDadosPessoaisAberto(!dadosPessoaisAberto)  // ← L375: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              }  // ← L376: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+            >  // ← L377: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L378: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <View style={styles.iconeOpcao}>  // ← L379: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L380: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <Ionicons  // ← L381: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  name="person-outline"  // ← L382: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  size={20}  // ← L383: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  color="#333333"  // ← L384: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                />  // ← L385: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L386: Linha em branco usada para separar visualmente os blocos do arquivo.
+              </View>  // ← L387: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L388: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.textoOpcao}>  // ← L389: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Dados pessoais  // ← L390: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L391: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L392: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Ionicons  // ← L393: Linha de JSX que monta a interface visual ou renderiza um componente.
+                name={  // ← L394: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                  dadosPessoaisAberto  // ← L395: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    ? 'chevron-up-outline'  // ← L396: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    : 'chevron-down-outline'  // ← L397: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                }  // ← L398: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                size={20}  // ← L399: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                color="#999999"  // ← L400: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              />  // ← L401: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L402: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </TouchableOpacity>  // ← L403: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L404: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L405: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {/* SUBOPÇÕES DOS DADOS PESSOAIS */}  // ← L406: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L407: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {dadosPessoaisAberto && (  // ← L408: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L409: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <View style={styles.subOpcoes}>  // ← L410: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L411: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <TouchableOpacity  // ← L412: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  style={styles.subOpcao}  // ← L413: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  activeOpacity={0.7}  // ← L414: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                >  // ← L415: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L416: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Text style={styles.textoSubOpcao}>  // ← L417: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    Alterar e-mail  // ← L418: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  </Text>  // ← L419: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L420: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Ionicons  // ← L421: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    name="chevron-forward-outline"  // ← L422: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    size={18}  // ← L423: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    color="#999999"  // ← L424: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  />  // ← L425: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L426: Linha em branco usada para separar visualmente os blocos do arquivo.
+                </TouchableOpacity>  // ← L427: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L428: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L429: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <TouchableOpacity  // ← L430: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  style={styles.subOpcao}  // ← L431: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  activeOpacity={0.7}  // ← L432: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                >  // ← L433: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L434: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Text style={styles.textoSubOpcao}>  // ← L435: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    Alterar telefone  // ← L436: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  </Text>  // ← L437: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L438: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Ionicons  // ← L439: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    name="chevron-forward-outline"  // ← L440: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    size={18}  // ← L441: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    color="#999999"  // ← L442: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  />  // ← L443: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L444: Linha em branco usada para separar visualmente os blocos do arquivo.
+                </TouchableOpacity>  // ← L445: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L446: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L447: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <TouchableOpacity  // ← L448: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  style={styles.subOpcao}  // ← L449: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  activeOpacity={0.7}  // ← L450: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                >  // ← L451: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L452: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Text style={styles.textoSubOpcao}>  // ← L453: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    Alterar cidade  // ← L454: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  </Text>  // ← L455: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L456: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Ionicons  // ← L457: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    name="chevron-forward-outline"  // ← L458: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    size={18}  // ← L459: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    color="#999999"  // ← L460: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  />  // ← L461: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L462: Linha em branco usada para separar visualmente os blocos do arquivo.
+                </TouchableOpacity>  // ← L463: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L464: Linha em branco usada para separar visualmente os blocos do arquivo.
+              </View>  // ← L465: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L466: Linha em branco usada para separar visualmente os blocos do arquivo.
+            )}  // ← L467: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L468: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L469: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {/* SEGURANÇA E PRIVACIDADE */}  // ← L470: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L471: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <TouchableOpacity  // ← L472: Linha de JSX que monta a interface visual ou renderiza um componente.
+              style={styles.opcao}  // ← L473: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              activeOpacity={0.7}  // ← L474: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              onPress={() =>  // ← L475: Define a ação executada quando o usuário toca neste elemento.
+                setSegurancaAberta(!segurancaAberta)  // ← L476: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              }  // ← L477: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+            >  // ← L478: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L479: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <View style={styles.iconeOpcao}>  // ← L480: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L481: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <Ionicons  // ← L482: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  name="shield-checkmark-outline"  // ← L483: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  size={20}  // ← L484: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  color="#333333"  // ← L485: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                />  // ← L486: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L487: Linha em branco usada para separar visualmente os blocos do arquivo.
+              </View>  // ← L488: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L489: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.textoOpcao}>  // ← L490: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Segurança e privacidade  // ← L491: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L492: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L493: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Ionicons  // ← L494: Linha de JSX que monta a interface visual ou renderiza um componente.
+                name={  // ← L495: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                  segurancaAberta  // ← L496: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    ? 'chevron-up-outline'  // ← L497: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    : 'chevron-down-outline'  // ← L498: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                }  // ← L499: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                size={20}  // ← L500: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                color="#999999"  // ← L501: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              />  // ← L502: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L503: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </TouchableOpacity>  // ← L504: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L505: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L506: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {/* ALTERAR SENHA */}  // ← L507: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L508: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {segurancaAberta && (  // ← L509: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L510: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <View style={styles.subOpcoes}>  // ← L511: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L512: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <TouchableOpacity  // ← L513: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  style={styles.subOpcao}  // ← L514: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  activeOpacity={0.7}  // ← L515: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                >  // ← L516: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L517: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Text style={styles.textoSubOpcao}>  // ← L518: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    Alterar senha  // ← L519: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  </Text>  // ← L520: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L521: Linha em branco usada para separar visualmente os blocos do arquivo.
+                  <Ionicons  // ← L522: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    name="chevron-forward-outline"  // ← L523: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    size={18}  // ← L524: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    color="#999999"  // ← L525: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  />  // ← L526: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L527: Linha em branco usada para separar visualmente os blocos do arquivo.
+                </TouchableOpacity>  // ← L528: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L529: Linha em branco usada para separar visualmente os blocos do arquivo.
+              </View>  // ← L530: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L531: Linha em branco usada para separar visualmente os blocos do arquivo.
+            )}  // ← L532: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L533: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L534: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {/* LOGOUT */}  // ← L535: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L536: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <View style={styles.linhaLogout} />  // ← L537: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L538: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <TouchableOpacity  // ← L539: Linha de JSX que monta a interface visual ou renderiza um componente.
+              style={styles.opcaoLogout}  // ← L540: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              activeOpacity={0.7}  // ← L541: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              onPress={sair}  // ← L542: Define a ação executada quando o usuário toca neste elemento.
+            >  // ← L543: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L544: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <View style={styles.iconeLogout}>  // ← L545: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L546: Linha em branco usada para separar visualmente os blocos do arquivo.
+                <Ionicons  // ← L547: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  name="log-out-outline"  // ← L548: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  size={21}  // ← L549: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                  color="#E53935"  // ← L550: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                />  // ← L551: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L552: Linha em branco usada para separar visualmente os blocos do arquivo.
+              </View>  // ← L553: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L554: Linha em branco usada para separar visualmente os blocos do arquivo.
+              <Text style={styles.textoLogout}>  // ← L555: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Sair da conta  // ← L556: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L557: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L558: Linha em branco usada para separar visualmente os blocos do arquivo.
+            </TouchableOpacity>  // ← L559: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L560: Linha em branco usada para separar visualmente os blocos do arquivo.
+          </View>  // ← L561: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L562: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </View>  // ← L563: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L564: Linha em branco usada para separar visualmente os blocos do arquivo.
+      )}  // ← L565: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L566: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L567: Linha em branco usada para separar visualmente os blocos do arquivo.
+      {/* MENU INFERIOR */}  // ← L568: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L569: Linha em branco usada para separar visualmente os blocos do arquivo.
+      <View style={styles.bottomMenu}>  // ← L570: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L571: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* HOME */}  // ← L572: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L573: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <TouchableOpacity  // ← L574: Linha de JSX que monta a interface visual ou renderiza um componente.
+          style={styles.menuItem}  // ← L575: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          onPress={() => router.push('/home')}  // ← L576: Navega para outra rota/tela do aplicativo.
+        >  // ← L577: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L578: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <HomeIcon  // ← L579: Linha de JSX que monta a interface visual ou renderiza um componente.
+            size={25}  // ← L580: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            color="#5F6269"  // ← L581: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          />  // ← L582: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L583: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.menuText}>  // ← L584: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Home  // ← L585: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L586: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L587: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </TouchableOpacity>  // ← L588: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L589: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L590: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* AGENDA */}  // ← L591: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L592: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <TouchableOpacity  // ← L593: Linha de JSX que monta a interface visual ou renderiza um componente.
+          style={styles.menuItem}  // ← L594: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          onPress={() => router.push('/agenda')}  // ← L595: Navega para outra rota/tela do aplicativo.
+        >  // ← L596: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L597: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <CalendarDays  // ← L598: Linha de JSX que monta a interface visual ou renderiza um componente.
+            size={25}  // ← L599: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            color="#5F6269"  // ← L600: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          />  // ← L601: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L602: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.menuText}>  // ← L603: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Agenda  // ← L604: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L605: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L606: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </TouchableOpacity>  // ← L607: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L608: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L609: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* FINANCEIRO */}  // ← L610: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L611: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <TouchableOpacity  // ← L612: Linha de JSX que monta a interface visual ou renderiza um componente.
+          style={styles.menuItem}  // ← L613: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          onPress={() => router.push('/financeiro')}  // ← L614: Navega para outra rota/tela do aplicativo.
+        >  // ← L615: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L616: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Wallet  // ← L617: Linha de JSX que monta a interface visual ou renderiza um componente.
+            size={25}  // ← L618: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            color="#5F6269"  // ← L619: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          />  // ← L620: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L621: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.menuText}>  // ← L622: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Financeiro  // ← L623: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L624: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L625: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </TouchableOpacity>  // ← L626: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L627: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L628: Linha em branco usada para separar visualmente os blocos do arquivo.
+        {/* PERFIL */}  // ← L629: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L630: Linha em branco usada para separar visualmente os blocos do arquivo.
+        <TouchableOpacity  // ← L631: Linha de JSX que monta a interface visual ou renderiza um componente.
+          style={styles.menuItem}  // ← L632: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          onPress={() => router.push('/perfil')}  // ← L633: Navega para outra rota/tela do aplicativo.
+        >  // ← L634: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L635: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <UserRound  // ← L636: Linha de JSX que monta a interface visual ou renderiza um componente.
+            size={25}  // ← L637: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            color="#EF3038"  // ← L638: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          />  // ← L639: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L640: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <Text style={styles.menuTextActive}>  // ← L641: Linha de JSX que monta a interface visual ou renderiza um componente.
+            Perfil  // ← L642: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          </Text>  // ← L643: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L644: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.activeLine} />  // ← L645: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L646: Linha em branco usada para separar visualmente os blocos do arquivo.
+        </TouchableOpacity>  // ← L647: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L648: Linha em branco usada para separar visualmente os blocos do arquivo.
+      </View>  // ← L649: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L650: Linha em branco usada para separar visualmente os blocos do arquivo.
+    </View>  // ← L651: Linha de JSX que monta a interface visual ou renderiza um componente.
+  );  // ← L652: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L653: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L654: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L655: Linha em branco usada para separar visualmente os blocos do arquivo.
+const styles = StyleSheet.create({  // ← L656: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L657: Linha em branco usada para separar visualmente os blocos do arquivo.
+  container: {  // ← L658: Inicia a configuração de um estilo identificado por esta chave.
+    flex: 1,  // ← L659: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFF59D',  // ← L660: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L661: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L662: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L663: Linha em branco usada para separar visualmente os blocos do arquivo.
+  scroll: {  // ← L664: Inicia a configuração de um estilo identificado por esta chave.
+    flex: 1,  // ← L665: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L666: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L667: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L668: Linha em branco usada para separar visualmente os blocos do arquivo.
+  conteudo: {  // ← L669: Inicia a configuração de um estilo identificado por esta chave.
+    paddingTop: 55,  // ← L670: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 20,  // ← L671: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingBottom: 100,  // ← L672: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L673: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L674: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L675: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* TÍTULO */  // ← L676: Comentário já existente que documenta a intenção deste trecho.
+  // ← L677: Linha em branco usada para separar visualmente os blocos do arquivo.
+  titulo: {  // ← L678: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L679: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 20,  // ← L680: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#222222',  // ← L681: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L682: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L683: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L684: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* FOTO */  // ← L685: Comentário já existente que documenta a intenção deste trecho.
+  // ← L686: Linha em branco usada para separar visualmente os blocos do arquivo.
+  fotoContainer: {  // ← L687: Inicia a configuração de um estilo identificado por esta chave.
+    alignSelf: 'center',  // ← L688: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: -10,  // ← L689: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    position: 'relative',  // ← L690: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L691: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L692: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L693: Linha em branco usada para separar visualmente os blocos do arquivo.
+  foto: {  // ← L694: Inicia a configuração de um estilo identificado por esta chave.
+    width: 100,  // ← L695: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 100,  // ← L696: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 50,  // ← L697: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#F2F2F2',  // ← L698: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderWidth: 3,  // ← L699: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderColor: '#F29BC2',  // ← L700: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L701: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L702: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L703: Linha em branco usada para separar visualmente os blocos do arquivo.
+  botaoCamera: {  // ← L704: Inicia a configuração de um estilo identificado por esta chave.
+    position: 'absolute',  // ← L705: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    right: -2,  // ← L706: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    bottom: -2,  // ← L707: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    width: 40,  // ← L708: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 40,  // ← L709: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 20,  // ← L710: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FF1E25',  // ← L711: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L712: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L713: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L714: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L715: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L716: Linha em branco usada para separar visualmente os blocos do arquivo.
+  nome: {  // ← L717: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L718: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 18,  // ← L719: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#999999',  // ← L720: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    textAlign: 'center',  // ← L721: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 8,  // ← L722: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginBottom: 5,  // ← L723: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L724: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L725: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L726: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* CARD DE INFORMAÇÕES */  // ← L727: Comentário já existente que documenta a intenção deste trecho.
+  // ← L728: Linha em branco usada para separar visualmente os blocos do arquivo.
+  card: {  // ← L729: Inicia a configuração de um estilo identificado por esta chave.
+    backgroundColor: '#FFFFFF',  // ← L730: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 13,  // ← L731: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    overflow: 'hidden',  // ← L732: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowColor: '#000000',  // ← L733: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowOffset: {  // ← L734: Inicia a configuração de um estilo identificado por esta chave.
+      width: 0,  // ← L735: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      height: 2,  // ← L736: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    },  // ← L737: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    shadowOpacity: 0.15,  // ← L738: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowRadius: 4,  // ← L739: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    elevation: 4,  // ← L740: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L741: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L742: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L743: Linha em branco usada para separar visualmente os blocos do arquivo.
+  cabecalhoCard: {  // ← L744: Inicia a configuração de um estilo identificado por esta chave.
+    height: 40,  // ← L745: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 13,  // ← L746: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L747: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L748: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-between',  // ← L749: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomWidth: 1,  // ← L750: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomColor: '#FFD84D',  // ← L751: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L752: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L753: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L754: Linha em branco usada para separar visualmente os blocos do arquivo.
+  tituloCard: {  // ← L755: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L756: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 14,  // ← L757: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#333333',  // ← L758: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L759: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L760: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L761: Linha em branco usada para separar visualmente os blocos do arquivo.
+  linha: {  // ← L762: Inicia a configuração de um estilo identificado por esta chave.
+    minHeight: 70,  // ← L763: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 14,  // ← L764: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L765: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L766: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomWidth: 1,  // ← L767: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomColor: '#FFD84D',  // ← L768: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L769: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L770: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L771: Linha em branco usada para separar visualmente os blocos do arquivo.
+  linhaSemBorda: {  // ← L772: Inicia a configuração de um estilo identificado por esta chave.
+    minHeight: 70,  // ← L773: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 14,  // ← L774: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L775: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L776: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L777: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L778: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L779: Linha em branco usada para separar visualmente os blocos do arquivo.
+  iconeContainer: {  // ← L780: Inicia a configuração de um estilo identificado por esta chave.
+    width: 38,  // ← L781: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 38,  // ← L782: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 22,  // ← L783: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFD84D',  // ← L784: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L785: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L786: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginRight: 10,  // ← L787: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L788: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L789: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L790: Linha em branco usada para separar visualmente os blocos do arquivo.
+  icone: {  // ← L791: Inicia a configuração de um estilo identificado por esta chave.
+    fontSize: 17,  // ← L792: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#333333',  // ← L793: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L794: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L795: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L796: Linha em branco usada para separar visualmente os blocos do arquivo.
+  label: {  // ← L797: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L798: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 14,  // ← L799: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#999999',  // ← L800: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L801: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L802: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L803: Linha em branco usada para separar visualmente os blocos do arquivo.
+  valor: {  // ← L804: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L805: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 11,  // ← L806: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#999999',  // ← L807: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L808: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L809: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L810: Linha em branco usada para separar visualmente os blocos do arquivo.
+  valorSublinhado: {  // ← L811: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L812: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 11,  // ← L813: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#999999',  // ← L814: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    textDecorationLine: 'underline',  // ← L815: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L816: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L817: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L818: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* CARD MEUS PETS */  // ← L819: Comentário já existente que documenta a intenção deste trecho.
+  // ← L820: Linha em branco usada para separar visualmente os blocos do arquivo.
+  cardPets: {  // ← L821: Inicia a configuração de um estilo identificado por esta chave.
+    marginTop: 19,  // ← L822: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFFFFF',  // ← L823: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 13,  // ← L824: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    overflow: 'hidden',  // ← L825: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowColor: '#000000',  // ← L826: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowOffset: {  // ← L827: Inicia a configuração de um estilo identificado por esta chave.
+      width: 0,  // ← L828: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      height: 2,  // ← L829: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    },  // ← L830: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    shadowOpacity: 0.15,  // ← L831: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowRadius: 4,  // ← L832: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    elevation: 4,  // ← L833: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L834: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L835: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L836: Linha em branco usada para separar visualmente os blocos do arquivo.
+  cabecalhoPets: {  // ← L837: Inicia a configuração de um estilo identificado por esta chave.
+    height: 40,  // ← L838: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 13,  // ← L839: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L840: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L841: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-between',  // ← L842: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomWidth: 1,  // ← L843: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomColor: '#FFD84D',  // ← L844: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L845: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L846: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L847: Linha em branco usada para separar visualmente os blocos do arquivo.
+  adicionar: {  // ← L848: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L849: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 14,  // ← L850: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#FF2020',  // ← L851: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L852: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L853: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L854: Linha em branco usada para separar visualmente os blocos do arquivo.
+  semPet: {  // ← L855: Inicia a configuração de um estilo identificado por esta chave.
+    height: 60,  // ← L856: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L857: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L858: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomWidth: 1,  // ← L859: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomColor: '#FFD84D',  // ← L860: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L861: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L862: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L863: Linha em branco usada para separar visualmente os blocos do arquivo.
+  textoSemPet: {  // ← L864: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L865: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 14,  // ← L866: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#999999',  // ← L867: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L868: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L869: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L870: Linha em branco usada para separar visualmente os blocos do arquivo.
+  novoPet: {  // ← L871: Inicia a configuração de um estilo identificado por esta chave.
+    height: 70,  // ← L872: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 14,  // ← L873: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L874: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L875: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L876: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L877: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L878: Linha em branco usada para separar visualmente os blocos do arquivo.
+  iconeNovoPet: {  // ← L879: Inicia a configuração de um estilo identificado por esta chave.
+    width: 36,  // ← L880: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 36,  // ← L881: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 18,  // ← L882: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderWidth: 1,  // ← L883: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderStyle: 'dashed',  // ← L884: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderColor: '#FF5A5A',  // ← L885: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L886: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L887: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginRight: 9,  // ← L888: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L889: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L890: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L891: Linha em branco usada para separar visualmente os blocos do arquivo.
+  textoNovoPet: {  // ← L892: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L893: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 14,  // ← L894: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#FF4A4A',  // ← L895: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L896: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L897: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L898: Linha em branco usada para separar visualmente os blocos do arquivo.
+  subtextoNovoPet: {  // ← L899: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L900: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 12,  // ← L901: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#999999',  // ← L902: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 2,  // ← L903: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L904: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L905: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L906: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* BOTÃO DE CONFIGURAÇÕES */  // ← L907: Comentário já existente que documenta a intenção deste trecho.
+  // ← L908: Linha em branco usada para separar visualmente os blocos do arquivo.
+  cabecalho: {  // ← L909: Inicia a configuração de um estilo identificado por esta chave.
+    flexDirection: 'row',  // ← L910: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L911: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-between',  // ← L912: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L913: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L914: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L915: Linha em branco usada para separar visualmente os blocos do arquivo.
+  botaoConfiguracoes: {  // ← L916: Inicia a configuração de um estilo identificado por esta chave.
+    width: 50,  // ← L917: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 50,  // ← L918: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 26,  // ← L919: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFFFFF',  // ← L920: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L921: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L922: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowColor: '#000000',  // ← L923: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowOffset: {  // ← L924: Inicia a configuração de um estilo identificado por esta chave.
+      width: 0,  // ← L925: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      height: 2,  // ← L926: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    },  // ← L927: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    shadowOpacity: 0.15,  // ← L928: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowRadius: 3,  // ← L929: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    elevation: 4,  // ← L930: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L931: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L932: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L933: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* MENU LATERAL */  // ← L934: Comentário já existente que documenta a intenção deste trecho.
+  // ← L935: Linha em branco usada para separar visualmente os blocos do arquivo.
+  menuOverlay: {  // ← L936: Inicia a configuração de um estilo identificado por esta chave.
+    position: 'absolute',  // ← L937: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    top: 0,  // ← L938: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    left: 0,  // ← L939: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    right: 0,  // ← L940: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    bottom: 0,  // ← L941: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L942: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',  // ← L943: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    zIndex: 100,  // ← L944: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L945: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L946: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L947: Linha em branco usada para separar visualmente os blocos do arquivo.
+  areaFechar: {  // ← L948: Inicia a configuração de um estilo identificado por esta chave.
+    flex: 1,  // ← L949: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L950: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L951: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L952: Linha em branco usada para separar visualmente os blocos do arquivo.
+  menuLateral: {  // ← L953: Inicia a configuração de um estilo identificado por esta chave.
+    width: '78%',  // ← L954: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: '100%',  // ← L955: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFFFFF',  // ← L956: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingTop: 55,  // ← L957: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingHorizontal: 20,  // ← L958: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowColor: '#000000',  // ← L959: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowOffset: {  // ← L960: Inicia a configuração de um estilo identificado por esta chave.
+      width: -3,  // ← L961: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      height: 0,  // ← L962: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    },  // ← L963: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    shadowOpacity: 0.2,  // ← L964: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    shadowRadius: 6,  // ← L965: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    elevation: 10,  // ← L966: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L967: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L968: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L969: Linha em branco usada para separar visualmente os blocos do arquivo.
+  menuCabecalho: {  // ← L970: Inicia a configuração de um estilo identificado por esta chave.
+    flexDirection: 'row',  // ← L971: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L972: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-between',  // ← L973: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L974: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L975: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L976: Linha em branco usada para separar visualmente os blocos do arquivo.
+  menuTitulo: {  // ← L977: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L978: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 19,  // ← L979: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#222222',  // ← L980: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L981: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L982: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L983: Linha em branco usada para separar visualmente os blocos do arquivo.
+  separador: {  // ← L984: Inicia a configuração de um estilo identificado por esta chave.
+    height: 1,  // ← L985: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFD84D',  // ← L986: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 15,  // ← L987: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginBottom: 25,  // ← L988: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L989: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L990: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L991: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* OPÇÕES PRINCIPAIS */  // ← L992: Comentário já existente que documenta a intenção deste trecho.
+  // ← L993: Linha em branco usada para separar visualmente os blocos do arquivo.
+  opcao: {  // ← L994: Inicia a configuração de um estilo identificado por esta chave.
+    minHeight: 55,  // ← L995: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L996: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L997: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomWidth: 1,  // ← L998: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomColor: '#EEEEEE',  // ← L999: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1000: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1001: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1002: Linha em branco usada para separar visualmente os blocos do arquivo.
+  iconeOpcao: {  // ← L1003: Inicia a configuração de um estilo identificado por esta chave.
+    width: 38,  // ← L1004: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 38,  // ← L1005: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 19,  // ← L1006: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFF59D',  // ← L1007: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L1008: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L1009: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginRight: 12,  // ← L1010: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1011: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1012: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1013: Linha em branco usada para separar visualmente os blocos do arquivo.
+  textoOpcao: {  // ← L1014: Inicia a configuração de um estilo identificado por esta chave.
+    flex: 1,  // ← L1015: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontFamily: 'Poppins_400Regular',  // ← L1016: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 13,  // ← L1017: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#333333',  // ← L1018: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1019: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1020: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1021: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* SUBOPÇÕES */  // ← L1022: Comentário já existente que documenta a intenção deste trecho.
+  // ← L1023: Linha em branco usada para separar visualmente os blocos do arquivo.
+  subOpcoes: {  // ← L1024: Inicia a configuração de um estilo identificado por esta chave.
+    backgroundColor: '#FAFAFA',  // ← L1025: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingLeft: 50,  // ← L1026: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingBottom: 5,  // ← L1027: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1028: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1029: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1030: Linha em branco usada para separar visualmente os blocos do arquivo.
+  subOpcao: {  // ← L1031: Inicia a configuração de um estilo identificado por esta chave.
+    minHeight: 42,  // ← L1032: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L1033: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L1034: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-between',  // ← L1035: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    paddingRight: 5,  // ← L1036: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomWidth: 1,  // ← L1037: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderBottomColor: '#EEEEEE',  // ← L1038: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1039: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1040: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1041: Linha em branco usada para separar visualmente os blocos do arquivo.
+  textoSubOpcao: {  // ← L1042: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L1043: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 12,  // ← L1044: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#666666',  // ← L1045: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1046: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1047: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1048: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* LOGOUT */  // ← L1049: Comentário já existente que documenta a intenção deste trecho.
+  // ← L1050: Linha em branco usada para separar visualmente os blocos do arquivo.
+  linhaLogout: {  // ← L1051: Inicia a configuração de um estilo identificado por esta chave.
+    height: 1,  // ← L1052: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#EEEEEE',  // ← L1053: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 30,  // ← L1054: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginBottom: 8,  // ← L1055: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1056: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1057: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1058: Linha em branco usada para separar visualmente os blocos do arquivo.
+  opcaoLogout: {  // ← L1059: Inicia a configuração de um estilo identificado por esta chave.
+    height: 55,  // ← L1060: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L1061: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L1062: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1063: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1064: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1065: Linha em branco usada para separar visualmente os blocos do arquivo.
+  iconeLogout: {  // ← L1066: Inicia a configuração de um estilo identificado por esta chave.
+    width: 38,  // ← L1067: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 38,  // ← L1068: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 19,  // ← L1069: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFE5E5',  // ← L1070: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L1071: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L1072: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginRight: 12,  // ← L1073: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1074: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1075: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1076: Linha em branco usada para separar visualmente os blocos do arquivo.
+  textoLogout: {  // ← L1077: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L1078: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 13,  // ← L1079: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#E53935',  // ← L1080: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1081: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1082: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1083: Linha em branco usada para separar visualmente os blocos do arquivo.
+  /* MENU INFERIOR */  // ← L1084: Comentário já existente que documenta a intenção deste trecho.
+  // ← L1085: Linha em branco usada para separar visualmente os blocos do arquivo.
+  bottomMenu: {  // ← L1086: Inicia a configuração de um estilo identificado por esta chave.
+    position: 'absolute',  // ← L1087: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    bottom: 0,  // ← L1088: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    left: 0,  // ← L1089: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    right: 0,  // ← L1090: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 75,  // ← L1091: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#FFFFFF',  // ← L1092: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderTopWidth: 1,  // ← L1093: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderTopColor: '#E5E5E5',  // ← L1094: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    flexDirection: 'row',  // ← L1095: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'space-around',  // ← L1096: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L1097: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1098: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1099: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1100: Linha em branco usada para separar visualmente os blocos do arquivo.
+  menuItem: {  // ← L1101: Inicia a configuração de um estilo identificado por esta chave.
+    flex: 1,  // ← L1102: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    alignItems: 'center',  // ← L1103: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    justifyContent: 'center',  // ← L1104: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: '100%',  // ← L1105: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1106: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1107: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1108: Linha em branco usada para separar visualmente os blocos do arquivo.
+  menuText: {  // ← L1109: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_400Regular',  // ← L1110: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 11,  // ← L1111: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#5F6269',  // ← L1112: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 3,  // ← L1113: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1114: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1115: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1116: Linha em branco usada para separar visualmente os blocos do arquivo.
+  menuTextActive: {  // ← L1117: Inicia a configuração de um estilo identificado por esta chave.
+    fontFamily: 'Poppins_600SemiBold',  // ← L1118: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    fontSize: 11,  // ← L1119: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    color: '#EF3038',  // ← L1120: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    marginTop: 3,  // ← L1121: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1122: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1123: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // ← L1124: Linha em branco usada para separar visualmente os blocos do arquivo.
+  activeLine: {  // ← L1125: Inicia a configuração de um estilo identificado por esta chave.
+    position: 'absolute',  // ← L1126: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    bottom: 0,  // ← L1127: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    width: 35,  // ← L1128: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    height: 3,  // ← L1129: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    backgroundColor: '#EF3038',  // ← L1130: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    borderRadius: 3,  // ← L1131: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L1132: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L1133: Linha em branco usada para separar visualmente os blocos do arquivo.
+});  // ← L1134: Abre ou fecha um bloco/objeto/estrutura sintática do código.

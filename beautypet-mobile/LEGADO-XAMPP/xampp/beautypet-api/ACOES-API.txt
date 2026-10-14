@@ -1,0 +1,24 @@
+Ações disponíveis no api.php:
+
+teste_conexao
+cadastro
+login
+logout
+home
+perfil
+meus_pets
+catalogo_pet
+adicionar_pet
+servicos
+horarios_disponiveis
+solicitar_agendamento
+agenda_pessoal
+criar_evento
+excluir_evento
+categorias_gasto
+adicionar_gasto
+resumo_financeiro
+budget
+notificacoes
+marcar_notificacao_lida
+limpar_notificacoes

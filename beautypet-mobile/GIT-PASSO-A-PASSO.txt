@@ -1,0 +1,31 @@
+BEAUTY PET MOBILE - PRIMEIRO ENVIO PARA O GITHUB
+
+1. Crie um repositório vazio no GitHub, por exemplo:
+   beauty-pet-mobile
+
+2. Abra ESTA pasta no VSCode.
+
+3. Confira que o arquivo .env NÃO aparece para ser enviado.
+   O arquivo .env.example pode ir normalmente.
+
+4. No terminal do VSCode execute:
+
+   git init
+   git add .
+   git status
+   git commit -m "Projeto inicial Beauty Pet Mobile"
+   git branch -M main
+   git remote add origin URL_DO_SEU_REPOSITORIO
+   git push -u origin main
+
+5. Depois disso, para atualizações futuras:
+
+   git add .
+   git commit -m "Descrição da alteração"
+   git push
+
+IMPORTANTE:
+- Não envie .env.
+- Não envie service_role do Supabase.
+- Não envie senha do PostgreSQL.
+- node_modules e .expo serão ignorados automaticamente.

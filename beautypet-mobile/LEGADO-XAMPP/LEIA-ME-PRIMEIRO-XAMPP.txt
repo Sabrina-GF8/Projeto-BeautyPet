@@ -1,0 +1,50 @@
+BEAUTY PET — EXPO GO + XAMPP
+================================
+
+1. O DESIGN DAS TELAS ENVIADAS FOI RESTAURADO.
+2. O WEB/BANCO ANTIGO NÃO FOI ALTERADO.
+3. A lógica do mobile foi adaptada para usar a estrutura real do WEB.
+4. Leia SINCRONIA-WEB-MOBILE.md para ver o que foi conferido.
+
+PARA RODAR O MOBILE
+-------------------
+Abra esta pasta no VS Code e rode:
+
+npm.cmd install
+npx.cmd expo start -c
+
+No src/lib/api.ts confira:
+    const IP_DO_COMPUTADOR = "192.168.0.178";
+
+Troque apenas se o IPv4 do seu computador for outro.
+
+XAMPP
+-----
+Copie:
+    xampp/beautypet-api
+
+para:
+    C:\xampp\htdocs\beautypet-api
+
+Ligue Apache + MySQL.
+
+Teste no PC:
+    http://localhost/beautypet-api/api.php?acao=teste_conexao
+
+No celular, trocando pelo IPv4 do PC:
+    http://SEU-IP/beautypet-api/api.php?acao=teste_conexao
+
+BANCO
+-----
+Se já está usando o banco completo anterior, NÃO precisa recriar.
+
+Os SQLs foram incluídos apenas como referência/instalação:
+- BANCO_COMPLETO_WEB_MOBILE_API.sql
+- SOMENTE_ADICOES_MOBILE_E_API.sql
+- SOMENTE_SESSOES_API.sql
+
+IMPORTANTE SOBRE AS IMAGENS
+---------------------------
+Os arquivos originais fundo.jpeg e car_01/car_02/car_03.jpeg não estavam no material
+recebido. Foram usados placeholders para evitar erro do Metro. Substitua esses arquivos
+pelas imagens originais quando tiver os assets.

@@ -1,0 +1,37 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/app/_layout.tsx
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import {  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  Poppins_400Regular,  // ← L2: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Poppins_500Medium,  // ← L3: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Poppins_600SemiBold,  // ← L4: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Poppins_700Bold,  // ← L5: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  useFonts,  // ← L6: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+} from "@expo-google-fonts/poppins";  // ← L7: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L8: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { Stack } from "expo-router";  // ← L9: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { NotificationProvider } from "../context/notificationContext";  // ← L10: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L11: Linha em branco usada para separar visualmente os blocos do arquivo.
+export default function RootLayout() {  // ← L12: Declara e exporta o componente principal desta tela para o Expo Router.
+  const [fontsLoaded] = useFonts({  // ← L13: Carrega as fontes personalizadas usadas no layout.
+    Poppins_400Regular,  // ← L14: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    Poppins_500Medium,  // ← L15: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    Poppins_600SemiBold,  // ← L16: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    Poppins_700Bold,  // ← L17: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  });  // ← L18: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L19: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (!fontsLoaded) {  // ← L20: Testa uma condição antes de executar o bloco seguinte.
+    return null;  // ← L21: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L22: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L23: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return (  // ← L24: Inicia o JSX que será renderizado visualmente na tela.
+    <NotificationProvider>  // ← L25: Linha de JSX que monta a interface visual ou renderiza um componente.
+      <Stack  // ← L26: Linha de JSX que monta a interface visual ou renderiza um componente.
+        screenOptions={{  // ← L27: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+          headerShown: false,  // ← L28: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        }}  // ← L29: Fecha a estrutura iniciada nas linhas anteriores.
+      />  // ← L30: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    </NotificationProvider>  // ← L31: Linha de JSX que monta a interface visual ou renderiza um componente.
+  );  // ← L32: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L33: Abre ou fecha um bloco/objeto/estrutura sintática do código.

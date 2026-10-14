@@ -1,0 +1,114 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/context/notificationContext.tsx
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import {  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  createContext,  // ← L2: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  useContext,  // ← L3: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  useEffect,  // ← L4: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  useState,  // ← L5: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+} from "react";  // ← L6: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L7: Linha em branco usada para separar visualmente os blocos do arquivo.
+import { api, obterTokenSessao } from "../lib/api";  // ← L8: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L9: Linha em branco usada para separar visualmente os blocos do arquivo.
+type Notification = {  // ← L10: Define a estrutura esperada dos dados no TypeScript.
+  id: number;  // ← L11: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  title: string;  // ← L12: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  text: string;  // ← L13: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  read: boolean;  // ← L14: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+};  // ← L15: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L16: Linha em branco usada para separar visualmente os blocos do arquivo.
+type NotificationContextType = {  // ← L17: Define a estrutura esperada dos dados no TypeScript.
+  notifications: Notification[];  // ← L18: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  readNotification: (id: number) => void;  // ← L19: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  clearNotifications: () => void;  // ← L20: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  refreshNotifications: () => Promise<void>;  // ← L21: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+};  // ← L22: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L23: Linha em branco usada para separar visualmente os blocos do arquivo.
+const NotificationContext =  // ← L24: Declara uma variável/constante usada por este bloco de lógica.
+  createContext<NotificationContextType | undefined>(undefined);  // ← L25: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L26: Linha em branco usada para separar visualmente os blocos do arquivo.
+export function NotificationProvider({  // ← L27: Exporta uma função para que outros arquivos possam reutilizá-la.
+  children,  // ← L28: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+}: {  // ← L29: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  children: React.ReactNode;  // ← L30: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+}) {  // ← L31: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  const [notifications, setNotifications] = useState<Notification[]>([]);  // ← L32: Cria um estado React e a função usada para atualizar esse valor na tela.
+  // ← L33: Linha em branco usada para separar visualmente os blocos do arquivo.
+  async function refreshNotifications() {  // ← L34: Declara uma função que agrupa uma regra ou ação reutilizável.
+    if (!obterTokenSessao()) {  // ← L35: Testa uma condição antes de executar o bloco seguinte.
+      setNotifications([]);  // ← L36: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      return;  // ← L37: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L38: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L39: Linha em branco usada para separar visualmente os blocos do arquivo.
+    try {  // ← L40: Inicia um bloco protegido para capturar possíveis erros.
+      const resposta = await api<{  // ← L41: Declara uma variável/constante usada por este bloco de lógica.
+        notificacoes: {  // ← L42: Inicia a configuração de um estilo identificado por esta chave.
+          id: number;  // ← L43: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          titulo: string;  // ← L44: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          mensagem: string;  // ← L45: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          lida: boolean;  // ← L46: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        }[];  // ← L47: Fecha a estrutura iniciada nas linhas anteriores.
+      }>("notificacoes");  // ← L48: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L49: Linha em branco usada para separar visualmente os blocos do arquivo.
+      setNotifications(  // ← L50: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        (resposta.notificacoes || []).map((item) => ({  // ← L51: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+          id: Number(item.id),  // ← L52: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          title: item.titulo,  // ← L53: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          text: item.mensagem,  // ← L54: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          read: Boolean(item.lida),  // ← L55: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        }))  // ← L56: Fecha a estrutura iniciada nas linhas anteriores.
+      );  // ← L57: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    } catch {  // ← L58: Captura um erro ocorrido no bloco try para tratar a falha.
+      // A tela continua utilizável mesmo se a API estiver indisponível.  // ← L59: Comentário já existente que documenta a intenção deste trecho.
+    }  // ← L60: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  }  // ← L61: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L62: Linha em branco usada para separar visualmente os blocos do arquivo.
+  function readNotification(id: number) {  // ← L63: Declara uma função que agrupa uma regra ou ação reutilizável.
+    setNotifications((notifications) =>  // ← L64: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      notifications.map((notification) =>  // ← L65: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        notification.id === id  // ← L66: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          ? { ...notification, read: true }  // ← L67: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          : notification  // ← L68: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      )  // ← L69: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    );  // ← L70: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L71: Linha em branco usada para separar visualmente os blocos do arquivo.
+    api("marcar_notificacao_lida", {  // ← L72: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      notificacao_id: id,  // ← L73: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }).catch(() => {});  // ← L74: Fecha a estrutura iniciada nas linhas anteriores.
+  }  // ← L75: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L76: Linha em branco usada para separar visualmente os blocos do arquivo.
+  function clearNotifications() {  // ← L77: Declara uma função que agrupa uma regra ou ação reutilizável.
+    setNotifications([]);  // ← L78: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    api("limpar_notificacoes").catch(() => {});  // ← L79: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }  // ← L80: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L81: Linha em branco usada para separar visualmente os blocos do arquivo.
+  useEffect(() => {  // ← L82: Executa um efeito quando o componente é carregado ou quando suas dependências mudam.
+    refreshNotifications();  // ← L83: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }, []);  // ← L84: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L85: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return (  // ← L86: Inicia o JSX que será renderizado visualmente na tela.
+    <NotificationContext.Provider  // ← L87: Linha de JSX que monta a interface visual ou renderiza um componente.
+      value={{  // ← L88: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        notifications,  // ← L89: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        readNotification,  // ← L90: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        clearNotifications,  // ← L91: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        refreshNotifications,  // ← L92: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      }}  // ← L93: Fecha a estrutura iniciada nas linhas anteriores.
+    >  // ← L94: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      {children}  // ← L95: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    </NotificationContext.Provider>  // ← L96: Linha de JSX que monta a interface visual ou renderiza um componente.
+  );  // ← L97: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L98: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L99: Linha em branco usada para separar visualmente os blocos do arquivo.
+export function useNotifications() {  // ← L100: Exporta uma função para que outros arquivos possam reutilizá-la.
+  const context = useContext(NotificationContext);  // ← L101: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L102: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (!context) {  // ← L103: Testa uma condição antes de executar o bloco seguinte.
+    throw new Error(  // ← L104: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      "useNotifications deve ser usado dentro de NotificationProvider"  // ← L105: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    );  // ← L106: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  }  // ← L107: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L108: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return context;  // ← L109: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L110: Abre ou fecha um bloco/objeto/estrutura sintática do código.

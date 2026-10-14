@@ -1,0 +1,56 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: package.json
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+{  // ← L1: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  "name": "beautypet-app",  // ← L2: Define uma propriedade de configuração deste arquivo JSON.
+  "main": "expo-router/entry",  // ← L3: Define uma propriedade de configuração deste arquivo JSON.
+  "version": "1.0.0",  // ← L4: Define uma propriedade de configuração deste arquivo JSON.
+  "dependencies": {  // ← L5: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "@expo-google-fonts/poppins": "0.4.1",  // ← L6: Define uma propriedade de configuração deste arquivo JSON.
+    "@expo/ui": "~57.0.19",  // ← L7: Define uma propriedade de configuração deste arquivo JSON.
+    "@expo/vector-icons": "15.1.1",  // ← L8: Define uma propriedade de configuração deste arquivo JSON.
+    "@react-native-async-storage/async-storage": "2.2.0",  // ← L9: Define uma propriedade de configuração deste arquivo JSON.
+    "@react-native-community/datetimepicker": "9.1.0",  // ← L10: Define uma propriedade de configuração deste arquivo JSON.
+    "expo": "~57.0.24",  // ← L11: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-constants": "~57.0.19",  // ← L12: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-device": "~57.0.2",  // ← L13: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-font": "~57.0.4",  // ← L14: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-glass-effect": "~57.0.3",  // ← L15: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-image": "~57.0.5",  // ← L16: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-linking": "~57.0.10",  // ← L17: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-router": "~57.0.22",  // ← L18: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-splash-screen": "~57.0.9",  // ← L19: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-status-bar": "~57.0.1",  // ← L20: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-symbols": "~57.0.3",  // ← L21: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-system-ui": "~57.0.4",  // ← L22: Define uma propriedade de configuração deste arquivo JSON.
+    "expo-web-browser": "~57.0.3",  // ← L23: Define uma propriedade de configuração deste arquivo JSON.
+    "lucide-react-native": "1.47.0",  // ← L24: Define uma propriedade de configuração deste arquivo JSON.
+    "react": "19.2.3",  // ← L25: Define uma propriedade de configuração deste arquivo JSON.
+    "react-dom": "19.2.3",  // ← L26: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native": "0.86.3",  // ← L27: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-calendars": "1.1314.0",  // ← L28: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-gesture-handler": "~2.32.0",  // ← L29: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-reanimated": "4.5.1",  // ← L30: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-safe-area-context": "~5.7.0",  // ← L31: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-screens": "~4.26.0",  // ← L32: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-svg": "15.15.4",  // ← L33: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-web": "~0.21.0",  // ← L34: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-worklets": "0.10.1",  // ← L35: Define uma propriedade de configuração deste arquivo JSON.
+    "@supabase/supabase-js": "^2.57.4",  // ← L36: Define uma propriedade de configuração deste arquivo JSON.
+    "react-native-url-polyfill": "^3.0.0"  // ← L37: Define uma propriedade de configuração deste arquivo JSON.
+  },  // ← L38: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  "devDependencies": {  // ← L39: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "@types/react": "~19.2.2",  // ← L40: Define uma propriedade de configuração deste arquivo JSON.
+    "typescript": "~6.0.3"  // ← L41: Define uma propriedade de configuração deste arquivo JSON.
+  },  // ← L42: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  "scripts": {  // ← L43: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    "start": "expo start",  // ← L44: Define uma propriedade de configuração deste arquivo JSON.
+    "reset-project": "node ./scripts/reset-project.js",  // ← L45: Define uma propriedade de configuração deste arquivo JSON.
+    "android": "expo start --android",  // ← L46: Define uma propriedade de configuração deste arquivo JSON.
+    "ios": "expo start --ios",  // ← L47: Define uma propriedade de configuração deste arquivo JSON.
+    "web": "expo start --web",  // ← L48: Define uma propriedade de configuração deste arquivo JSON.
+    "lint": "expo lint"  // ← L49: Define uma propriedade de configuração deste arquivo JSON.
+  },  // ← L50: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  "private": true  // ← L51: Define uma propriedade de configuração deste arquivo JSON.
+}  // ← L52: Abre ou fecha um bloco/objeto/estrutura sintática do código.

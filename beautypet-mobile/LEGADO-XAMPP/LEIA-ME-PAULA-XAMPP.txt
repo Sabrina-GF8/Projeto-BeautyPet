@@ -1,0 +1,104 @@
+BEAUTY PET - EXPO GO - PROJETO CORRIGIDO
+========================================
+
+O QUE FOI CORRIGIDO
+-------------------
+1. As telas do Beauty Pet estavam na raiz do projeto, mas o Expo Router deste
+   projeto está usando src/app. Por isso /home, /agenda, /financeiro etc. não
+   existiam para o Router e o Expo abria a tela "Welcome to Expo".
+
+2. Todas as telas foram colocadas em src/app.
+
+3. O index.tsx agora redireciona automaticamente para /login.
+
+4. api.ts foi colocado em src/lib/api.ts. Ele NÃO é uma tela.
+
+5. notificationContext.tsx foi colocado em src/context. Ele NÃO é uma rota.
+
+6. Os componentes Button/Input foram colocados em src/components.
+
+7. Corrigido um erro em api.ts que fazia o app recusar justamente o IP
+   192.168.0.178 que estava configurado.
+
+8. O ZIP enviado não continha estas imagens:
+      assets/fundo.jpeg
+      assets/car_01.jpeg
+      assets/car_02.jpeg
+      assets/car_03.jpeg
+      assets/images/BeautyPet.jpg
+   Para impedir erro do Metro/Expo, usei temporariamente assets/img1.png como
+   fallback nesses pontos. Depois você pode colocar as imagens originais e
+   trocar os requires novamente.
+
+9. package.json recebeu os pacotes que as telas realmente importam:
+      @expo-google-fonts/poppins
+      @expo/vector-icons
+      @react-native-community/datetimepicker
+      lucide-react-native
+      react-native-calendars
+      react-native-svg
+
+10. O cadastro de pet foi liberado no Perfil. Só o nome é obrigatório, e o
+    registro já fica vinculado à mesma ficha do tutor usada pelo sistema WEB.
+
+11. O Novo Gasto agora envia a data digitada (DD/MM/AAAA), preserva a categoria
+    selecionada e o Financeiro soma os lançamentos do WEB em "Beauty Pet".
+
+PRIMEIRA VEZ DEPOIS DE EXTRAIR
+------------------------------
+Abra o terminal NA PASTA onde está package.json e rode:
+
+    npm.cmd install
+
+Depois:
+
+    npx.cmd expo start -c
+
+Abra no Expo Go pelo QR Code.
+
+SE O BANCO JÁ ESTAVA INSTALADO
+------------------------------
+No phpMyAdmin, selecione o banco beauty_pet e importe:
+
+    banco/ATUALIZACAO_PETS_E_FINANCEIRO.sql
+
+Depois substitua a pasta do XAMPP htdocs/beautypet-api pela versão que está em:
+
+    xampp/beautypet-api
+
+XAMPP / EXPO GO
+---------------
+O arquivo da conexão está em:
+
+    src/lib/api.ts
+
+Atualmente o IP está:
+
+    192.168.0.178
+
+No Expo Go, o aplicativo agora tenta detectar automaticamente o IPv4 usado
+pelo Metro. O número acima fica somente como reserva. Inicie o Expo em modo
+LAN; o modo Tunnel não consegue acessar diretamente o XAMPP do computador.
+
+Se este NÃO for o IPv4 atual do seu computador, rode no CMD:
+
+    ipconfig
+
+E altere APENAS a linha IP_DO_COMPUTADOR em src/lib/api.ts.
+
+O celular e o computador precisam estar na mesma rede Wi-Fi.
+Apache e MySQL precisam estar ligados no XAMPP.
+
+TESTE DA API NO CELULAR
+-----------------------
+No navegador do celular, use:
+
+    http://SEU-IP/beautypet-api/api.php?acao=teste_conexao
+
+Se essa URL não abrir, o problema é rede/XAMPP/firewall, não Expo Router.
+
+CORREÇÃO DOS BOTÕES DE LOGIN/CADASTRO
+------------------------------------
+Os botões agora mostram "Entrando..." ou "Cadastrando..." durante a chamada.
+Se o XAMPP não responder, a espera termina em 10 segundos e o aplicativo mostra
+o endereço exato que tentou acessar, em vez de parecer que o botão travou.

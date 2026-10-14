@@ -1,0 +1,314 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/app/novo_pet.tsx
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import {  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  Alert,  // ← L2: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  KeyboardAvoidingView,  // ← L3: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Platform,  // ← L4: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  SafeAreaView,  // ← L5: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  ScrollView,  // ← L6: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  StyleSheet,  // ← L7: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  Text,  // ← L8: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  TextInput,  // ← L9: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  TouchableOpacity,  // ← L10: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  View,  // ← L11: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+} from "react-native";  // ← L12: Fecha a estrutura iniciada nas linhas anteriores.
+import { ArrowLeft, PawPrint } from "lucide-react-native";  // ← L13: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { useRouter } from "expo-router";  // ← L14: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { useEffect, useMemo, useState } from "react";  // ← L15: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { api } from "@/lib/api";  // ← L16: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L17: Linha em branco usada para separar visualmente os blocos do arquivo.
+type Especie = { id: number; nome: string };  // ← L18: Define a estrutura esperada dos dados no TypeScript.
+type Raca = { id: number; especie_id: number; nome: string };  // ← L19: Define a estrutura esperada dos dados no TypeScript.
+  // ← L20: Linha em branco usada para separar visualmente os blocos do arquivo.
+function mascararData(valor: string) {  // ← L21: Declara uma função que agrupa uma regra ou ação reutilizável.
+  const numeros = valor.replace(/\D/g, "").slice(0, 8);  // ← L22: Declara uma variável/constante usada por este bloco de lógica.
+  if (numeros.length <= 2) return numeros;  // ← L23: Testa uma condição antes de executar o bloco seguinte.
+  if (numeros.length <= 4) return `${numeros.slice(0, 2)}/${numeros.slice(2)}`;  // ← L24: Testa uma condição antes de executar o bloco seguinte.
+  return `${numeros.slice(0, 2)}/${numeros.slice(2, 4)}/${numeros.slice(4)}`;  // ← L25: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L26: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L27: Linha em branco usada para separar visualmente os blocos do arquivo.
+function dataBrParaIso(valor: string) {  // ← L28: Declara uma função que agrupa uma regra ou ação reutilizável.
+  if (!valor.trim()) return null;  // ← L29: Testa uma condição antes de executar o bloco seguinte.
+  // ← L30: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const correspondencia = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);  // ← L31: Declara uma variável/constante usada por este bloco de lógica.
+  if (!correspondencia) return undefined;  // ← L32: Testa uma condição antes de executar o bloco seguinte.
+  // ← L33: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const [, dia, mes, ano] = correspondencia;  // ← L34: Declara valores constantes, normalmente estado ou retorno de um hook.
+  const data = new Date(Date.UTC(Number(ano), Number(mes) - 1, Number(dia)));  // ← L35: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L36: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (  // ← L37: Testa uma condição antes de executar o bloco seguinte.
+    data.getUTCFullYear() !== Number(ano) ||  // ← L38: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    data.getUTCMonth() !== Number(mes) - 1 ||  // ← L39: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    data.getUTCDate() !== Number(dia)  // ← L40: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  ) {  // ← L41: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    return undefined;  // ← L42: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L43: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L44: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return `${ano}-${mes}-${dia}`;  // ← L45: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L46: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L47: Linha em branco usada para separar visualmente os blocos do arquivo.
+export default function NovoPet() {  // ← L48: Declara e exporta o componente principal desta tela para o Expo Router.
+  const router = useRouter();  // ← L49: Obtém o roteador do Expo Router para navegar entre as telas.
+  const [nome, setNome] = useState("");  // ← L50: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [cor, setCor] = useState("");  // ← L51: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [dataNascimento, setDataNascimento] = useState("");  // ← L52: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [sexo, setSexo] = useState("NAO_INFORMADO");  // ← L53: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [castrado, setCastrado] = useState<boolean | null>(null);  // ← L54: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [especies, setEspecies] = useState<Especie[]>([]);  // ← L55: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [racas, setRacas] = useState<Raca[]>([]);  // ← L56: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [especieId, setEspecieId] = useState<number | null>(null);  // ← L57: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [racaId, setRacaId] = useState<number | null>(null);  // ← L58: Cria um estado React e a função usada para atualizar esse valor na tela.
+  const [salvando, setSalvando] = useState(false);  // ← L59: Cria um estado React e a função usada para atualizar esse valor na tela.
+  // ← L60: Linha em branco usada para separar visualmente os blocos do arquivo.
+  useEffect(() => {  // ← L61: Executa um efeito quando o componente é carregado ou quando suas dependências mudam.
+    api<{ especies: Especie[]; racas: Raca[] }>("catalogo_pet")  // ← L62: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      .then((resposta) => {  // ← L63: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        const listaEspecies = resposta.especies || [];  // ← L64: Declara uma variável/constante usada por este bloco de lógica.
+        setEspecies(listaEspecies);  // ← L65: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        setRacas(resposta.racas || []);  // ← L66: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L67: Linha em branco usada para separar visualmente os blocos do arquivo.
+        const especiePadrao =  // ← L68: Declara uma variável/constante usada por este bloco de lógica.
+          listaEspecies.find((item) =>  // ← L69: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            ["cão", "cao"].includes(item.nome.toLocaleLowerCase("pt-BR"))  // ← L70: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          ) || listaEspecies[0];  // ← L71: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L72: Linha em branco usada para separar visualmente os blocos do arquivo.
+        if (especiePadrao) setEspecieId(Number(especiePadrao.id));  // ← L73: Testa uma condição antes de executar o bloco seguinte.
+      })  // ← L74: Fecha a estrutura iniciada nas linhas anteriores.
+      .catch((erro) => {  // ← L75: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        Alert.alert(  // ← L76: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+          "Novo pet",  // ← L77: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          erro instanceof Error  // ← L78: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            ? erro.message  // ← L79: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            : "Não foi possível carregar as espécies."  // ← L80: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        );  // ← L81: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      });  // ← L82: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  }, []);  // ← L83: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L84: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const racasDaEspecie = useMemo(  // ← L85: Memoriza um valor calculado para recalcular somente quando as dependências mudarem.
+    () => racas.filter((raca) => Number(raca.especie_id) === especieId),  // ← L86: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    [racas, especieId]  // ← L87: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  );  // ← L88: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L89: Linha em branco usada para separar visualmente os blocos do arquivo.
+  async function salvar() {  // ← L90: Declara uma função que agrupa uma regra ou ação reutilizável.
+    if (!nome.trim()) {  // ← L91: Testa uma condição antes de executar o bloco seguinte.
+      Alert.alert("Novo pet", "Informe pelo menos o nome do pet.");  // ← L92: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+      return;  // ← L93: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L94: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L95: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const dataIso = dataBrParaIso(dataNascimento);  // ← L96: Declara uma variável/constante usada por este bloco de lógica.
+    if (dataIso === undefined) {  // ← L97: Testa uma condição antes de executar o bloco seguinte.
+      Alert.alert("Novo pet", "Digite a data no formato DD/MM/AAAA.");  // ← L98: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+      return;  // ← L99: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L100: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L101: Linha em branco usada para separar visualmente os blocos do arquivo.
+    try {  // ← L102: Inicia um bloco protegido para capturar possíveis erros.
+      setSalvando(true);  // ← L103: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      const resposta = await api<{ mensagem?: string }>("adicionar_pet", {  // ← L104: Declara uma variável/constante usada por este bloco de lógica.
+        nome: nome.trim(),  // ← L105: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        especie_id: especieId,  // ← L106: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        raca_id: racaId,  // ← L107: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        sexo,  // ← L108: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        cor: cor.trim(),  // ← L109: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        data_nascimento: dataIso,  // ← L110: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        castrado,  // ← L111: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      });  // ← L112: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L113: Linha em branco usada para separar visualmente os blocos do arquivo.
+      Alert.alert(  // ← L114: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+        "Pet cadastrado",  // ← L115: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        resposta.mensagem || "O pet foi vinculado à ficha do tutor.",  // ← L116: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        [{ text: "OK", onPress: () => router.replace("/perfil") }]  // ← L117: Navega para outra rota/tela do aplicativo.
+      );  // ← L118: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    } catch (erro) {  // ← L119: Captura um erro ocorrido no bloco try para tratar a falha.
+      Alert.alert(  // ← L120: Exibe uma caixa de diálogo nativa para informar ou orientar o usuário.
+        "Novo pet",  // ← L121: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        erro instanceof Error ? erro.message : "Não foi possível cadastrar o pet."  // ← L122: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      );  // ← L123: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    } finally {  // ← L124: Executa este bloco ao final, com sucesso ou erro.
+      setSalvando(false);  // ← L125: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L126: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  }  // ← L127: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L128: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return (  // ← L129: Inicia o JSX que será renderizado visualmente na tela.
+    <SafeAreaView style={styles.container}>  // ← L130: Linha de JSX que monta a interface visual ou renderiza um componente.
+      <KeyboardAvoidingView  // ← L131: Linha de JSX que monta a interface visual ou renderiza um componente.
+        style={styles.flex}  // ← L132: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        behavior={Platform.OS === "ios" ? "padding" : undefined}  // ← L133: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      >  // ← L134: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        <ScrollView  // ← L135: Linha de JSX que monta a interface visual ou renderiza um componente.
+          contentContainerStyle={styles.content}  // ← L136: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          keyboardShouldPersistTaps="handled"  // ← L137: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          showsVerticalScrollIndicator={false}  // ← L138: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        >  // ← L139: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          <TouchableOpacity onPress={() => router.back()} style={styles.back}>  // ← L140: Navega para outra rota/tela do aplicativo.
+            <ArrowLeft size={24} color="#222222" />  // ← L141: Linha de JSX que monta a interface visual ou renderiza um componente.
+          </TouchableOpacity>  // ← L142: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L143: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.titleRow}>  // ← L144: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <View style={styles.pawCircle}>  // ← L145: Linha de JSX que monta a interface visual ou renderiza um componente.
+              <PawPrint size={24} color="#EF3038" />  // ← L146: Linha de JSX que monta a interface visual ou renderiza um componente.
+            </View>  // ← L147: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <View>  // ← L148: Linha de JSX que monta a interface visual ou renderiza um componente.
+              <Text style={styles.title}>Cadastrar pet</Text>  // ← L149: Linha de JSX que monta a interface visual ou renderiza um componente.
+              <Text style={styles.subtitle}>  // ← L150: Linha de JSX que monta a interface visual ou renderiza um componente.
+                Só o nome é obrigatório. Complete o restante quando quiser.  // ← L151: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L152: Linha de JSX que monta a interface visual ou renderiza um componente.
+            </View>  // ← L153: Linha de JSX que monta a interface visual ou renderiza um componente.
+          </View>  // ← L154: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L155: Linha em branco usada para separar visualmente os blocos do arquivo.
+          <View style={styles.card}>  // ← L156: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <Text style={styles.label}>Nome *</Text>  // ← L157: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <TextInput  // ← L158: Linha de JSX que monta a interface visual ou renderiza um componente.
+              style={styles.input}  // ← L159: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              value={nome}  // ← L160: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              onChangeText={setNome}  // ← L161: Atualiza o estado quando o usuário altera o texto do campo.
+              placeholder="Ex: Max"  // ← L162: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              maxLength={100}  // ← L163: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            />  // ← L164: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L165: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Text style={styles.label}>Espécie</Text>  // ← L166: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <View style={styles.chips}>  // ← L167: Linha de JSX que monta a interface visual ou renderiza um componente.
+              {especies.map((especie) => {  // ← L168: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                const selecionada = especieId === Number(especie.id);  // ← L169: Declara uma variável/constante usada por este bloco de lógica.
+                return (  // ← L170: Inicia o JSX que será renderizado visualmente na tela.
+                  <TouchableOpacity  // ← L171: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    key={especie.id}  // ← L172: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    style={[styles.chip, selecionada && styles.chipSelected]}  // ← L173: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    onPress={() => {  // ← L174: Define a ação executada quando o usuário toca neste elemento.
+                      setEspecieId(Number(especie.id));  // ← L175: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                      setRacaId(null);  // ← L176: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    }}  // ← L177: Fecha a estrutura iniciada nas linhas anteriores.
+                  >  // ← L178: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    <Text style={selecionada ? styles.chipTextSelected : styles.chipText}>  // ← L179: Linha de JSX que monta a interface visual ou renderiza um componente.
+                      {especie.nome}  // ← L180: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    </Text>  // ← L181: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  </TouchableOpacity>  // ← L182: Linha de JSX que monta a interface visual ou renderiza um componente.
+                );  // ← L183: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+              })}  // ← L184: Fecha a estrutura iniciada nas linhas anteriores.
+            </View>  // ← L185: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L186: Linha em branco usada para separar visualmente os blocos do arquivo.
+            {racasDaEspecie.length > 0 && (  // ← L187: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              <>  // ← L188: Linha de JSX que monta a interface visual ou renderiza um componente.
+                <Text style={styles.label}>Raça (opcional)</Text>  // ← L189: Linha de JSX que monta a interface visual ou renderiza um componente.
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>  // ← L190: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  <View style={styles.chipsLinha}>  // ← L191: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    {racasDaEspecie.map((raca) => {  // ← L192: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                      const selecionada = racaId === Number(raca.id);  // ← L193: Declara uma variável/constante usada por este bloco de lógica.
+                      return (  // ← L194: Inicia o JSX que será renderizado visualmente na tela.
+                        <TouchableOpacity  // ← L195: Linha de JSX que monta a interface visual ou renderiza um componente.
+                          key={raca.id}  // ← L196: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                          style={[styles.chip, selecionada && styles.chipSelected]}  // ← L197: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                          onPress={() => setRacaId(selecionada ? null : Number(raca.id))}  // ← L198: Define a ação executada quando o usuário toca neste elemento.
+                        >  // ← L199: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                          <Text style={selecionada ? styles.chipTextSelected : styles.chipText}>  // ← L200: Linha de JSX que monta a interface visual ou renderiza um componente.
+                            {raca.nome}  // ← L201: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                          </Text>  // ← L202: Linha de JSX que monta a interface visual ou renderiza um componente.
+                        </TouchableOpacity>  // ← L203: Linha de JSX que monta a interface visual ou renderiza um componente.
+                      );  // ← L204: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                    })}  // ← L205: Fecha a estrutura iniciada nas linhas anteriores.
+                  </View>  // ← L206: Linha de JSX que monta a interface visual ou renderiza um componente.
+                </ScrollView>  // ← L207: Linha de JSX que monta a interface visual ou renderiza um componente.
+              </>  // ← L208: Linha de JSX que monta a interface visual ou renderiza um componente.
+            )}  // ← L209: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L210: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Text style={styles.label}>Sexo (opcional)</Text>  // ← L211: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <View style={styles.chips}>  // ← L212: Linha de JSX que monta a interface visual ou renderiza um componente.
+              {[  // ← L213: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                { valor: "MACHO", texto: "Macho" },  // ← L214: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                { valor: "FEMEA", texto: "Fêmea" },  // ← L215: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                { valor: "NAO_INFORMADO", texto: "Não informar" },  // ← L216: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              ].map((opcao) => {  // ← L217: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                const selecionada = sexo === opcao.valor;  // ← L218: Declara uma variável/constante usada por este bloco de lógica.
+                return (  // ← L219: Inicia o JSX que será renderizado visualmente na tela.
+                  <TouchableOpacity  // ← L220: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    key={opcao.valor}  // ← L221: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    style={[styles.chip, selecionada && styles.chipSelected]}  // ← L222: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    onPress={() => setSexo(opcao.valor)}  // ← L223: Define a ação executada quando o usuário toca neste elemento.
+                  >  // ← L224: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    <Text style={selecionada ? styles.chipTextSelected : styles.chipText}>  // ← L225: Linha de JSX que monta a interface visual ou renderiza um componente.
+                      {opcao.texto}  // ← L226: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    </Text>  // ← L227: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  </TouchableOpacity>  // ← L228: Linha de JSX que monta a interface visual ou renderiza um componente.
+                );  // ← L229: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+              })}  // ← L230: Fecha a estrutura iniciada nas linhas anteriores.
+            </View>  // ← L231: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L232: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Text style={styles.label}>Cor (opcional)</Text>  // ← L233: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <TextInput  // ← L234: Linha de JSX que monta a interface visual ou renderiza um componente.
+              style={styles.input}  // ← L235: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              value={cor}  // ← L236: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              onChangeText={setCor}  // ← L237: Atualiza o estado quando o usuário altera o texto do campo.
+              placeholder="Ex: Caramelo"  // ← L238: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              maxLength={100}  // ← L239: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            />  // ← L240: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L241: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Text style={styles.label}>Nascimento (opcional)</Text>  // ← L242: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <TextInput  // ← L243: Linha de JSX que monta a interface visual ou renderiza um componente.
+              style={styles.input}  // ← L244: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              value={dataNascimento}  // ← L245: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              onChangeText={(valor) => setDataNascimento(mascararData(valor))}  // ← L246: Atualiza o estado quando o usuário altera o texto do campo.
+              placeholder="DD/MM/AAAA"  // ← L247: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              keyboardType="numeric"  // ← L248: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              maxLength={10}  // ← L249: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            />  // ← L250: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L251: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <Text style={styles.label}>Castrado? (opcional)</Text>  // ← L252: Linha de JSX que monta a interface visual ou renderiza um componente.
+            <View style={styles.chips}>  // ← L253: Linha de JSX que monta a interface visual ou renderiza um componente.
+              {[  // ← L254: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                { valor: true, texto: "Sim" },  // ← L255: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                { valor: false, texto: "Não" },  // ← L256: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              ].map((opcao) => {  // ← L257: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+                const selecionada = castrado === opcao.valor;  // ← L258: Declara uma variável/constante usada por este bloco de lógica.
+                return (  // ← L259: Inicia o JSX que será renderizado visualmente na tela.
+                  <TouchableOpacity  // ← L260: Linha de JSX que monta a interface visual ou renderiza um componente.
+                    key={opcao.texto}  // ← L261: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    style={[styles.chip, selecionada && styles.chipSelected]}  // ← L262: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    onPress={() => setCastrado(selecionada ? null : opcao.valor)}  // ← L263: Define a ação executada quando o usuário toca neste elemento.
+                  >  // ← L264: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    <Text style={selecionada ? styles.chipTextSelected : styles.chipText}>  // ← L265: Linha de JSX que monta a interface visual ou renderiza um componente.
+                      {opcao.texto}  // ← L266: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+                    </Text>  // ← L267: Linha de JSX que monta a interface visual ou renderiza um componente.
+                  </TouchableOpacity>  // ← L268: Linha de JSX que monta a interface visual ou renderiza um componente.
+                );  // ← L269: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+              })}  // ← L270: Fecha a estrutura iniciada nas linhas anteriores.
+            </View>  // ← L271: Linha de JSX que monta a interface visual ou renderiza um componente.
+  // ← L272: Linha em branco usada para separar visualmente os blocos do arquivo.
+            <TouchableOpacity  // ← L273: Linha de JSX que monta a interface visual ou renderiza um componente.
+              style={[styles.button, salvando && styles.buttonDisabled]}  // ← L274: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              onPress={salvar}  // ← L275: Define a ação executada quando o usuário toca neste elemento.
+              disabled={salvando}  // ← L276: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+            >  // ← L277: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              <Text style={styles.buttonText}>  // ← L278: Linha de JSX que monta a interface visual ou renderiza um componente.
+                {salvando ? "Cadastrando..." : "Cadastrar e vincular"}  // ← L279: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+              </Text>  // ← L280: Linha de JSX que monta a interface visual ou renderiza um componente.
+            </TouchableOpacity>  // ← L281: Linha de JSX que monta a interface visual ou renderiza um componente.
+          </View>  // ← L282: Linha de JSX que monta a interface visual ou renderiza um componente.
+        </ScrollView>  // ← L283: Linha de JSX que monta a interface visual ou renderiza um componente.
+      </KeyboardAvoidingView>  // ← L284: Linha de JSX que monta a interface visual ou renderiza um componente.
+    </SafeAreaView>  // ← L285: Linha de JSX que monta a interface visual ou renderiza um componente.
+  );  // ← L286: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L287: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L288: Linha em branco usada para separar visualmente os blocos do arquivo.
+const styles = StyleSheet.create({  // ← L289: Declara uma variável/constante usada por este bloco de lógica.
+  container: { flex: 1, backgroundColor: "#FFF59D" },  // ← L290: Inicia a configuração de um estilo identificado por esta chave.
+  flex: { flex: 1 },  // ← L291: Inicia a configuração de um estilo identificado por esta chave.
+  content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40 },  // ← L292: Inicia a configuração de um estilo identificado por esta chave.
+  back: { width: 40, height: 40, justifyContent: "center" },  // ← L293: Inicia a configuração de um estilo identificado por esta chave.
+  titleRow: { flexDirection: "row", alignItems: "center", marginVertical: 14 },  // ← L294: Inicia a configuração de um estilo identificado por esta chave.
+  pawCircle: { width: 46, height: 46, borderRadius: 23, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center", marginRight: 12 },  // ← L295: Inicia a configuração de um estilo identificado por esta chave.
+  title: { fontFamily: "Poppins_600SemiBold", fontSize: 20, color: "#222222" },  // ← L296: Inicia a configuração de um estilo identificado por esta chave.
+  subtitle: { fontFamily: "Poppins_400Regular", fontSize: 11, color: "#555555", maxWidth: 270 },  // ← L297: Inicia a configuração de um estilo identificado por esta chave.
+  card: { backgroundColor: "#FFFFFF", borderRadius: 14, padding: 16, elevation: 2 },  // ← L298: Inicia a configuração de um estilo identificado por esta chave.
+  label: { fontFamily: "Poppins_500Medium", fontSize: 12, color: "#333333", marginTop: 14, marginBottom: 7 },  // ← L299: Inicia a configuração de um estilo identificado por esta chave.
+  input: { height: 46, borderWidth: 1, borderColor: "#DDDDDD", borderRadius: 10, backgroundColor: "#FAFAFA", paddingHorizontal: 12, fontFamily: "Poppins_400Regular", color: "#222222" },  // ← L300: Inicia a configuração de um estilo identificado por esta chave.
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },  // ← L301: Inicia a configuração de um estilo identificado por esta chave.
+  chipsLinha: { flexDirection: "row", gap: 8, paddingRight: 8 },  // ← L302: Inicia a configuração de um estilo identificado por esta chave.
+  chip: { borderRadius: 18, backgroundColor: "#F4F4F4", borderWidth: 1, borderColor: "#E7E7E7", paddingHorizontal: 12, paddingVertical: 8 },  // ← L303: Inicia a configuração de um estilo identificado por esta chave.
+  chipSelected: { backgroundColor: "#EF3038", borderColor: "#EF3038" },  // ← L304: Inicia a configuração de um estilo identificado por esta chave.
+  chipText: { fontFamily: "Poppins_400Regular", fontSize: 11, color: "#333333" },  // ← L305: Inicia a configuração de um estilo identificado por esta chave.
+  chipTextSelected: { fontFamily: "Poppins_600SemiBold", fontSize: 11, color: "#FFFFFF" },  // ← L306: Inicia a configuração de um estilo identificado por esta chave.
+  button: { height: 50, borderRadius: 11, backgroundColor: "#EF3038", alignItems: "center", justifyContent: "center", marginTop: 26 },  // ← L307: Inicia a configuração de um estilo identificado por esta chave.
+  buttonDisabled: { opacity: 0.6 },  // ← L308: Inicia a configuração de um estilo identificado por esta chave.
+  buttonText: { fontFamily: "Poppins_600SemiBold", fontSize: 14, color: "#FFFFFF" },  // ← L309: Inicia a configuração de um estilo identificado por esta chave.
+});  // ← L310: Abre ou fecha um bloco/objeto/estrutura sintática do código.

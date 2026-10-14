@@ -1,0 +1,36 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/lib/supabase.ts
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+// Importa o polyfill que garante suporte a URL no ambiente React Native.  // ← L1: Comentário já existente que documenta a intenção deste trecho.
+import 'react-native-url-polyfill/auto';  // ← L2: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+// Importa o AsyncStorage para o Supabase manter a sessão salva no celular.  // ← L3: Comentário já existente que documenta a intenção deste trecho.
+import AsyncStorage from '@react-native-async-storage/async-storage';  // ← L4: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+// Importa a função oficial usada para criar o cliente do Supabase.  // ← L5: Comentário já existente que documenta a intenção deste trecho.
+import { createClient } from '@supabase/supabase-js';  // ← L6: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L7: Linha em branco usada para separar visualmente os blocos do arquivo.
+// Lê a URL pública do projeto Supabase definida no arquivo .env.  // ← L8: Comentário já existente que documenta a intenção deste trecho.
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';  // ← L9: Declara uma variável/constante usada por este bloco de lógica.
+// Lê a chave pública/anon do projeto Supabase definida no arquivo .env.  // ← L10: Comentário já existente que documenta a intenção deste trecho.
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';  // ← L11: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L12: Linha em branco usada para separar visualmente os blocos do arquivo.
+// Interrompe cedo com uma mensagem clara caso as variáveis não tenham sido configuradas.  // ← L13: Comentário já existente que documenta a intenção deste trecho.
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {  // ← L14: Testa uma condição antes de executar o bloco seguinte.
+  console.warn(  // ← L15: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    'Beauty Pet: configure EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY no arquivo .env.'  // ← L16: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  );  // ← L17: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L18: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L19: Linha em branco usada para separar visualmente os blocos do arquivo.
+// Cria uma única conexão reutilizável com o Supabase para todo o aplicativo.  // ← L20: Comentário já existente que documenta a intenção deste trecho.
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {  // ← L21: Exporta uma constante compartilhada por outros módulos.
+  auth: {  // ← L22: Inicia a configuração de um estilo identificado por esta chave.
+    // Faz o Supabase guardar a sessão no mesmo armazenamento persistente usado pelo Expo/React Native.  // ← L23: Comentário já existente que documenta a intenção deste trecho.
+    storage: AsyncStorage,  // ← L24: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    // Renova automaticamente o access token quando ele estiver perto de expirar.  // ← L25: Comentário já existente que documenta a intenção deste trecho.
+    autoRefreshToken: true,  // ← L26: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    // Mantém o usuário logado mesmo depois de fechar e abrir o aplicativo.  // ← L27: Comentário já existente que documenta a intenção deste trecho.
+    persistSession: true,  // ← L28: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    // No aplicativo nativo não precisamos interpretar sessão pela URL do navegador.  // ← L29: Comentário já existente que documenta a intenção deste trecho.
+    detectSessionInUrl: false,  // ← L30: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  },  // ← L31: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+});  // ← L32: Abre ou fecha um bloco/objeto/estrutura sintática do código.

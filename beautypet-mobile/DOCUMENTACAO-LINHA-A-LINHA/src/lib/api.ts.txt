@@ -1,0 +1,744 @@
+// BEAUTY PET - CÓPIA DOCUMENTADA LINHA A LINHA
+// Arquivo original: src/lib/api.ts
+// Esta cópia é para ESTUDO/APRESENTAÇÃO. Execute os arquivos normais do projeto.
+
+import AsyncStorage from '@react-native-async-storage/async-storage';  // ← L1: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+import { supabase } from './supabase';  // ← L2: Importa dependências, componentes, funções ou tipos usados neste arquivo.
+  // ← L3: Linha em branco usada para separar visualmente os blocos do arquivo.
+// ============================================================  // ← L4: Comentário já existente que documenta a intenção deste trecho.
+// BEAUTY PET - CAMADA ÚNICA DE DADOS DO MOBILE  // ← L5: Comentário já existente que documenta a intenção deste trecho.
+// React Native -> Supabase Auth/PostgreSQL  // ← L6: Comentário já existente que documenta a intenção deste trecho.
+// ============================================================  // ← L7: Comentário já existente que documenta a intenção deste trecho.
+  // ← L8: Linha em branco usada para separar visualmente os blocos do arquivo.
+export type ClienteSessao = {  // ← L9: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  id: number;  // ← L10: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  nome: string;  // ← L11: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  email?: string | null;  // ← L12: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+};  // ← L13: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L14: Linha em branco usada para separar visualmente os blocos do arquivo.
+type Registro = Record<string, any>;  // ← L15: Define a estrutura esperada dos dados no TypeScript.
+  // ← L16: Linha em branco usada para separar visualmente os blocos do arquivo.
+const CHAVE_TOKEN = '@beautypet:token';  // ← L17: Declara uma variável/constante usada por este bloco de lógica.
+const CHAVE_CLIENTE = '@beautypet:cliente';  // ← L18: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L19: Linha em branco usada para separar visualmente os blocos do arquivo.
+let tokenSessao: string | null = null;  // ← L20: Declara uma variável/constante usada por este bloco de lógica.
+let clienteSessao: ClienteSessao | null = null;  // ← L21: Declara uma variável/constante usada por este bloco de lógica.
+let sessaoJaCarregada = false;  // ← L22: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L23: Linha em branco usada para separar visualmente os blocos do arquivo.
+function mensagemErro(erro: any, padrao = 'Não foi possível concluir a operação.') {  // ← L24: Declara uma função que agrupa uma regra ou ação reutilizável.
+  return erro?.message || erro?.error_description || padrao;  // ← L25: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L26: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L27: Linha em branco usada para separar visualmente os blocos do arquivo.
+function normalizarTexto(valor: unknown) {  // ← L28: Declara uma função que agrupa uma regra ou ação reutilizável.
+  return String(valor ?? '')  // ← L29: Encerra a função devolvendo este valor ao código que a chamou.
+    .normalize('NFD')  // ← L30: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    .replace(/[\u0300-\u036f]/g, '')  // ← L31: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    .toLocaleLowerCase('pt-BR')  // ← L32: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    .trim();  // ← L33: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+}  // ← L34: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L35: Linha em branco usada para separar visualmente os blocos do arquivo.
+function inicioFimMes(ano: number, mes: number) {  // ← L36: Declara uma função que agrupa uma regra ou ação reutilizável.
+  const inicio = `${ano}-${String(mes).padStart(2, '0')}-01`;  // ← L37: Declara uma variável/constante usada por este bloco de lógica.
+  const proximo = new Date(ano, mes, 1);  // ← L38: Declara uma variável/constante usada por este bloco de lógica.
+  const fim = `${proximo.getFullYear()}-${String(proximo.getMonth() + 1).padStart(2, '0')}-01`;  // ← L39: Declara uma variável/constante usada por este bloco de lógica.
+  return { inicio, fim };  // ← L40: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L41: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L42: Linha em branco usada para separar visualmente os blocos do arquivo.
+function dataHoraLocal(data: string, horario: string) {  // ← L43: Declara uma função que agrupa uma regra ou ação reutilizável.
+  return `${data}T${horario}:00`;  // ← L44: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L45: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L46: Linha em branco usada para separar visualmente os blocos do arquivo.
+function somarMinutosLocal(data: string, horario: string, minutos: number) {  // ← L47: Declara uma função que agrupa uma regra ou ação reutilizável.
+  const [ano, mes, dia] = data.split('-').map(Number);  // ← L48: Declara valores constantes, normalmente estado ou retorno de um hook.
+  const [hora, minuto] = horario.split(':').map(Number);  // ← L49: Declara valores constantes, normalmente estado ou retorno de um hook.
+  const valor = new Date(ano, mes - 1, dia, hora, minuto + minutos, 0, 0);  // ← L50: Declara uma variável/constante usada por este bloco de lógica.
+  const y = valor.getFullYear();  // ← L51: Declara uma variável/constante usada por este bloco de lógica.
+  const m = String(valor.getMonth() + 1).padStart(2, '0');  // ← L52: Declara uma variável/constante usada por este bloco de lógica.
+  const d = String(valor.getDate()).padStart(2, '0');  // ← L53: Declara uma variável/constante usada por este bloco de lógica.
+  const h = String(valor.getHours()).padStart(2, '0');  // ← L54: Declara uma variável/constante usada por este bloco de lógica.
+  const min = String(valor.getMinutes()).padStart(2, '0');  // ← L55: Declara uma variável/constante usada por este bloco de lógica.
+  return `${y}-${m}-${d}T${h}:${min}:00`;  // ← L56: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L57: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L58: Linha em branco usada para separar visualmente os blocos do arquivo.
+function minutosDoHorario(valor?: string | null) {  // ← L59: Declara uma função que agrupa uma regra ou ação reutilizável.
+  if (!valor) return 0;  // ← L60: Testa uma condição antes de executar o bloco seguinte.
+  const parteHora = valor.includes('T') ? valor.split('T')[1] : valor.split(' ')[1];  // ← L61: Declara uma variável/constante usada por este bloco de lógica.
+  const [hora, minuto] = String(parteHora || '00:00').slice(0, 5).split(':').map(Number);  // ← L62: Declara valores constantes, normalmente estado ou retorno de um hook.
+  return (hora || 0) * 60 + (minuto || 0);  // ← L63: Inicia o JSX que será renderizado visualmente na tela.
+}  // ← L64: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L65: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function carregarSessaoSalva() {  // ← L66: Declara uma função que agrupa uma regra ou ação reutilizável.
+  if (sessaoJaCarregada) return;  // ← L67: Testa uma condição antes de executar o bloco seguinte.
+  try {  // ← L68: Inicia um bloco protegido para capturar possíveis erros.
+    const [tokenSalvo, clienteSalvo] = await Promise.all([  // ← L69: Declara valores constantes, normalmente estado ou retorno de um hook.
+      AsyncStorage.getItem(CHAVE_TOKEN),  // ← L70: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      AsyncStorage.getItem(CHAVE_CLIENTE),  // ← L71: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    ]);  // ← L72: Fecha a estrutura iniciada nas linhas anteriores.
+    tokenSessao = tokenSalvo;  // ← L73: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    clienteSessao = clienteSalvo ? JSON.parse(clienteSalvo) : null;  // ← L74: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  } finally {  // ← L75: Executa este bloco ao final, com sucesso ou erro.
+    sessaoJaCarregada = true;  // ← L76: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }  // ← L77: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L78: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L79: Linha em branco usada para separar visualmente os blocos do arquivo.
+export async function definirSessao(token: string, cliente: ClienteSessao) {  // ← L80: Exporta uma função para que outros arquivos possam reutilizá-la.
+  tokenSessao = token;  // ← L81: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  clienteSessao = cliente;  // ← L82: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  sessaoJaCarregada = true;  // ← L83: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  await Promise.all([  // ← L84: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    AsyncStorage.setItem(CHAVE_TOKEN, token),  // ← L85: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    AsyncStorage.setItem(CHAVE_CLIENTE, JSON.stringify(cliente)),  // ← L86: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  ]);  // ← L87: Fecha a estrutura iniciada nas linhas anteriores.
+}  // ← L88: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L89: Linha em branco usada para separar visualmente os blocos do arquivo.
+export async function limparSessao() {  // ← L90: Exporta uma função para que outros arquivos possam reutilizá-la.
+  tokenSessao = null;  // ← L91: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  clienteSessao = null;  // ← L92: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  sessaoJaCarregada = true;  // ← L93: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  await Promise.all([  // ← L94: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    AsyncStorage.removeItem(CHAVE_TOKEN),  // ← L95: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    AsyncStorage.removeItem(CHAVE_CLIENTE),  // ← L96: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  ]);  // ← L97: Fecha a estrutura iniciada nas linhas anteriores.
+}  // ← L98: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L99: Linha em branco usada para separar visualmente os blocos do arquivo.
+export function obterClienteSessao() {  // ← L100: Exporta uma função para que outros arquivos possam reutilizá-la.
+  return clienteSessao;  // ← L101: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L102: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L103: Linha em branco usada para separar visualmente os blocos do arquivo.
+export function obterTokenSessao() {  // ← L104: Exporta uma função para que outros arquivos possam reutilizá-la.
+  return tokenSessao;  // ← L105: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L106: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L107: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function usuarioAtual() {  // ← L108: Declara uma função que agrupa uma regra ou ação reutilizável.
+  const { data, error } = await supabase.auth.getUser();  // ← L109: Declara uma variável/constante usada por este bloco de lógica.
+  if (error || !data.user) {  // ← L110: Testa uma condição antes de executar o bloco seguinte.
+    throw new Error('Sessão inválida ou expirada. Entre novamente.');  // ← L111: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }  // ← L112: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  return data.user;  // ← L113: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L114: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L115: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function clienteAtual() {  // ← L116: Declara uma função que agrupa uma regra ou ação reutilizável.
+  await carregarSessaoSalva();  // ← L117: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+  const usuario = await usuarioAtual();  // ← L118: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L119: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const { data, error } = await supabase  // ← L120: Declara uma variável/constante usada por este bloco de lógica.
+    .from('clientes')  // ← L121: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    .select('id,nome,email')  // ← L122: Define as colunas que o Supabase deve retornar nesta consulta.
+    .eq('auth_user_id', usuario.id)  // ← L123: Adiciona um filtro de igualdade à consulta do Supabase.
+    .eq('ativo', true)  // ← L124: Adiciona um filtro de igualdade à consulta do Supabase.
+    .maybeSingle();  // ← L125: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L126: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (error) throw new Error(mensagemErro(error, 'Não foi possível localizar a ficha do tutor.'));  // ← L127: Testa uma condição antes de executar o bloco seguinte.
+  // ← L128: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (!data) {  // ← L129: Testa uma condição antes de executar o bloco seguinte.
+    const nome = String(usuario.user_metadata?.nome || usuario.email?.split('@')[0] || 'Tutor');  // ← L130: Declara uma variável/constante usada por este bloco de lógica.
+    const { data: criado, error: erroCriacao } = await supabase  // ← L131: Declara uma variável/constante usada por este bloco de lógica.
+      .from('clientes')  // ← L132: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .insert({  // ← L133: Insere um novo registro no banco PostgreSQL do Supabase.
+        auth_user_id: usuario.id,  // ← L134: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        nome,  // ← L135: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        email: usuario.email || null,  // ← L136: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        telefone_principal: '',  // ← L137: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        ativo: true,  // ← L138: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      })  // ← L139: Fecha a estrutura iniciada nas linhas anteriores.
+      .select('id,nome,email')  // ← L140: Define as colunas que o Supabase deve retornar nesta consulta.
+      .single();  // ← L141: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  // ← L142: Linha em branco usada para separar visualmente os blocos do arquivo.
+    if (erroCriacao || !criado) {  // ← L143: Testa uma condição antes de executar o bloco seguinte.
+      throw new Error(mensagemErro(erroCriacao, 'Sua conta existe, mas não foi possível criar a ficha do tutor.'));  // ← L144: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L145: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L146: Linha em branco usada para separar visualmente os blocos do arquivo.
+    clienteSessao = { id: Number(criado.id), nome: criado.nome, email: criado.email };  // ← L147: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    await AsyncStorage.setItem(CHAVE_CLIENTE, JSON.stringify(clienteSessao));  // ← L148: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    return clienteSessao;  // ← L149: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L150: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L151: Linha em branco usada para separar visualmente os blocos do arquivo.
+  clienteSessao = { id: Number(data.id), nome: data.nome, email: data.email };  // ← L152: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  await AsyncStorage.setItem(CHAVE_CLIENTE, JSON.stringify(clienteSessao));  // ← L153: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+  return clienteSessao;  // ← L154: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L155: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L156: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function petsDoCliente(clienteId: number) {  // ← L157: Declara uma função que agrupa uma regra ou ação reutilizável.
+  const { data, error } = await supabase  // ← L158: Declara uma variável/constante usada por este bloco de lógica.
+    .from('pets')  // ← L159: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    .select('*')  // ← L160: Define as colunas que o Supabase deve retornar nesta consulta.
+    .eq('cliente_id', clienteId)  // ← L161: Adiciona um filtro de igualdade à consulta do Supabase.
+    .eq('ativo', true)  // ← L162: Adiciona um filtro de igualdade à consulta do Supabase.
+    .order('nome');  // ← L163: Ordena os registros retornados pela consulta.
+  if (error) throw new Error(mensagemErro(error, 'Não foi possível carregar os pets.'));  // ← L164: Testa uma condição antes de executar o bloco seguinte.
+  return data || [];  // ← L165: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L166: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L167: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function nomesServicosPorAgendamento(agendamentoIds: number[]) {  // ← L168: Declara uma função que agrupa uma regra ou ação reutilizável.
+  const resultado = new Map<number, string[]>();  // ← L169: Declara uma variável/constante usada por este bloco de lógica.
+  if (agendamentoIds.length === 0) return resultado;  // ← L170: Testa uma condição antes de executar o bloco seguinte.
+  // ← L171: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const { data: itens, error: erroItens } = await supabase  // ← L172: Declara uma variável/constante usada por este bloco de lógica.
+    .from('agendamento_itens')  // ← L173: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    .select('agendamento_id,servico_id')  // ← L174: Define as colunas que o Supabase deve retornar nesta consulta.
+    .in('agendamento_id', agendamentoIds);  // ← L175: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+  if (erroItens) throw new Error(mensagemErro(erroItens));  // ← L176: Testa uma condição antes de executar o bloco seguinte.
+  // ← L177: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const servicoIds = [...new Set((itens || []).map((item: any) => Number(item.servico_id)))];  // ← L178: Declara uma variável/constante usada por este bloco de lógica.
+  const nomes = new Map<number, string>();  // ← L179: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L180: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (servicoIds.length > 0) {  // ← L181: Testa uma condição antes de executar o bloco seguinte.
+    const { data: servicos, error: erroServicos } = await supabase  // ← L182: Declara uma variável/constante usada por este bloco de lógica.
+      .from('servicos')  // ← L183: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('id,nome')  // ← L184: Define as colunas que o Supabase deve retornar nesta consulta.
+      .in('id', servicoIds);  // ← L185: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+    if (erroServicos) throw new Error(mensagemErro(erroServicos));  // ← L186: Testa uma condição antes de executar o bloco seguinte.
+    (servicos || []).forEach((servico: any) => nomes.set(Number(servico.id), servico.nome));  // ← L187: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }  // ← L188: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L189: Linha em branco usada para separar visualmente os blocos do arquivo.
+  (itens || []).forEach((item: any) => {  // ← L190: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    const id = Number(item.agendamento_id);  // ← L191: Declara uma variável/constante usada por este bloco de lógica.
+    const lista = resultado.get(id) || [];  // ← L192: Declara uma variável/constante usada por este bloco de lógica.
+    const nome = nomes.get(Number(item.servico_id));  // ← L193: Declara uma variável/constante usada por este bloco de lógica.
+    if (nome && !lista.includes(nome)) lista.push(nome);  // ← L194: Testa uma condição antes de executar o bloco seguinte.
+    resultado.set(id, lista);  // ← L195: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  });  // ← L196: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L197: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return resultado;  // ← L198: Encerra a função devolvendo este valor ao código que a chamou.
+}  // ← L199: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L200: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function dadosServicos(ids?: number[]) {  // ← L201: Declara uma função que agrupa uma regra ou ação reutilizável.
+  let consulta = supabase  // ← L202: Declara uma variável/constante usada por este bloco de lógica.
+    .from('servicos')  // ← L203: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    .select('id,nome,descricao,categoria_id,ativo')  // ← L204: Define as colunas que o Supabase deve retornar nesta consulta.
+    .eq('ativo', true)  // ← L205: Adiciona um filtro de igualdade à consulta do Supabase.
+    .order('nome');  // ← L206: Ordena os registros retornados pela consulta.
+  // ← L207: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (ids?.length) consulta = consulta.in('id', ids);  // ← L208: Testa uma condição antes de executar o bloco seguinte.
+  // ← L209: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const { data: servicos, error } = await consulta;  // ← L210: Declara uma variável/constante usada por este bloco de lógica.
+  if (error) throw new Error(mensagemErro(error, 'Não foi possível carregar os serviços.'));  // ← L211: Testa uma condição antes de executar o bloco seguinte.
+  // ← L212: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const categoriaIds = [...new Set((servicos || []).map((item: any) => Number(item.categoria_id)))];  // ← L213: Declara uma variável/constante usada por este bloco de lógica.
+  const categorias = new Map<number, string>();  // ← L214: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L215: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (categoriaIds.length > 0) {  // ← L216: Testa uma condição antes de executar o bloco seguinte.
+    const { data, error: erroCategorias } = await supabase  // ← L217: Declara uma variável/constante usada por este bloco de lógica.
+      .from('categorias_servico')  // ← L218: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('id,nome')  // ← L219: Define as colunas que o Supabase deve retornar nesta consulta.
+      .in('id', categoriaIds);  // ← L220: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+    if (erroCategorias) throw new Error(mensagemErro(erroCategorias));  // ← L221: Testa uma condição antes de executar o bloco seguinte.
+    (data || []).forEach((item: any) => categorias.set(Number(item.id), item.nome));  // ← L222: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }  // ← L223: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L224: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return (servicos || []).map((servico: any) => ({  // ← L225: Inicia o JSX que será renderizado visualmente na tela.
+    ...servico,  // ← L226: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    id: Number(servico.id),  // ← L227: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    categoria: categorias.get(Number(servico.categoria_id)) || '',  // ← L228: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }));  // ← L229: Fecha a estrutura iniciada nas linhas anteriores.
+}  // ← L230: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L231: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function horariosDisponiveis(data: string, servicoIds: number[], duracaoMinutos = 60) {  // ← L232: Declara uma função que agrupa uma regra ou ação reutilizável.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || servicoIds.length === 0) return [];  // ← L233: Testa uma condição antes de executar o bloco seguinte.
+  // ← L234: Linha em branco usada para separar visualmente os blocos do arquivo.
+  // O cálculo de vagas roda dentro do PostgreSQL como SECURITY DEFINER.  // ← L235: Comentário já existente que documenta a intenção deste trecho.
+  // Assim o tutor recebe somente os horários livres e nunca enxerga  // ← L236: Comentário já existente que documenta a intenção deste trecho.
+  // os agendamentos de outros clientes usados no cálculo da ocupação.  // ← L237: Comentário já existente que documenta a intenção deste trecho.
+  const { data: horarios, error } = await supabase.rpc('fn_mobile_horarios_disponiveis', {  // ← L238: Declara uma variável/constante usada por este bloco de lógica.
+    p_data: data,  // ← L239: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    p_servico_ids: servicoIds,  // ← L240: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    p_duracao_minutos: duracaoMinutos,  // ← L241: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  });  // ← L242: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L243: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (error) {  // ← L244: Testa uma condição antes de executar o bloco seguinte.
+    throw new Error(mensagemErro(error, 'Não foi possível consultar os horários disponíveis.'));  // ← L245: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  }  // ← L246: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L247: Linha em branco usada para separar visualmente os blocos do arquivo.
+  return (horarios || []).map((item: any) =>  // ← L248: Inicia o JSX que será renderizado visualmente na tela.
+    typeof item === 'string' ? item.slice(0, 5) : String(item.horario || '').slice(0, 5)  // ← L249: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+  );  // ← L250: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L251: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L252: Linha em branco usada para separar visualmente os blocos do arquivo.
+async function sincronizarNotificacoes(clienteId: number) {  // ← L253: Declara uma função que agrupa uma regra ou ação reutilizável.
+  const pets = await petsDoCliente(clienteId);  // ← L254: Declara uma variável/constante usada por este bloco de lógica.
+  const petMap = new Map(pets.map((pet: any) => [Number(pet.id), pet.nome]));  // ← L255: Declara uma variável/constante usada por este bloco de lógica.
+  const petIds = pets.map((pet: any) => Number(pet.id));  // ← L256: Declara uma variável/constante usada por este bloco de lógica.
+  if (!petIds.length) return;  // ← L257: Testa uma condição antes de executar o bloco seguinte.
+  // ← L258: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const { data: agendamentos, error } = await supabase  // ← L259: Declara uma variável/constante usada por este bloco de lógica.
+    .from('agendamentos')  // ← L260: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    .select('id,pet_id,status,data_hora_inicio,origem')  // ← L261: Define as colunas que o Supabase deve retornar nesta consulta.
+    .in('pet_id', petIds)  // ← L262: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+    .eq('origem', 'MOBILE')  // ← L263: Adiciona um filtro de igualdade à consulta do Supabase.
+    .in('status', ['CONFIRMADO', 'RECUSADO', 'CANCELADO']);  // ← L264: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+  if (error) return;  // ← L265: Testa uma condição antes de executar o bloco seguinte.
+  // ← L266: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const nomes = await nomesServicosPorAgendamento((agendamentos || []).map((item: any) => Number(item.id)));  // ← L267: Declara uma variável/constante usada por este bloco de lógica.
+  const { data: existentes } = await supabase  // ← L268: Declara uma variável/constante usada por este bloco de lógica.
+    .from('notificacoes_mobile')  // ← L269: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    .select('agendamento_id,titulo')  // ← L270: Define as colunas que o Supabase deve retornar nesta consulta.
+    .eq('cliente_id', clienteId);  // ← L271: Adiciona um filtro de igualdade à consulta do Supabase.
+  const chaves = new Set((existentes || []).map((item: any) => `${item.agendamento_id}|${item.titulo}`));  // ← L272: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L273: Linha em branco usada para separar visualmente os blocos do arquivo.
+  for (const item of agendamentos || []) {  // ← L274: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    const titulo = item.status === 'CONFIRMADO'  // ← L275: Declara uma variável/constante usada por este bloco de lógica.
+      ? 'Agendamento confirmado'  // ← L276: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      : item.status === 'RECUSADO'  // ← L277: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        ? 'Agendamento recusado'  // ← L278: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        : 'Agendamento cancelado';  // ← L279: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    const chave = `${item.id}|${titulo}`;  // ← L280: Declara uma variável/constante usada por este bloco de lógica.
+    if (chaves.has(chave)) continue;  // ← L281: Testa uma condição antes de executar o bloco seguinte.
+  // ← L282: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const dataObj = new Date(String(item.data_hora_inicio).replace(' ', 'T'));  // ← L283: Declara uma variável/constante usada por este bloco de lógica.
+    const dataTexto = dataObj.toLocaleDateString('pt-BR');  // ← L284: Declara uma variável/constante usada por este bloco de lógica.
+    const horaTexto = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });  // ← L285: Declara uma variável/constante usada por este bloco de lógica.
+    const servicos = (nomes.get(Number(item.id)) || ['Serviço']).join(', ');  // ← L286: Declara uma variável/constante usada por este bloco de lógica.
+    const pet = petMap.get(Number(item.pet_id)) || 'pet';  // ← L287: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L288: Linha em branco usada para separar visualmente os blocos do arquivo.
+    await supabase.from('notificacoes_mobile').insert({  // ← L289: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+      cliente_id: clienteId,  // ← L290: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      pet_id: item.pet_id,  // ← L291: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      agendamento_id: item.id,  // ← L292: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      titulo,  // ← L293: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      mensagem: `${titulo} para ${pet}: ${servicos} em ${dataTexto} às ${horaTexto}.`,  // ← L294: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      tipo: 'AGENDAMENTO',  // ← L295: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    });  // ← L296: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  }  // ← L297: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+}  // ← L298: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L299: Linha em branco usada para separar visualmente os blocos do arquivo.
+export async function api<T = any>(acao: string, dados: Record<string, unknown> = {}): Promise<T> {  // ← L300: Exporta uma função para que outros arquivos possam reutilizá-la.
+  await carregarSessaoSalva();  // ← L301: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+  // ← L302: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'teste_conexao') {  // ← L303: Testa uma condição antes de executar o bloco seguinte.
+    const { error } = await supabase.from('especies').select('id').limit(1);  // ← L304: Declara uma variável/constante usada por este bloco de lógica.
+    if (error) throw new Error(mensagemErro(error, 'Não foi possível conectar ao Supabase.'));  // ← L305: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, mensagem: 'Supabase conectado com sucesso.' } as T;  // ← L306: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L307: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L308: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'cadastro') {  // ← L309: Testa uma condição antes de executar o bloco seguinte.
+    const nome = String(dados.nome || '').trim();  // ← L310: Declara uma variável/constante usada por este bloco de lógica.
+    const email = String(dados.email || '').trim().toLocaleLowerCase('pt-BR');  // ← L311: Declara uma variável/constante usada por este bloco de lógica.
+    const senha = String(dados.senha || '');  // ← L312: Declara uma variável/constante usada por este bloco de lógica.
+    if (!nome || !email.includes('@') || senha.length < 6) {  // ← L313: Testa uma condição antes de executar o bloco seguinte.
+      throw new Error('Informe nome, e-mail válido e uma senha com pelo menos 6 caracteres.');  // ← L314: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L315: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    const { data, error } = await supabase.auth.signUp({  // ← L316: Declara uma variável/constante usada por este bloco de lógica.
+      email,  // ← L317: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      password: senha,  // ← L318: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      options: { data: { nome } },  // ← L319: Inicia a configuração de um estilo identificado por esta chave.
+    });  // ← L320: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    if (error) throw new Error(mensagemErro(error, 'Não foi possível criar a conta.'));  // ← L321: Testa uma condição antes de executar o bloco seguinte.
+    const mensagem = data.session  // ← L322: Declara uma variável/constante usada por este bloco de lógica.
+      ? 'Cadastro realizado com sucesso.'  // ← L323: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      : 'Cadastro realizado. Se a confirmação de e-mail estiver ativa no Supabase, confirme o e-mail antes de entrar.';  // ← L324: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    if (data.session) await supabase.auth.signOut();  // ← L325: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, mensagem } as T;  // ← L326: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L327: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L328: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'login') {  // ← L329: Testa uma condição antes de executar o bloco seguinte.
+    const email = String(dados.email || '').trim().toLocaleLowerCase('pt-BR');  // ← L330: Declara uma variável/constante usada por este bloco de lógica.
+    const senha = String(dados.senha || '');  // ← L331: Declara uma variável/constante usada por este bloco de lógica.
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });  // ← L332: Declara uma variável/constante usada por este bloco de lógica.
+    if (error || !data.session) throw new Error('E-mail ou senha inválidos.');  // ← L333: Testa uma condição antes de executar o bloco seguinte.
+    const cliente = await clienteAtual();  // ← L334: Declara uma variável/constante usada por este bloco de lógica.
+    return {  // ← L335: Encerra a função devolvendo este valor ao código que a chamou.
+      sucesso: true,  // ← L336: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      token: data.session.access_token,  // ← L337: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      cliente,  // ← L338: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    } as T;  // ← L339: Fecha a estrutura iniciada nas linhas anteriores.
+  }  // ← L340: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L341: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'logout') {  // ← L342: Testa uma condição antes de executar o bloco seguinte.
+    await supabase.auth.signOut();  // ← L343: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    await limparSessao();  // ← L344: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    return { sucesso: true } as T;  // ← L345: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L346: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L347: Linha em branco usada para separar visualmente os blocos do arquivo.
+  const cliente = await clienteAtual();  // ← L348: Declara uma variável/constante usada por este bloco de lógica.
+  const clienteId = cliente.id;  // ← L349: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L350: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'home') {  // ← L351: Testa uma condição antes de executar o bloco seguinte.
+    await sincronizarNotificacoes(clienteId);  // ← L352: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    const pets = await petsDoCliente(clienteId);  // ← L353: Declara uma variável/constante usada por este bloco de lógica.
+    const petMap = new Map(pets.map((pet: any) => [Number(pet.id), pet.nome]));  // ← L354: Declara uma variável/constante usada por este bloco de lógica.
+    const petIds = pets.map((pet: any) => Number(pet.id));  // ← L355: Declara uma variável/constante usada por este bloco de lógica.
+    let proximo: any = null;  // ← L356: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L357: Linha em branco usada para separar visualmente os blocos do arquivo.
+    if (petIds.length) {  // ← L358: Testa uma condição antes de executar o bloco seguinte.
+      const agora = new Date().toISOString();  // ← L359: Declara uma variável/constante usada por este bloco de lógica.
+      const { data: agendamentos, error } = await supabase  // ← L360: Declara uma variável/constante usada por este bloco de lógica.
+        .from('agendamentos')  // ← L361: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+        .select('id,pet_id,data_hora_inicio,status')  // ← L362: Define as colunas que o Supabase deve retornar nesta consulta.
+        .in('pet_id', petIds)  // ← L363: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+        .gte('data_hora_inicio', agora)  // ← L364: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        .in('status', ['SOLICITADO', 'CONFIRMADO'])  // ← L365: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+        .order('data_hora_inicio')  // ← L366: Ordena os registros retornados pela consulta.
+        .limit(1);  // ← L367: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      if (error) throw new Error(mensagemErro(error));  // ← L368: Testa uma condição antes de executar o bloco seguinte.
+      if (agendamentos?.[0]) {  // ← L369: Testa uma condição antes de executar o bloco seguinte.
+        const item = agendamentos[0];  // ← L370: Declara uma variável/constante usada por este bloco de lógica.
+        const nomes = await nomesServicosPorAgendamento([Number(item.id)]);  // ← L371: Declara uma variável/constante usada por este bloco de lógica.
+        proximo = {  // ← L372: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+          ...item,  // ← L373: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          pet: petMap.get(Number(item.pet_id)) || '',  // ← L374: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+          servicos: (nomes.get(Number(item.id)) || []).join(', '),  // ← L375: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        };  // ← L376: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+      }  // ← L377: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    }  // ← L378: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L379: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const { count } = await supabase  // ← L380: Declara uma variável/constante usada por este bloco de lógica.
+      .from('notificacoes_mobile')  // ← L381: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('id', { count: 'exact', head: true })  // ← L382: Define as colunas que o Supabase deve retornar nesta consulta.
+      .eq('cliente_id', clienteId)  // ← L383: Adiciona um filtro de igualdade à consulta do Supabase.
+      .eq('lida', false);  // ← L384: Adiciona um filtro de igualdade à consulta do Supabase.
+  // ← L385: Linha em branco usada para separar visualmente os blocos do arquivo.
+    return {  // ← L386: Encerra a função devolvendo este valor ao código que a chamou.
+      sucesso: true,  // ← L387: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      cliente: { id: clienteId, nome: cliente.nome },  // ← L388: Inicia a configuração de um estilo identificado por esta chave.
+      proximo_agendamento: proximo,  // ← L389: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      notificacoes_nao_lidas: Number(count || 0),  // ← L390: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    } as T;  // ← L391: Fecha a estrutura iniciada nas linhas anteriores.
+  }  // ← L392: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L393: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'perfil' || acao === 'meus_pets') {  // ← L394: Testa uma condição antes de executar o bloco seguinte.
+    const { data: ficha, error: erroFicha } = await supabase  // ← L395: Declara uma variável/constante usada por este bloco de lógica.
+      .from('clientes')  // ← L396: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('id,nome,cpf,email,telefone_principal,telefone_reserva,cep,logradouro,numero,complemento,bairro,cidade,estado,referencia,observacoes')  // ← L397: Define as colunas que o Supabase deve retornar nesta consulta.
+      .eq('id', clienteId)  // ← L398: Adiciona um filtro de igualdade à consulta do Supabase.
+      .single();  // ← L399: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    if (erroFicha) throw new Error(mensagemErro(erroFicha));  // ← L400: Testa uma condição antes de executar o bloco seguinte.
+  // ← L401: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const pets = await petsDoCliente(clienteId);  // ← L402: Declara uma variável/constante usada por este bloco de lógica.
+    const especieIds = [...new Set(pets.map((pet: any) => Number(pet.especie_id)).filter(Boolean))];  // ← L403: Declara uma variável/constante usada por este bloco de lógica.
+    const racaIds = [...new Set(pets.map((pet: any) => Number(pet.raca_id)).filter(Boolean))];  // ← L404: Declara uma variável/constante usada por este bloco de lógica.
+    const especies = new Map<number, string>();  // ← L405: Declara uma variável/constante usada por este bloco de lógica.
+    const racas = new Map<number, string>();  // ← L406: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L407: Linha em branco usada para separar visualmente os blocos do arquivo.
+    if (especieIds.length) {  // ← L408: Testa uma condição antes de executar o bloco seguinte.
+      const { data } = await supabase.from('especies').select('id,nome').in('id', especieIds);  // ← L409: Declara uma variável/constante usada por este bloco de lógica.
+      (data || []).forEach((item: any) => especies.set(Number(item.id), item.nome));  // ← L410: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L411: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    if (racaIds.length) {  // ← L412: Testa uma condição antes de executar o bloco seguinte.
+      const { data } = await supabase.from('racas').select('id,nome').in('id', racaIds);  // ← L413: Declara uma variável/constante usada por este bloco de lógica.
+      (data || []).forEach((item: any) => racas.set(Number(item.id), item.nome));  // ← L414: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L415: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L416: Linha em branco usada para separar visualmente os blocos do arquivo.
+    return {  // ← L417: Encerra a função devolvendo este valor ao código que a chamou.
+      sucesso: true,  // ← L418: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      cliente: ficha,  // ← L419: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      pets: pets.map((pet: any) => ({  // ← L420: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        ...pet,  // ← L421: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        id: Number(pet.id),  // ← L422: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        especie: especies.get(Number(pet.especie_id)) || '',  // ← L423: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        raca: racas.get(Number(pet.raca_id)) || null,  // ← L424: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      })),  // ← L425: Fecha a estrutura iniciada nas linhas anteriores.
+    } as T;  // ← L426: Fecha a estrutura iniciada nas linhas anteriores.
+  }  // ← L427: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L428: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'catalogo_pet') {  // ← L429: Testa uma condição antes de executar o bloco seguinte.
+    const [{ data: especies, error: erroEspecies }, { data: racas, error: erroRacas }] = await Promise.all([  // ← L430: Declara valores constantes, normalmente estado ou retorno de um hook.
+      supabase.from('especies').select('id,nome').eq('ativo', true).order('nome'),  // ← L431: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      supabase.from('racas').select('id,especie_id,nome').eq('ativo', true).order('nome'),  // ← L432: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    ]);  // ← L433: Fecha a estrutura iniciada nas linhas anteriores.
+    if (erroEspecies || erroRacas) throw new Error(mensagemErro(erroEspecies || erroRacas));  // ← L434: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, especies: especies || [], racas: racas || [] } as T;  // ← L435: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L436: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L437: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'adicionar_pet') {  // ← L438: Testa uma condição antes de executar o bloco seguinte.
+    const nome = String(dados.nome || '').trim();  // ← L439: Declara uma variável/constante usada por este bloco de lógica.
+    const especieId = Number(dados.especie_id || 0);  // ← L440: Declara uma variável/constante usada por este bloco de lógica.
+    if (!nome || !especieId) throw new Error('Informe pelo menos o nome e a espécie do pet.');  // ← L441: Testa uma condição antes de executar o bloco seguinte.
+    const { data, error } = await supabase.from('pets').insert({  // ← L442: Declara uma variável/constante usada por este bloco de lógica.
+      cliente_id: clienteId,  // ← L443: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      nome,  // ← L444: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      especie_id: especieId,  // ← L445: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      raca_id: dados.raca_id ? Number(dados.raca_id) : null,  // ← L446: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      sexo: dados.sexo || 'NAO_INFORMADO',  // ← L447: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      cor: String(dados.cor || '').trim() || null,  // ← L448: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      data_nascimento: dados.data_nascimento || null,  // ← L449: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      nascimento_aproximado: false,  // ← L450: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      castrado: Boolean(dados.castrado),  // ← L451: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      ativo: true,  // ← L452: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }).select('id').single();  // ← L453: Define as colunas que o Supabase deve retornar nesta consulta.
+    if (error) throw new Error(mensagemErro(error, 'Não foi possível cadastrar o pet.'));  // ← L454: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, mensagem: 'Pet cadastrado e vinculado à ficha do tutor.', pet_id: Number(data.id) } as T;  // ← L455: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L456: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L457: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'servicos') {  // ← L458: Testa uma condição antes de executar o bloco seguinte.
+    const servicos = await dadosServicos();  // ← L459: Declara uma variável/constante usada por este bloco de lógica.
+    return { sucesso: true, servicos } as T;  // ← L460: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L461: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L462: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'horarios_disponiveis') {  // ← L463: Testa uma condição antes de executar o bloco seguinte.
+    const data = String(dados.data || '');  // ← L464: Declara uma variável/constante usada por este bloco de lógica.
+    const ids = Array.isArray(dados.servico_ids) ? dados.servico_ids.map(Number).filter(Boolean) : [];  // ← L465: Declara uma variável/constante usada por este bloco de lógica.
+    const duracao = Number(dados.duracao_minutos || 60);  // ← L466: Declara uma variável/constante usada por este bloco de lógica.
+    return { sucesso: true, horarios: await horariosDisponiveis(data, ids, duracao) } as T;  // ← L467: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L468: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L469: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'solicitar_agendamento') {  // ← L470: Testa uma condição antes de executar o bloco seguinte.
+    const petId = Number(dados.pet_id || 0);  // ← L471: Declara uma variável/constante usada por este bloco de lógica.
+    const servicoIds = Array.isArray(dados.servico_ids) ? [...new Set(dados.servico_ids.map(Number).filter(Boolean))] : [];  // ← L472: Declara uma variável/constante usada por este bloco de lógica.
+    const data = String(dados.data || '');  // ← L473: Declara uma variável/constante usada por este bloco de lógica.
+    const horario = String(dados.horario || '');  // ← L474: Declara uma variável/constante usada por este bloco de lógica.
+    const duracao = Number(dados.duracao_minutos || 60);  // ← L475: Declara uma variável/constante usada por este bloco de lógica.
+    const pets = await petsDoCliente(clienteId);  // ← L476: Declara uma variável/constante usada por este bloco de lógica.
+    if (!pets.some((pet: any) => Number(pet.id) === petId)) throw new Error('O pet selecionado não pertence a este tutor.');  // ← L477: Testa uma condição antes de executar o bloco seguinte.
+    if (!servicoIds.length) throw new Error('Selecione pelo menos um serviço.');  // ← L478: Testa uma condição antes de executar o bloco seguinte.
+  // ← L479: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const disponiveis = await horariosDisponiveis(data, servicoIds, duracao);  // ← L480: Declara uma variável/constante usada por este bloco de lógica.
+    if (!disponiveis.includes(horario)) throw new Error('Esse horário acabou de ficar indisponível. Escolha outro.');  // ← L481: Testa uma condição antes de executar o bloco seguinte.
+  // ← L482: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const { data: agendamento, error } = await supabase.from('agendamentos').insert({  // ← L483: Declara uma variável/constante usada por este bloco de lógica.
+      pet_id: petId,  // ← L484: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      data_hora_inicio: dataHoraLocal(data, horario),  // ← L485: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      data_hora_fim: somarMinutosLocal(data, horario, duracao),  // ← L486: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      origem: 'MOBILE',  // ← L487: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      status: 'SOLICITADO',  // ← L488: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      observacoes_cliente: String(dados.observacoes_cliente || '').trim() || null,  // ← L489: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }).select('id').single();  // ← L490: Define as colunas que o Supabase deve retornar nesta consulta.
+    if (error || !agendamento) throw new Error(mensagemErro(error, 'Não foi possível enviar a solicitação.'));  // ← L491: Testa uma condição antes de executar o bloco seguinte.
+  // ← L492: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const itens = servicoIds.map((servicoId) => ({ agendamento_id: agendamento.id, servico_id: servicoId }));  // ← L493: Declara uma variável/constante usada por este bloco de lógica.
+    const { error: erroItens } = await supabase.from('agendamento_itens').insert(itens);  // ← L494: Declara uma variável/constante usada por este bloco de lógica.
+    if (erroItens) {  // ← L495: Testa uma condição antes de executar o bloco seguinte.
+      await supabase.from('agendamentos').delete().eq('id', agendamento.id);  // ← L496: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+      throw new Error(mensagemErro(erroItens, 'Não foi possível vincular os serviços ao agendamento.'));  // ← L497: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L498: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L499: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const pet = pets.find((item: any) => Number(item.id) === petId);  // ← L500: Declara uma variável/constante usada por este bloco de lógica.
+    await supabase.from('notificacoes_mobile').insert({  // ← L501: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+      cliente_id: clienteId,  // ← L502: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      pet_id: petId,  // ← L503: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      agendamento_id: agendamento.id,  // ← L504: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      tipo: 'AGENDAMENTO',  // ← L505: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      titulo: 'Solicitação enviada',  // ← L506: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      mensagem: `Sua solicitação para ${pet?.nome || 'o pet'} foi enviada ao Beauty Pet e aguarda confirmação.`,  // ← L507: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    });  // ← L508: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L509: Linha em branco usada para separar visualmente os blocos do arquivo.
+    return { sucesso: true, mensagem: 'O Beauty Pet recebeu a sua solicitação de agendamento.', agendamento_id: Number(agendamento.id) } as T;  // ← L510: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L511: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L512: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'agenda_pessoal') {  // ← L513: Testa uma condição antes de executar o bloco seguinte.
+    const pets = await petsDoCliente(clienteId);  // ← L514: Declara uma variável/constante usada por este bloco de lógica.
+    const petMap = new Map(pets.map((pet: any) => [Number(pet.id), pet.nome]));  // ← L515: Declara uma variável/constante usada por este bloco de lógica.
+    const petIds = pets.map((pet: any) => Number(pet.id));  // ← L516: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L517: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const { data: pessoais, error: erroPessoais } = await supabase  // ← L518: Declara uma variável/constante usada por este bloco de lógica.
+      .from('eventos_agenda_mobile')  // ← L519: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('id,titulo,descricao,data_hora_inicio,data_hora_fim,status,pet_id,categoria_id')  // ← L520: Define as colunas que o Supabase deve retornar nesta consulta.
+      .eq('cliente_id', clienteId)  // ← L521: Adiciona um filtro de igualdade à consulta do Supabase.
+      .neq('status', 'CANCELADO');  // ← L522: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    if (erroPessoais) throw new Error(mensagemErro(erroPessoais));  // ← L523: Testa uma condição antes de executar o bloco seguinte.
+  // ← L524: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const categoriaIds = [...new Set((pessoais || []).map((item: any) => Number(item.categoria_id)).filter(Boolean))];  // ← L525: Declara uma variável/constante usada por este bloco de lógica.
+    const categoriaMap = new Map<number, string>();  // ← L526: Declara uma variável/constante usada por este bloco de lógica.
+    if (categoriaIds.length) {  // ← L527: Testa uma condição antes de executar o bloco seguinte.
+      const { data } = await supabase.from('categorias_evento_mobile').select('id,nome').in('id', categoriaIds);  // ← L528: Declara uma variável/constante usada por este bloco de lógica.
+      (data || []).forEach((item: any) => categoriaMap.set(Number(item.id), item.nome));  // ← L529: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L530: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L531: Linha em branco usada para separar visualmente os blocos do arquivo.
+    let comerciais: any[] = [];  // ← L532: Declara uma variável/constante usada por este bloco de lógica.
+    if (petIds.length) {  // ← L533: Testa uma condição antes de executar o bloco seguinte.
+      const { data, error } = await supabase  // ← L534: Declara uma variável/constante usada por este bloco de lógica.
+        .from('agendamentos')  // ← L535: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+        .select('id,pet_id,data_hora_inicio,data_hora_fim,status,observacoes_cliente')  // ← L536: Define as colunas que o Supabase deve retornar nesta consulta.
+        .in('pet_id', petIds)  // ← L537: Filtra a consulta para aceitar qualquer valor existente na lista informada.
+        .not('status', 'in', '("RECUSADO","CANCELADO")');  // ← L538: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      if (error) throw new Error(mensagemErro(error));  // ← L539: Testa uma condição antes de executar o bloco seguinte.
+      const nomes = await nomesServicosPorAgendamento((data || []).map((item: any) => Number(item.id)));  // ← L540: Declara uma variável/constante usada por este bloco de lógica.
+      comerciais = (data || []).map((item: any) => ({  // ← L541: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        id: -Number(item.id),  // ← L542: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        titulo: (nomes.get(Number(item.id)) || ['Agendamento Beauty Pet']).join(' + '),  // ← L543: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        descricao: item.observacoes_cliente,  // ← L544: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        data_hora_inicio: item.data_hora_inicio,  // ← L545: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        data_hora_fim: item.data_hora_fim,  // ← L546: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        status: item.status,  // ← L547: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        pet_id: Number(item.pet_id),  // ← L548: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        pet: petMap.get(Number(item.pet_id)) || null,  // ← L549: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        categoria: 'Beauty Pet',  // ← L550: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        origem: 'BEAUTY_PET',  // ← L551: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        referencia_id: Number(item.id),  // ← L552: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      }));  // ← L553: Fecha a estrutura iniciada nas linhas anteriores.
+    }  // ← L554: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L555: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const eventos = [  // ← L556: Declara uma variável/constante usada por este bloco de lógica.
+      ...comerciais,  // ← L557: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      ...(pessoais || []).map((item: any) => ({  // ← L558: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+        ...item,  // ← L559: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        id: Number(item.id),  // ← L560: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        pet: item.pet_id ? petMap.get(Number(item.pet_id)) || null : null,  // ← L561: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        categoria: item.categoria_id ? categoriaMap.get(Number(item.categoria_id)) || null : null,  // ← L562: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        origem: 'PESSOAL',  // ← L563: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        referencia_id: Number(item.id),  // ← L564: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      })),  // ← L565: Fecha a estrutura iniciada nas linhas anteriores.
+    ].sort((a, b) => String(a.data_hora_inicio).localeCompare(String(b.data_hora_inicio)));  // ← L566: Fecha a estrutura iniciada nas linhas anteriores.
+  // ← L567: Linha em branco usada para separar visualmente os blocos do arquivo.
+    return { sucesso: true, eventos } as T;  // ← L568: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L569: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L570: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'criar_evento') {  // ← L571: Testa uma condição antes de executar o bloco seguinte.
+    const titulo = String(dados.titulo || '').trim();  // ← L572: Declara uma variável/constante usada por este bloco de lógica.
+    const descricao = String(dados.descricao || '').trim();  // ← L573: Declara uma variável/constante usada por este bloco de lógica.
+    const data = String(dados.data || '');  // ← L574: Declara uma variável/constante usada por este bloco de lógica.
+    const horario = String(dados.horario || '');  // ← L575: Declara uma variável/constante usada por este bloco de lógica.
+    if (!titulo || !/^\d{4}-\d{2}-\d{2}$/.test(data) || !/^\d{2}:\d{2}$/.test(horario)) {  // ← L576: Testa uma condição antes de executar o bloco seguinte.
+      throw new Error('Informe título, data e horário corretamente.');  // ← L577: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L578: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L579: Linha em branco usada para separar visualmente os blocos do arquivo.
+    let categoriaId = dados.categoria_id ? Number(dados.categoria_id) : null;  // ← L580: Declara uma variável/constante usada por este bloco de lógica.
+    if (!categoriaId) {  // ← L581: Testa uma condição antes de executar o bloco seguinte.
+      const { data: categoria } = await supabase.from('categorias_evento_mobile').select('id').eq('nome', 'Outros').maybeSingle();  // ← L582: Declara uma variável/constante usada por este bloco de lógica.
+      categoriaId = categoria ? Number(categoria.id) : null;  // ← L583: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L584: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L585: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const petId = dados.pet_id ? Number(dados.pet_id) : null;  // ← L586: Declara uma variável/constante usada por este bloco de lógica.
+    if (petId) {  // ← L587: Testa uma condição antes de executar o bloco seguinte.
+      const pets = await petsDoCliente(clienteId);  // ← L588: Declara uma variável/constante usada por este bloco de lógica.
+      if (!pets.some((pet: any) => Number(pet.id) === petId)) throw new Error('O pet selecionado não pertence a este tutor.');  // ← L589: Testa uma condição antes de executar o bloco seguinte.
+    }  // ← L590: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L591: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const { data: evento, error } = await supabase.from('eventos_agenda_mobile').insert({  // ← L592: Declara uma variável/constante usada por este bloco de lógica.
+      cliente_id: clienteId,  // ← L593: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      pet_id: petId,  // ← L594: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      categoria_id: categoriaId,  // ← L595: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      titulo,  // ← L596: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      descricao: descricao || null,  // ← L597: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      data_hora_inicio: dataHoraLocal(data, horario),  // ← L598: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      status: 'AGENDADO',  // ← L599: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }).select('id').single();  // ← L600: Define as colunas que o Supabase deve retornar nesta consulta.
+    if (error) throw new Error(mensagemErro(error, 'Não foi possível criar o evento.'));  // ← L601: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, mensagem: 'Evento criado com sucesso.', evento_id: Number(evento.id) } as T;  // ← L602: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L603: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L604: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'excluir_evento') {  // ← L605: Testa uma condição antes de executar o bloco seguinte.
+    const id = Number(dados.evento_id || 0);  // ← L606: Declara uma variável/constante usada por este bloco de lógica.
+    if (!id) throw new Error('Evento inválido.');  // ← L607: Testa uma condição antes de executar o bloco seguinte.
+    const { error } = await supabase  // ← L608: Declara uma variável/constante usada por este bloco de lógica.
+      .from('eventos_agenda_mobile')  // ← L609: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .update({ status: 'CANCELADO' })  // ← L610: Atualiza registros existentes no Supabase.
+      .eq('id', id)  // ← L611: Adiciona um filtro de igualdade à consulta do Supabase.
+      .eq('cliente_id', clienteId);  // ← L612: Adiciona um filtro de igualdade à consulta do Supabase.
+    if (error) throw new Error(mensagemErro(error));  // ← L613: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true } as T;  // ← L614: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L615: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L616: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'categorias_gasto') {  // ← L617: Testa uma condição antes de executar o bloco seguinte.
+    const { data, error } = await supabase.from('categorias_gasto_mobile').select('id,nome').eq('ativo', true).order('nome');  // ← L618: Declara uma variável/constante usada por este bloco de lógica.
+    if (error) throw new Error(mensagemErro(error));  // ← L619: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, categorias: data || [] } as T;  // ← L620: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L621: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L622: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'adicionar_gasto') {  // ← L623: Testa uma condição antes de executar o bloco seguinte.
+    const categoriaId = Number(dados.categoria_id || 0);  // ← L624: Declara uma variável/constante usada por este bloco de lógica.
+    const petId = dados.pet_id ? Number(dados.pet_id) : null;  // ← L625: Declara uma variável/constante usada por este bloco de lógica.
+    const descricao = String(dados.descricao || '').trim();  // ← L626: Declara uma variável/constante usada por este bloco de lógica.
+    const valor = Number(dados.valor || 0);  // ← L627: Declara uma variável/constante usada por este bloco de lógica.
+    const dataGasto = String(dados.data_gasto || '');  // ← L628: Declara uma variável/constante usada por este bloco de lógica.
+    if (!categoriaId || !descricao || valor <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(dataGasto)) {  // ← L629: Testa uma condição antes de executar o bloco seguinte.
+      throw new Error('Preencha categoria, descrição, valor e data corretamente.');  // ← L630: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L631: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    const { data: categoria, error: erroCategoria } = await supabase  // ← L632: Declara uma variável/constante usada por este bloco de lógica.
+      .from('categorias_gasto_mobile')  // ← L633: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('id,nome')  // ← L634: Define as colunas que o Supabase deve retornar nesta consulta.
+      .eq('id', categoriaId)  // ← L635: Adiciona um filtro de igualdade à consulta do Supabase.
+      .eq('ativo', true)  // ← L636: Adiciona um filtro de igualdade à consulta do Supabase.
+      .maybeSingle();  // ← L637: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    if (erroCategoria || !categoria) throw new Error('A categoria selecionada é inválida.');  // ← L638: Testa uma condição antes de executar o bloco seguinte.
+    if (dados.categoria_nome && normalizarTexto(dados.categoria_nome) !== normalizarTexto(categoria.nome)) {  // ← L639: Testa uma condição antes de executar o bloco seguinte.
+      throw new Error('A categoria selecionada não corresponde ao cadastro do banco. Atualize a tela e tente novamente.');  // ← L640: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }  // ← L641: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    if (petId) {  // ← L642: Testa uma condição antes de executar o bloco seguinte.
+      const pets = await petsDoCliente(clienteId);  // ← L643: Declara uma variável/constante usada por este bloco de lógica.
+      if (!pets.some((pet: any) => Number(pet.id) === petId)) throw new Error('O pet selecionado não pertence a este tutor.');  // ← L644: Testa uma condição antes de executar o bloco seguinte.
+    }  // ← L645: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    const { data: gasto, error } = await supabase.from('gastos_pessoais_mobile').insert({  // ← L646: Declara uma variável/constante usada por este bloco de lógica.
+      cliente_id: clienteId,  // ← L647: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      pet_id: petId,  // ← L648: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      categoria_id: categoriaId,  // ← L649: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      descricao,  // ← L650: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      valor,  // ← L651: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      data_gasto: dataGasto,  // ← L652: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }).select('id').single();  // ← L653: Define as colunas que o Supabase deve retornar nesta consulta.
+    if (error) throw new Error(mensagemErro(error, 'Não foi possível adicionar o gasto.'));  // ← L654: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, mensagem: 'Gasto adicionado.', gasto_id: Number(gasto.id) } as T;  // ← L655: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L656: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L657: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'resumo_financeiro') {  // ← L658: Testa uma condição antes de executar o bloco seguinte.
+    const ano = Number(dados.ano || new Date().getFullYear());  // ← L659: Declara uma variável/constante usada por este bloco de lógica.
+    const mes = Number(dados.mes || new Date().getMonth() + 1);  // ← L660: Declara uma variável/constante usada por este bloco de lógica.
+    const { inicio, fim } = inicioFimMes(ano, mes);  // ← L661: Declara uma variável/constante usada por este bloco de lógica.
+    const [{ data: gastos, error: erroGastos }, { data: categorias, error: erroCategorias }, { data: budget, error: erroBudget }] = await Promise.all([  // ← L662: Declara valores constantes, normalmente estado ou retorno de um hook.
+      supabase.from('gastos_pessoais_mobile').select('categoria_id,valor').eq('cliente_id', clienteId).gte('data_gasto', inicio).lt('data_gasto', fim),  // ← L663: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      supabase.from('categorias_gasto_mobile').select('id,nome').eq('ativo', true).order('nome'),  // ← L664: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      supabase.from('vw_mobile_budget').select('valor_total').eq('cliente_id', clienteId).eq('ano', ano).eq('mes', mes),  // ← L665: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+    ]);  // ← L666: Fecha a estrutura iniciada nas linhas anteriores.
+    if (erroGastos || erroCategorias || erroBudget) throw new Error(mensagemErro(erroGastos || erroCategorias || erroBudget));  // ← L667: Testa uma condição antes de executar o bloco seguinte.
+  // ← L668: Linha em branco usada para separar visualmente os blocos do arquivo.
+    const totalPessoal = (gastos || []).reduce((soma: number, item: any) => soma + Number(item.valor || 0), 0);  // ← L669: Declara uma variável/constante usada por este bloco de lógica.
+    const categoriasResumo = (categorias || []).map((categoria: any) => ({  // ← L670: Declara uma variável/constante usada por este bloco de lógica.
+      id: Number(categoria.id),  // ← L671: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      nome: categoria.nome,  // ← L672: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      total: (gastos || [])  // ← L673: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        .filter((gasto: any) => Number(gasto.categoria_id) === Number(categoria.id))  // ← L674: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+        .reduce((soma: number, gasto: any) => soma + Number(gasto.valor || 0), 0),  // ← L675: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    }));  // ← L676: Fecha a estrutura iniciada nas linhas anteriores.
+    const totalBudget = (budget || []).reduce((soma: number, item: any) => soma + Number(item.valor_total || 0), 0);  // ← L677: Declara uma variável/constante usada por este bloco de lógica.
+    const pets = await petsDoCliente(clienteId);  // ← L678: Declara uma variável/constante usada por este bloco de lógica.
+  // ← L679: Linha em branco usada para separar visualmente os blocos do arquivo.
+    return {  // ← L680: Encerra a função devolvendo este valor ao código que a chamou.
+      sucesso: true,  // ← L681: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      ano,  // ← L682: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      mes,  // ← L683: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      total_pessoal: totalPessoal,  // ← L684: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      categorias: categoriasResumo,  // ← L685: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      budget: { total: totalBudget, quantidade: (budget || []).length },  // ← L686: Inicia a configuração de um estilo identificado por esta chave.
+      total_geral: totalPessoal + totalBudget,  // ← L687: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+      primeiro_pet: pets[0]?.nome || null,  // ← L688: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+    } as T;  // ← L689: Fecha a estrutura iniciada nas linhas anteriores.
+  }  // ← L690: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L691: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'budget') {  // ← L692: Testa uma condição antes de executar o bloco seguinte.
+    const ano = Number(dados.ano || new Date().getFullYear());  // ← L693: Declara uma variável/constante usada por este bloco de lógica.
+    const mes = Number(dados.mes || new Date().getMonth() + 1);  // ← L694: Declara uma variável/constante usada por este bloco de lógica.
+    const { data, error } = await supabase  // ← L695: Declara uma variável/constante usada por este bloco de lógica.
+      .from('vw_mobile_budget')  // ← L696: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('data_fechamento,pet_id,pet,servico,descricao,valor_servico,total_adicionais,valor_total')  // ← L697: Define as colunas que o Supabase deve retornar nesta consulta.
+      .eq('cliente_id', clienteId)  // ← L698: Adiciona um filtro de igualdade à consulta do Supabase.
+      .eq('ano', ano)  // ← L699: Adiciona um filtro de igualdade à consulta do Supabase.
+      .eq('mes', mes)  // ← L700: Adiciona um filtro de igualdade à consulta do Supabase.
+      .order('data_fechamento', { ascending: false })  // ← L701: Ordena os registros retornados pela consulta.
+      .order('pet')  // ← L702: Ordena os registros retornados pela consulta.
+      .order('servico');  // ← L703: Ordena os registros retornados pela consulta.
+    if (error) throw new Error(mensagemErro(error, 'Não foi possível carregar os gastos do Beauty Pet.'));  // ← L704: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, itens: (data || []).map((item: any) => ({ ...item, valor_servico: Number(item.valor_servico || 0), total_adicionais: Number(item.total_adicionais || 0), valor_total: Number(item.valor_total || 0) })) } as T;  // ← L705: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L706: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L707: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'notificacoes') {  // ← L708: Testa uma condição antes de executar o bloco seguinte.
+    await sincronizarNotificacoes(clienteId);  // ← L709: Aguarda a conclusão de uma operação assíncrona antes de continuar.
+    const { data, error } = await supabase  // ← L710: Declara uma variável/constante usada por este bloco de lógica.
+      .from('notificacoes_mobile')  // ← L711: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+      .select('id,titulo,mensagem,tipo,lida,criado_em')  // ← L712: Define as colunas que o Supabase deve retornar nesta consulta.
+      .eq('cliente_id', clienteId)  // ← L713: Adiciona um filtro de igualdade à consulta do Supabase.
+      .order('criado_em', { ascending: false })  // ← L714: Ordena os registros retornados pela consulta.
+      .order('id', { ascending: false });  // ← L715: Ordena os registros retornados pela consulta.
+    if (error) throw new Error(mensagemErro(error));  // ← L716: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true, notificacoes: (data || []).map((item: any) => ({ ...item, id: Number(item.id), lida: Boolean(item.lida) })) } as T;  // ← L717: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L718: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L719: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'marcar_notificacao_lida') {  // ← L720: Testa uma condição antes de executar o bloco seguinte.
+    const id = Number(dados.notificacao_id || 0);  // ← L721: Declara uma variável/constante usada por este bloco de lógica.
+    if (id) {  // ← L722: Testa uma condição antes de executar o bloco seguinte.
+      const { error } = await supabase  // ← L723: Declara uma variável/constante usada por este bloco de lógica.
+        .from('notificacoes_mobile')  // ← L724: Seleciona uma tabela ou view do Supabase que será consultada ou alterada.
+        .update({ lida: true, lida_em: new Date().toISOString() })  // ← L725: Atualiza registros existentes no Supabase.
+        .eq('id', id)  // ← L726: Adiciona um filtro de igualdade à consulta do Supabase.
+        .eq('cliente_id', clienteId);  // ← L727: Adiciona um filtro de igualdade à consulta do Supabase.
+      if (error) throw new Error(mensagemErro(error));  // ← L728: Testa uma condição antes de executar o bloco seguinte.
+    }  // ← L729: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+    return { sucesso: true } as T;  // ← L730: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L731: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L732: Linha em branco usada para separar visualmente os blocos do arquivo.
+  if (acao === 'limpar_notificacoes') {  // ← L733: Testa uma condição antes de executar o bloco seguinte.
+    const { error } = await supabase.from('notificacoes_mobile').delete().eq('cliente_id', clienteId);  // ← L734: Declara uma variável/constante usada por este bloco de lógica.
+    if (error) throw new Error(mensagemErro(error));  // ← L735: Testa uma condição antes de executar o bloco seguinte.
+    return { sucesso: true } as T;  // ← L736: Encerra a função devolvendo este valor ao código que a chamou.
+  }  // ← L737: Abre ou fecha um bloco/objeto/estrutura sintática do código.
+  // ← L738: Linha em branco usada para separar visualmente os blocos do arquivo.
+  throw new Error(`Ação não implementada no Supabase: ${acao}`);  // ← L739: Executa ou configura esta parte específica da lógica/visual descrita pelo próprio código.
+}  // ← L740: Abre ou fecha um bloco/objeto/estrutura sintática do código.
