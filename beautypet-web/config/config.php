@@ -266,7 +266,7 @@ function urlFotoPet(?string $foto): ?string
     // Verifica a condição abaixo antes de executar este bloco.
     if (is_file($destinoAtual)) {
         // Devolve o resultado calculado para o ponto que chamou esta função.
-        return '../' . $relativa;
+        return BASE_URL . '/' . $relativa;
     }
 
     // Compatibilidade com fotos de uma estrutura anterior, que ficavam um nível acima da raiz atual.

@@ -302,7 +302,7 @@ $totalPets = (int) $pdo // Armazena em totalPets o valor usado nas próximas eta
     ->query('SELECT COUNT(*) FROM pets WHERE ativo = TRUE') // Executa uma consulta direta ao PostgreSQL.
     // Obtém somente a primeira coluna do resultado, útil para contagens, IDs e totais simples.
     ->fetchColumn(); // Obtém a primeira coluna do resultado, normalmente um ID, total ou contagem.
-?> // Executa esta instrução como parte da regra de negócio desta página.
+?> 
 
 <?php // Executa esta instrução como parte da regra de negócio desta página.
 // Define o título exibido na aba/navegador pelo template compartilhado.
@@ -312,7 +312,7 @@ $paginaAtiva = 'cadastro-pet'; // Armazena em paginaAtiva o valor usado nas pró
 
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou função compartilhada necessária nesta página.
-?> // Executa esta instrução como parte da regra de negócio desta página.
+?> 
 
 <div class="page registration-page"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
                 <!-- Bloco visual "page-heading" que organiza esta parte da interface. -->

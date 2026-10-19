@@ -2538,7 +2538,7 @@ body.monthly-modal-open{overflow:hidden} /* Participa da configuração visual d
    ========================================================================== */
 
 .dashboard{ /* Inicia as regras visuais deste seletor. */
-    --dash-amarelo:#f3b000; /* Define a propriedade visual --dash-amarelo. */
+    --dash-amarelo:#fff7c9;; /* Define a propriedade visual --dash-amarelo. */
     --dash-amarelo-claro:#fff4ab; /* Define a propriedade visual --dash-amarelo-claro. */
     --dash-vermelho:#ef3028; /* Define a propriedade visual --dash-vermelho. */
     --dash-texto:#262626; /* Define a propriedade visual --dash-texto. */
@@ -2559,7 +2559,8 @@ body.monthly-modal-open{overflow:hidden} /* Participa da configuração visual d
 .dashboard *::after{box-sizing:border-box} /* Participa da configuração visual deste componente. */
 
 .dashboard-destaque{ /* Inicia as regras visuais deste seletor. */
-    background:linear-gradient(135deg,#fff7c8 0%,#fff2a1 100%); /* Define a propriedade visual background. */
+   background:#fff7c8 !important;
+ /* Define a propriedade visual background. */
     border:1px solid #f1df73; /* Define a propriedade visual border. */
     border-radius:20px; /* Define a propriedade visual border-radius. */
     padding:24px 26px 0; /* Define a propriedade visual padding. */

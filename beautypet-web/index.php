@@ -479,7 +479,7 @@ require __DIR__ . '/includes/topo.php';
 </div>
 
 <!-- Biblioteca responsavel por desenhar os graficos desta pagina. -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 
 <script>
 // Recebe do PHP os dados ja preparados para cada grafico da tela.
@@ -514,7 +514,7 @@ const formatarReal = valor => "R$ " + Number(valor).toLocaleString("pt-BR", {
 // Guarda as referencias dos botoes e dos paineis das abas.
 const botoesAba = document.querySelectorAll(".dashboard-aba");
 const paineisAba = document.querySelectorAll(".aba-painel");
-
+let graficosDesenhados = false;
 // Mostra o painel pedido e destaca o botao correspondente.
 function abrirAba(chave) {
     // Procura o botao da aba pedida para saber se ela realmente existe.
@@ -648,7 +648,7 @@ if (botaoPetsAfastados && modalPetsAfastados) {
  * ==========================================================*/
 
 // Marca se os graficos ja foram desenhados, para nao repetir o trabalho.
-let graficosDesenhados = false;
+
 
 // Desenha os tres graficos da aba, uma unica vez.
 function desenharGraficos() {

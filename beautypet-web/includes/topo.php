@@ -80,7 +80,7 @@ try {
 <div class="container">
     <aside class="sidebar">
         <div class="logo">
-            <img src="<?= BASE_URL ?>/../assets/logo.png" alt="Logo Beauty Pet">
+            <img src="<?= BASE_URL ?>/assets/logo.png" alt="Logo Beauty Pet">
             <div class="logo-text">
                 <h2>Beauty Pet</h2>
                 <small>Sistema de Gestão</small>
