@@ -70,6 +70,8 @@ $abasDashboard = [
     ['chave' => 'assistente',     'rotulo' => 'Assistente',      'icone' => 'fa-regular fa-comments'],
 ];
 
+// Define o(s) CSS desta página em assets/css/ (dashboard-base.css, ia.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = ['dashboard-base', 'ia'];
 // Importa o arquivo responsavel pelo topo da pagina.
 require __DIR__ . '/includes/topo.php';
 ?>

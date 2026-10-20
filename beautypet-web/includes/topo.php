@@ -67,11 +67,24 @@ try {
     <title><?= escapar($tituloPagina) ?> | Beauty Pet</title>
     
     <!-- Utilização da constante BASE_URL unificada para garantir caminhos absolutos -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/style.css?v=fechamento-mensal-v1-20260907">
+    <!-- CSS compartilhado por TODAS as páginas: layout base (topo/rodapé) e busca de pets/tutores. -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/topo-rodape.css?v=css-dividido-v1">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/buscar.css?v=css-dividido-v1">
+
+    <?php
+    // CSS específico de cada página: a própria página declara $cssPagina antes de incluir este topo.
+    // Aceita um nome ('agenda') ou uma lista (['dashboard-base', 'ia']). Só nomes simples são aceitos.
+    foreach ((array) ($cssPagina ?? []) as $arquivoCssPagina):
+        if (!preg_match('/^[a-z0-9-]+$/', (string) $arquivoCssPagina)) {
+            continue;
+        }
+    ?>
+        <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/<?= $arquivoCssPagina ?>.css?v=css-dividido-v1">
+    <?php endforeach; ?>
 
     <?php if (($paginaAtiva ?? '') === 'dashboard'): ?>
         <!-- MERGE DASHBOARD: estilos usados somente pela tela do Dashboard (cards, graficos, abas).
-             Carregado depois do style.css e so nesta pagina, para que nenhuma outra tela mude. -->
+             Carregado depois dos CSS acima e so nesta pagina, para que nenhuma outra tela mude. -->
         <link rel="stylesheet" href="<?= BASE_URL ?>/assets/dashboard.css?v=dashboard-v1">
     <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">

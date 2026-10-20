@@ -1,0 +1,75 @@
+/*
+ * ARQUIVO: assets/css/buscar.css
+ * USADO POR: pages/busca-registros.php, buscar-tutores.php e buscar-pets.php
+ * RESPONSABILIDADE: Estilos da busca por pet/tutor: busca geral do cabeçalho (global-search) e campos de busca com lista de resultados (search-picker). Carregado em todas as páginas, pois o cabeçalho tem a busca.
+ * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ */
+
+/* ===== Busca por pet/tutor em grandes cadastros ===== */
+.search-picker{position:relative;width:100%} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-input-wrap" desta parte da interface. */
+.search-picker-input-wrap{position:relative;display:flex;align-items:center;width:100%} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-input-wrap>i" desta parte da interface. */
+.search-picker-input-wrap>i{position:absolute;left:13px;z-index:1;color:#9aa1ad;font-size:13px;pointer-events:none} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-input-wrap>input[type="search"]" desta parte da interface. */
+.search-picker-input-wrap>input[type="search"]{width:100%;min-height:44px;padding:11px 38px 11px 38px;border:1px solid #dfe2e7;border-radius:14px;background:#fbfcfd;outline:0;color:#252930} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-input-wrap>input[type="search"]:focus" desta parte da interface. */
+.search-picker-input-wrap>input[type="search"]:focus{border-color:#e6b500;box-shadow:0 0 0 3px #e8bd1822;background:#fff} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-input-wrap>input[type="search"]::-webkit-search-cancel-button" desta parte da interface. */
+.search-picker-input-wrap>input[type="search"]::-webkit-search-cancel-button{cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-results" desta parte da interface. */
+.search-picker-results{position:absolute;z-index:3200;top:calc(100% + 7px);left:0;right:0;max-height:290px;overflow-y:auto;padding:7px;border:1px solid #e3e6eb;border-radius:16px;background:#fff;box-shadow:0 20px 55px #11182720} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-option" desta parte da interface. */
+.search-picker-option{width:100%;display:flex;flex-direction:column;gap:3px;padding:11px 12px;border:0;border-radius:11px;background:transparent;color:#343943;text-align:left;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-option:hover,.search-picker-option:focus" desta parte da interface. */
+.search-picker-option:hover,.search-picker-option:focus{background:#fff7d8;outline:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-option strong" desta parte da interface. */
+.search-picker-option strong{font-size:13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-option small" desta parte da interface. */
+.search-picker-option small{color:#838a96;font-size:11px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-loading,.search-picker-empty" desta parte da interface. */
+.search-picker-loading,.search-picker-empty{padding:13px;color:#858c98;text-align:center;font-size:12px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search-picker-loading i" desta parte da interface. */
+.search-picker-loading i{margin-right:6px;color:#d6a500} /* Participa da configuração visual deste componente. */
+/* Busca geral do cabeçalho */
+.search.global-search{position:relative;overflow:visible} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".global-search-results" desta parte da interface. */
+.global-search-results{position:absolute;z-index:3500;top:calc(100% + 10px);left:0;width:min(520px,82vw);padding:7px;border:1px solid #e5e7eb;border-radius:16px;background:#fff;box-shadow:0 22px 60px #11182720} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".global-search-option" desta parte da interface. */
+.global-search-option{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;color:#313641;text-decoration:none} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".global-search-option:hover" desta parte da interface. */
+.global-search-option:hover{background:#fff7d8} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".global-search-kind" desta parte da interface. */
+.global-search-kind{width:34px;height:34px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px;background:#fff2b7;color:#906900} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".global-search-option>span:last-child" desta parte da interface. */
+.global-search-option>span:last-child{min-width:0;display:flex;flex-direction:column;gap:2px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".global-search-option strong" desta parte da interface. */
+.global-search-option strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".global-search-option small" desta parte da interface. */
+.global-search-option small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#858c98;font-size:11px} /* Participa da configuração visual deste componente. */
+/* Qualquer botão/item dentro da lista, com ou sem a classe .search-picker-item */
+[data-search-results] button,
+[data-search-results] .search-picker-item {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 14px;
+    font-family: inherit;
+    color: #334155;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+[data-search-results] button:hover,
+[data-search-results] .search-picker-item:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a;
+}

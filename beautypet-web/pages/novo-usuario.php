@@ -185,6 +185,8 @@ $tituloPagina = 'Criar usuário';
 // Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'novo-usuario';
 
+// Define o(s) CSS desta página em assets/css/ (novo-usuario.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'novo-usuario';
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php';
 ?>

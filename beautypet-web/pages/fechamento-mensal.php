@@ -451,6 +451,8 @@ $fechamentoMensal['status'] = $mensalFechado ? 'FECHADO' : ($fechamentoMensal['s
 $tituloPagina = 'Fechamento mensal';
 // Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'fechamento-mensal';
+// Define o(s) CSS desta página em assets/css/ (fechamento.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'fechamento';
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php';
 ?>

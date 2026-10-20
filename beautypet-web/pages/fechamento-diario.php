@@ -2377,6 +2377,8 @@ $dataSeguinte = (new DateTime($dataSelecionada))->modify('+1 day')->format('Y-m-
 $tituloPagina = 'Fechamento diário';
 // Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'fechamento-diario';
+// Define o(s) CSS desta página em assets/css/ (fechamento.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'fechamento';
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php';
 ?>

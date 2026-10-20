@@ -179,6 +179,8 @@ $tituloPagina = 'Ficha de ' . $tutor['nome'];
 // Define a página ativa no menu.
 $paginaAtiva = 'fichas-tutores';
 
+// Define o(s) CSS desta página em assets/css/ (ficha.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'ficha';
 // Carrega o topo da página.
 require __DIR__ . '/../includes/topo.php';
 ?>

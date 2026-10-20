@@ -1,0 +1,133 @@
+/*
+ * ARQUIVO: assets/css/cadastro.css
+ * USADO POR: pages/cadastro-pet.php e pages/cadastro-tutor.php
+ * RESPONSABILIDADE: Formulários de cadastro de pet e de tutor.
+ * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ */
+
+/* Estiliza o(s) elemento(s) ".page" desta parte da interface. */
+.page{min-height:100%;padding:30px;background:white;border-radius:12px;box-shadow:0 3px 10px #0001} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page h1" desta parte da interface. */
+.page h1{margin-bottom:10px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page p" desta parte da interface. */
+.page p{color:#666} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".registration-page" desta parte da interface. */
+.registration-page{background:#fff9bf} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page-heading" desta parte da interface. */
+.page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:25px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page-heading h1" desta parte da interface. */
+.page-heading h1{margin:0;font-size:27px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page-heading small,.counter" desta parte da interface. */
+.page-heading small,.counter{color:#6d6d6d} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".counter" desta parte da interface. */
+.counter{padding-top:5px;white-space:nowrap} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".form-card" desta parte da interface. */
+.form-card{max-width:1050px;margin:0 auto;background:white;border:1px solid #d7d7d7;border-radius:18px;box-shadow:0 2px 5px #0001;overflow:hidden} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".form-card h2" desta parte da interface. */
+.form-card h2{padding:22px 25px;font-size:24px;border-bottom:1px solid #ddd} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".form-section" desta parte da interface. */
+.form-section{padding:22px 25px;border-bottom:1px solid #e7e7e7} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".form-section:last-of-type" desta parte da interface. */
+.form-section:last-of-type{border-bottom:none} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".form-section h3" desta parte da interface. */
+.form-section h3{margin-bottom:18px;font-size:16px;font-weight:500;color:#444} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".form-grid" desta parte da interface. */
+.form-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:14px 20px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field" desta parte da interface. */
+.field{grid-column:span 4;display:flex;flex-direction:column;gap:6px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-2" desta parte da interface. */
+.field.span-2{grid-column:span 2} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-3" desta parte da interface. */
+.field.span-3{grid-column:span 3} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-4" desta parte da interface. */
+.field.span-4{grid-column:span 4} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-5" desta parte da interface. */
+.field.span-5{grid-column:span 5} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-6" desta parte da interface. */
+.field.span-6{grid-column:span 6} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-8" desta parte da interface. */
+.field.span-8{grid-column:span 8} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-9" desta parte da interface. */
+.field.span-9{grid-column:span 9} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-10" desta parte da interface. */
+.field.span-10{grid-column:span 10} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field.span-12" desta parte da interface. */
+.field.span-12{grid-column:span 12} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field label,.checkbox-field label" desta parte da interface. */
+.field label,.checkbox-field label{color:#444;font-size:14px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field input,.field select,.field textarea" desta parte da interface. */
+.field input,.field select,.field textarea{width:100%;padding:12px 13px;border:1px solid #dedede;border-radius:8px;outline:none;background:white} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field textarea" desta parte da interface. */
+.field textarea{min-height:110px;resize:vertical} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field input:focus,.field select:focus,.field textarea:focus" desta parte da interface. */
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#f3b000;box-shadow:0 0 0 3px #f3b00020} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".checks-row" desta parte da interface. */
+.checks-row{grid-column:span 12;display:flex;flex-wrap:wrap;gap:18px 28px;padding-top:4px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".checkbox-field" desta parte da interface. */
+.checkbox-field{display:flex;align-items:center;gap:8px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".checkbox-field input" desta parte da interface. */
+.checkbox-field input{width:17px;height:17px;accent-color:#f3b000} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".form-actions" desta parte da interface. */
+.form-actions{display:flex;justify-content:center;padding:20px 25px 28px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".save-button" desta parte da interface. */
+.save-button{min-width:150px;padding:12px 24px;border:none;border-radius:10px;background:#ef241b;color:white;font-weight:700;cursor:pointer;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".save-button:hover" desta parte da interface. */
+.save-button:hover{background:#cf1c15} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".photo-field" desta parte da interface. */
+.photo-field{grid-column:span 12;display:flex;align-items:center;gap:16px;margin-bottom:4px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".photo-preview" desta parte da interface. */
+.photo-preview{width:100px;height:100px;display:grid;place-items:center;overflow:hidden;border:1px dashed #e4b900;border-radius:12px;background:#fff7c8;color:#e0ad00;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".photo-preview img" desta parte da interface. */
+.photo-preview img{width:100%;height:100%;object-fit:cover} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".photo-preview i" desta parte da interface. */
+.photo-preview i{font-size:28px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".photo-info" desta parte da interface. */
+.photo-info{display:flex;flex-direction:column;gap:5px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".photo-info small" desta parte da interface. */
+.photo-info small{color:#777} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".photo-info input" desta parte da interface. */
+.photo-info input{max-width:300px} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 900px){ /* Inicia as regras visuais deste seletor. */
+  .page{padding:20px} /* Participa da configuração visual deste componente. */
+  .field,.field.span-2,.field.span-3,.field.span-4,.field.span-5,.field.span-6,.field.span-7,.field.span-8,.field.span-9,.field.span-10{grid-column:span 6} /* Participa da configuração visual deste componente. */
+  .field.span-12{grid-column:span 12} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 650px){ /* Inicia as regras visuais deste seletor. */
+  .page-heading{flex-direction:column} /* Participa da configuração visual deste componente. */
+  .field,.field.span-2,.field.span-3,.field.span-4,.field.span-5,.field.span-6,.field.span-7,.field.span-8,.field.span-9,.field.span-10,.field.span-12{grid-column:span 12} /* Participa da configuração visual deste componente. */
+  .photo-field{align-items:flex-start;flex-direction:column} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".message" desta parte da interface. */
+.message{max-width:1050px;margin:0 auto 18px;padding:13px 16px;border-radius:10px;font-weight:600} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".message.success" desta parte da interface. */
+.message.success{color:#176b32;background:#eaf8ef;border:1px solid #b8e2c5} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".message.error" desta parte da interface. */
+.message.error{color:#9d1c1c;background:#fff0f0;border:1px solid #efbcbc} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field-error" desta parte da interface. */
+.field-error{color:#b91c1c;font-size:13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".counter strong" desta parte da interface. */
+.counter strong{color:#222} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field-label" desta parte da interface. */
+.field-label{color:#444;font-size:14px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".save-button i" desta parte da interface. */
+.save-button i{margin-right:7px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field input.input-error,.field select.input-error,.field textarea.input-error" desta parte da interface. */
+.field input.input-error,.field select.input-error,.field textarea.input-error{border-color:#e04444;background:#fff8f8;box-shadow:0 0 0 3px rgba(224, 68, 68, 0.10)} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field input.input-error:focus,.field select.input-error:focus,.field textarea.input-error:focus" desta parte da interface. */
+.field input.input-error:focus,.field select.input-error:focus,.field textarea.input-error:focus{border-color:#c62828} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".primary-action-button,.secondary-action-button" desta parte da interface. */
+.primary-action-button,.secondary-action-button{min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 15px;border:1px solid transparent;border-radius:10px;text-decoration:none;font-weight:700;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button" desta parte da interface. */
+.secondary-action-button{background:white;color:#333;border-color:#dedede} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button:hover" desta parte da interface. */
+.secondary-action-button:hover{border-color:#f3b000;background:#fffdf0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field-help" desta parte da interface. */
+.field-help{display:block;margin-top:6px;font-size:12px;line-height:1.4} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button.small" desta parte da interface. */
+.secondary-action-button.small{min-height:36px;padding:8px 12px;border:0;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button" desta parte da interface. */
+.secondary-action-button{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 16px;border:1px solid #eadca5;border-radius:12px;background:#fff;color:#403c34;text-decoration:none;font-weight:700;box-shadow:0 8px 20px #00000008;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button:hover" desta parte da interface. */
+.secondary-action-button:hover{transform:translateY(-1px);background:#fffdf4;box-shadow:0 10px 24px #0000000f} /* Participa da configuração visual deste componente. */

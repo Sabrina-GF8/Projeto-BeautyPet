@@ -1,0 +1,519 @@
+/*
+ * ARQUIVO: assets/css/topo-rodape.css
+ * USADO POR: includes/topo.php e includes/rodape.php
+ * RESPONSABILIDADE: Layout base carregado em TODAS as páginas: reset, menu lateral, cabeçalho, sino de notificações, perfil, modal de troca de usuário, mensagens e elementos comuns.
+ * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ */
+
+/*
+ * ARQUIVO: style.css
+ * RESPONSABILIDADE: definir toda a apresentação visual do sistema web Beauty Pet.
+ * Cada comentário identifica o grupo de elementos estilizado e o motivo daquele bloco.
+ * As propriedades originais foram preservadas; somente documentação foi acrescentada.
+ */
+
+/* Estiliza o(s) elemento(s) "*" desta parte da interface. */
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI", sans-serif}
+/* Estiliza o(s) elemento(s) "body" desta parte da interface. */
+body{background:#f5f7fa;color:#222} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "button,input,select,textarea" desta parte da interface. */
+button,input,select,textarea{font:inherit} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".container" desta parte da interface. */
+.container{display:flex;min-height:100vh} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".sidebar" desta parte da interface. */
+.sidebar{width:75px;height:100vh;background:white;border-right:1px solid #e5e5e5;overflow-x:hidden;overflow-y:auto;transition:width .3s;flex-shrink:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".sidebar:hover" desta parte da interface. */
+.sidebar:hover{width:260px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".logo" desta parte da interface. */
+.logo{display:flex;align-items:center;gap:15px;padding:20px 16px;border-bottom:1px solid #eee} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".logo img" desta parte da interface. */
+.logo img{width:42px;height:42px;object-fit:contain;flex-shrink:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".logo-text,.menu-item span,.submenu span,.arrow" desta parte da interface. */
+.logo-text,.menu-item span,.submenu span,.arrow{opacity:0;visibility:hidden;white-space:nowrap;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".sidebar:hover .logo-text,.sidebar:hover .menu-item span,.sidebar:hover .submenu span,.sidebar:hover .arrow" desta parte da interface. */
+.sidebar:hover .logo-text,.sidebar:hover .menu-item span,.sidebar:hover .submenu span,.sidebar:hover .arrow{opacity:1;visibility:visible} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".logo-text h2" desta parte da interface. */
+.logo-text h2{font-size:18px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".logo-text small" desta parte da interface. */
+.logo-text small{color:#888} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "nav" desta parte da interface. */
+nav{margin-top:15px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-item,.submenu" desta parte da interface. */
+.menu-item,.submenu{display:flex;align-items:center;color:#444;text-decoration:none;cursor:pointer;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-item" desta parte da interface. */
+.menu-item{justify-content:space-between;padding:14px 25px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "nav>a.menu-item" desta parte da interface. */
+nav>a.menu-item{justify-content:flex-start;gap:20px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-left,.submenu" desta parte da interface. */
+.menu-left,.submenu{gap:20px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-left" desta parte da interface. */
+.menu-left{display:flex;align-items:center} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-item:hover,.submenu:hover" desta parte da interface. */
+.menu-item:hover,.submenu:hover{background:#f4f4f4} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-item.active,.submenu.active" desta parte da interface. */
+.menu-item.active,.submenu.active{background:#ffe07a;color:#222;font-weight:700} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-item.active" desta parte da interface. */
+.menu-item.active{border-left:5px solid #f3b000;padding-left:20px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".submenu.active" desta parte da interface. */
+.submenu.active{border-left:5px solid #f3b000;padding-left:57px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".menu-item i,.submenu i" desta parte da interface. */
+.menu-item i,.submenu i{width:20px;text-align:center;flex-shrink:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "summary" desta parte da interface. */
+summary{list-style:none} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "summary::-webkit-details-marker" desta parte da interface. */
+summary::-webkit-details-marker{display:none} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".arrow" desta parte da interface. */
+.arrow{font-size:12px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "details[open] .arrow" desta parte da interface. */
+details[open] .arrow{transform:rotate(180deg)} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".submenu" desta parte da interface. */
+.submenu{padding:12px 25px 12px 62px;color:#666} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".content" desta parte da interface. */
+.content{flex:1;min-width:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "header" desta parte da interface. */
+header{height:75px;background:white;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;padding:0 35px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search" desta parte da interface. */
+.search{width:min(420px, 45vw);display:flex;align-items:center;gap:12px;background:#f4f4f4;padding:12px 18px;border-radius:30px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".search input" desta parte da interface. */
+.search input{width:100%;border:none;outline:none;background:transparent} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".header-right,.profile" desta parte da interface. */
+.header-right,.profile{display:flex;align-items:center} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".header-right" desta parte da interface. */
+.header-right{gap:25px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".notification" desta parte da interface. */
+.notification{font-size:20px;color:#555} /* Participa da configuração visual deste componente. */
+/* Sino de solicitações vindas do aplicativo mobile. */
+.notification-link{ /* Inicia as regras visuais deste seletor. */
+    position:relative; /* Define a propriedade visual position. */
+    width:42px; /* Define a propriedade visual width. */
+    height:42px; /* Define a propriedade visual height. */
+    display:grid; /* Define a propriedade visual display. */
+    place-items:center; /* Define a propriedade visual place-items. */
+    border-radius:50%; /* Define a propriedade visual border-radius. */
+    text-decoration:none; /* Define a propriedade visual text-decoration. */
+    transition:background .2s,color .2s,transform .2s; /* Define a propriedade visual transition. */
+} /* Encerra as regras visuais do seletor anterior. */
+.notification-link:hover{ /* Inicia as regras visuais deste seletor. */
+    background:#fff1f1; /* Define a propriedade visual background. */
+    color:#ef3038; /* Define a propriedade visual color. */
+} /* Encerra as regras visuais do seletor anterior. */
+.notification-link.has-notifications{ /* Inicia as regras visuais deste seletor. */
+    color:#ef3038; /* Define a propriedade visual color. */
+    background:#fff1f1; /* Define a propriedade visual background. */
+} /* Encerra as regras visuais do seletor anterior. */
+.notification-link.has-notifications > i{ /* Inicia as regras visuais deste seletor. */
+    animation:notificationBellRing 1.05s ease-in-out infinite; /* Define a propriedade visual animation. */
+    transform-origin:50% 10%; /* Define a propriedade visual transform-origin. */
+} /* Encerra as regras visuais do seletor anterior. */
+.notification-badge{ /* Inicia as regras visuais deste seletor. */
+    position:absolute; /* Define a propriedade visual position. */
+    top:1px; /* Define a propriedade visual top. */
+    right:0; /* Define a propriedade visual right. */
+    min-width:19px; /* Define a propriedade visual min-width. */
+    height:19px; /* Define a propriedade visual height. */
+    padding:0 5px; /* Define a propriedade visual padding. */
+    display:flex; /* Define a propriedade visual display. */
+    align-items:center; /* Define a propriedade visual align-items. */
+    justify-content:center; /* Define a propriedade visual justify-content. */
+    border-radius:999px; /* Define a propriedade visual border-radius. */
+    background:#ef3038; /* Define a propriedade visual background. */
+    color:#fff; /* Define a propriedade visual color. */
+    border:2px solid #fff; /* Define a propriedade visual border. */
+    font-size:10px; /* Define a propriedade visual font-size. */
+    line-height:1; /* Define a propriedade visual line-height. */
+    font-weight:700; /* Define a propriedade visual font-weight. */
+    box-sizing:border-box; /* Define a propriedade visual box-sizing. */
+} /* Encerra as regras visuais do seletor anterior. */
+.notification-badge[hidden]{display:none} /* Participa da configuração visual deste componente. */
+.notification-link.notification-arrived{ /* Inicia as regras visuais deste seletor. */
+    animation:notificationArrival .65s ease-out 1; /* Define a propriedade visual animation. */
+} /* Encerra as regras visuais do seletor anterior. */
+@keyframes notificationBellRing{ /* Inicia as regras visuais deste seletor. */
+    0%,100%{transform:rotate(0)} /* Participa da configuração visual deste componente. */
+    20%{transform:rotate(12deg)} /* Participa da configuração visual deste componente. */
+    40%{transform:rotate(-10deg)} /* Participa da configuração visual deste componente. */
+    60%{transform:rotate(8deg)} /* Participa da configuração visual deste componente. */
+    80%{transform:rotate(-5deg)} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+@keyframes notificationArrival{ /* Inicia as regras visuais deste seletor. */
+    0%{transform:scale(1)} /* Participa da configuração visual deste componente. */
+    45%{transform:scale(1.18)} /* Participa da configuração visual deste componente. */
+    100%{transform:scale(1)} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".profile-container" desta parte da interface. */
+.profile-container{position:relative} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".profile" desta parte da interface. */
+.profile{gap:12px;padding:7px 10px;border-radius:10px;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".profile:hover" desta parte da interface. */
+.profile:hover{background:#f4f4f4} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".avatar" desta parte da interface. */
+.avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#f05b5b;color:white;font-weight:bold} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user" desta parte da interface. */
+.user{display:flex;flex-direction:column} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user small" desta parte da interface. */
+.user small{color:#777} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".profile-arrow" desta parte da interface. */
+.profile-arrow{font-size:12px;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".profile-container.open .profile-arrow" desta parte da interface. */
+.profile-container.open .profile-arrow{transform:rotate(180deg)} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "main" desta parte da interface. */
+main{height:calc(100vh - 75px);padding:25px;overflow-y:auto} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user-form" desta parte da interface. */
+.user-form{max-width:500px;margin-top:25px;display:flex;flex-direction:column;gap:10px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user-form label" desta parte da interface. */
+.user-form label{margin-top:8px;color:#444;font-weight:600} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user-form input,.user-form select" desta parte da interface. */
+.user-form input,.user-form select{padding:13px;border:1px solid #ddd;border-radius:8px;outline:none;font-size:15px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user-form input:focus,.user-form select:focus" desta parte da interface. */
+.user-form input:focus,.user-form select:focus{border-color:#f3b000} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user-form button" desta parte da interface. */
+.user-form button{width:fit-content;margin-top:12px;padding:13px 20px;border:0;border-radius:8px;background:#f3b000;color:white;font-weight:bold;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".user-form button:hover" desta parte da interface. */
+.user-form button:hover{background:#d99d00} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 900px){ /* Inicia as regras visuais deste seletor. */
+  header{padding:0 18px} /* Participa da configuração visual deste componente. */
+  .user{display:none} /* Participa da configuração visual deste componente. */
+  main{padding:15px} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 650px){ /* Inicia as regras visuais deste seletor. */
+  .sidebar,.sidebar:hover{width:64px} /* Participa da configuração visual deste componente. */
+  .search{width:auto;flex:1} /* Participa da configuração visual deste componente. */
+  .notification{display:none} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".primary-link" desta parte da interface. */
+.primary-link{display:inline-flex;padding:11px 18px;color:white;background:#ef241b;border-radius:9px;text-decoration:none;font-weight:700} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "button.profile" desta parte da interface. */
+button.profile{border:0;background:transparent;font:inherit;text-align:left} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".switch-user-form" desta parte da interface. */
+.switch-user-form{display:flex;flex-direction:column;gap:7px;padding:12px 4px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".switch-user-form label" desta parte da interface. */
+.switch-user-form label{color:#555;font-size:13px;font-weight:600} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".switch-user-form select,.switch-user-form input" desta parte da interface. */
+.switch-user-form select,.switch-user-form input{width:100%;min-width:0;padding:10px 11px;border:1px solid #ddd;border-radius:8px;outline:none;background:white} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".switch-user-form select:focus,.switch-user-form input:focus" desta parte da interface. */
+.switch-user-form select:focus,.switch-user-form input:focus{border-color:#f3b000;box-shadow:0 0 0 3px #f3b00020} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".password-inline,.password-field" desta parte da interface. */
+.password-inline,.password-field{position:relative} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".password-inline input,.password-field input" desta parte da interface. */
+.password-inline input,.password-field input{padding-right:42px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".toggle-password" desta parte da interface. */
+.toggle-password{position:absolute;top:50%;right:6px;width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:#777;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".toggle-password:hover" desta parte da interface. */
+.toggle-password:hover{background:#f2f2f2;color:#333} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".switch-user-button" desta parte da interface. */
+.switch-user-button{margin-top:5px;padding:10px 14px;border:0;border-radius:8px;background:#ef241b;color:white;font-weight:700;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".switch-user-button:hover" desta parte da interface. */
+.switch-user-button:hover{background:#cf1c15} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".profile-empty" desta parte da interface. */
+.profile-empty{margin:12px 4px;padding:12px;border-radius:8px;color:#666;background:#f6f6f6;font-size:13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".password-field input" desta parte da interface. */
+.password-field input{width:100%} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "[hidden]" desta parte da interface. */
+[hidden]{display:none!important} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".calendar-count" desta parte da interface. */
+.calendar-count{padding:6px 9px;border-radius:999px;background:#f5f5f5;color:#666;font-size:12px;font-weight:700;white-space:nowrap} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".calendar-event" desta parte da interface. */
+.calendar-event{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 11px;border:1px solid #e3e3e3;border-radius:11px;background:#fafafa} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width:620px){ /* Inicia as regras visuais deste seletor. */
+  .calendar-event{align-items:flex-start;flex-wrap:wrap} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".calendar-count" desta parte da interface. */
+.calendar-count{padding:7px 12px;border-radius:999px;background:#f6f7fb;color:#6e7381;font-size:12px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".calendar-event" desta parte da interface. */
+.calendar-event{display:flex;align-items:center;gap:12px;min-width:0;padding:12px 13px;border:1px solid #eceff4;border-radius:16px;background:#fbfcfe;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".calendar-event:hover" desta parte da interface. */
+.calendar-event:hover{transform:translateY(-1px);box-shadow:0 10px 22px #0000000d} /* Participa da configuração visual deste componente. */
+/* ===== Acesso de usuários em modal ===== */
+.account-modal, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-page-modal" desta parte da interface. */
+.account-page-modal{ /* Inicia as regras visuais deste seletor. */
+  position:fixed; /* Define a propriedade visual position. */
+  inset:0; /* Define a propriedade visual inset. */
+  z-index:3000; /* Define a propriedade visual z-index. */
+  display:none; /* Define a propriedade visual display. */
+  align-items:center; /* Define a propriedade visual align-items. */
+  justify-content:center; /* Define a propriedade visual justify-content. */
+  padding:24px; /* Define a propriedade visual padding. */
+  background:rgba(24,27,35,.38); /* Define a propriedade visual background. */
+  backdrop-filter:blur(7px); /* Define a propriedade visual backdrop-filter. */
+  -webkit-backdrop-filter:blur(7px) /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+.account-modal.is-open, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-page-modal.is-open" desta parte da interface. */
+.account-page-modal.is-open{display:flex} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) "body.account-modal-open" desta parte da interface. */
+body.account-modal-open{overflow:hidden} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-dialog" desta parte da interface. */
+.account-dialog{ /* Inicia as regras visuais deste seletor. */
+  position:relative; /* Define a propriedade visual position. */
+  width:min(430px,100%); /* Define a propriedade visual width. */
+  max-height:calc(100vh - 48px); /* Define a propriedade visual max-height. */
+  overflow:auto; /* Define a propriedade visual overflow. */
+  padding:30px; /* Define a propriedade visual padding. */
+  border:1px solid rgba(255,255,255,.75); /* Define a propriedade visual border. */
+  border-radius:26px; /* Define a propriedade visual border-radius. */
+  background:#fff; /* Define a propriedade visual background. */
+  box-shadow:0 28px 85px rgba(0,0,0,.22) /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-modal-close" desta parte da interface. */
+.account-modal-close{ /* Inicia as regras visuais deste seletor. */
+  position:absolute; /* Define a propriedade visual position. */
+  top:16px; /* Define a propriedade visual top. */
+  right:16px; /* Define a propriedade visual right. */
+  width:38px; /* Define a propriedade visual width. */
+  height:38px; /* Define a propriedade visual height. */
+  display:grid; /* Define a propriedade visual display. */
+  place-items:center; /* Define a propriedade visual place-items. */
+  border:0; /* Define a propriedade visual border. */
+  border-radius:50%; /* Define a propriedade visual border-radius. */
+  background:#f4f5f7; /* Define a propriedade visual background. */
+  color:#666; /* Define a propriedade visual color. */
+  text-decoration:none; /* Define a propriedade visual text-decoration. */
+  cursor:pointer; /* Define a propriedade visual cursor. */
+  transition:.2s /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-modal-close:hover" desta parte da interface. */
+.account-modal-close:hover{background:#eceef2;color:#222} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-dialog-icon" desta parte da interface. */
+.account-dialog-icon{ /* Inicia as regras visuais deste seletor. */
+  width:58px; /* Define a propriedade visual width. */
+  height:58px; /* Define a propriedade visual height. */
+  display:grid; /* Define a propriedade visual display. */
+  place-items:center; /* Define a propriedade visual place-items. */
+  margin:0 auto 16px; /* Define a propriedade visual margin. */
+  border-radius:18px; /* Define a propriedade visual border-radius. */
+  background:#fff1b8; /* Define a propriedade visual background. */
+  color:#9a6b00; /* Define a propriedade visual color. */
+  font-size:22px /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-dialog h2" desta parte da interface. */
+.account-dialog h2{ /* Inicia as regras visuais deste seletor. */
+  margin:0; /* Define a propriedade visual margin. */
+  text-align:center; /* Define a propriedade visual text-align. */
+  font-size:25px; /* Define a propriedade visual font-size. */
+  font-weight:800; /* Define a propriedade visual font-weight. */
+  letter-spacing:-.02em /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-dialog-subtitle" desta parte da interface. */
+.account-dialog-subtitle{ /* Inicia as regras visuais deste seletor. */
+  max-width:420px; /* Define a propriedade visual max-width. */
+  margin:8px auto 22px; /* Define a propriedade visual margin. */
+  color:#777e89; /* Define a propriedade visual color. */
+  text-align:center; /* Define a propriedade visual text-align. */
+  line-height:1.45 /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+.account-login-form, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-create-form" desta parte da interface. */
+.account-create-form{display:flex;flex-direction:column;gap:15px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-field" desta parte da interface. */
+.account-field{display:flex;flex-direction:column;gap:7px;min-width:0} /* Participa da configuração visual deste componente. */
+.account-field label, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-label" desta parte da interface. */
+.account-label{color:#454a54;font-size:13px;font-weight:700} /* Participa da configuração visual deste componente. */
+.account-field>input, /* Participa da configuração visual deste componente. */
+.account-field>select, /* Participa da configuração visual deste componente. */
+.account-input-icon input, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-password-field input" desta parte da interface. */
+.account-password-field input{ /* Inicia as regras visuais deste seletor. */
+  width:100%; /* Define a propriedade visual width. */
+  height:48px; /* Define a propriedade visual height. */
+  border:1px solid #dfe2e8; /* Define a propriedade visual border. */
+  border-radius:13px; /* Define a propriedade visual border-radius. */
+  outline:none; /* Define a propriedade visual outline. */
+  background:#fff; /* Define a propriedade visual background. */
+  color:#24272e; /* Define a propriedade visual color. */
+  transition:.2s /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+.account-field>input, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-field>select" desta parte da interface. */
+.account-field>select{padding:0 13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-field>select" desta parte da interface. */
+.account-field>select{cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-input-icon" desta parte da interface. */
+.account-input-icon{position:relative} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-input-icon>i" desta parte da interface. */
+.account-input-icon>i{ /* Inicia as regras visuais deste seletor. */
+  position:absolute; /* Define a propriedade visual position. */
+  top:50%; /* Define a propriedade visual top. */
+  left:15px; /* Define a propriedade visual left. */
+  z-index:1; /* Define a propriedade visual z-index. */
+  transform:translateY(-50%); /* Define a propriedade visual transform. */
+  color:#9aa0ab; /* Define a propriedade visual color. */
+  pointer-events:none /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-input-icon input" desta parte da interface. */
+.account-input-icon input{padding:0 14px 0 43px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-password-field" desta parte da interface. */
+.account-password-field{position:relative} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-password-field input" desta parte da interface. */
+.account-password-field input{padding:0 48px 0 14px} /* Participa da configuração visual deste componente. */
+.account-field>input:focus, /* Participa da configuração visual deste componente. */
+.account-field>select:focus, /* Participa da configuração visual deste componente. */
+.account-input-icon input:focus, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-password-field input:focus" desta parte da interface. */
+.account-password-field input:focus{ /* Inicia as regras visuais deste seletor. */
+  border-color:#e3b31c; /* Define a propriedade visual border-color. */
+  box-shadow:0 0 0 3px rgba(243,176,0,.13) /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-input-icon.has-error input" desta parte da interface. */
+.account-input-icon.has-error input{border-color:#e05a54} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-primary-button" desta parte da interface. */
+.account-primary-button{ /* Inicia as regras visuais deste seletor. */
+  width:100%; /* Define a propriedade visual width. */
+  min-height:48px; /* Define a propriedade visual min-height. */
+  display:inline-flex; /* Define a propriedade visual display. */
+  align-items:center; /* Define a propriedade visual align-items. */
+  justify-content:center; /* Define a propriedade visual justify-content. */
+  gap:9px; /* Define a propriedade visual gap. */
+  margin-top:3px; /* Define a propriedade visual margin-top. */
+  padding:0 18px; /* Define a propriedade visual padding. */
+  border:0; /* Define a propriedade visual border. */
+  border-radius:13px; /* Define a propriedade visual border-radius. */
+  background:#ef2c23; /* Define a propriedade visual background. */
+  color:#fff; /* Define a propriedade visual color. */
+  font-weight:800; /* Define a propriedade visual font-weight. */
+  text-decoration:none; /* Define a propriedade visual text-decoration. */
+  cursor:pointer; /* Define a propriedade visual cursor. */
+  transition:.2s /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-primary-button:hover" desta parte da interface. */
+.account-primary-button:hover{background:#d9241c;transform:translateY(-1px)} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-secondary-link" desta parte da interface. */
+.account-secondary-link{ /* Inicia as regras visuais deste seletor. */
+  display:flex; /* Define a propriedade visual display. */
+  align-items:center; /* Define a propriedade visual align-items. */
+  justify-content:center; /* Define a propriedade visual justify-content. */
+  gap:8px; /* Define a propriedade visual gap. */
+  margin-top:18px; /* Define a propriedade visual margin-top. */
+  padding-top:18px; /* Define a propriedade visual padding-top. */
+  border-top:1px solid #eceef2; /* Define a propriedade visual border-top. */
+  color:#555d69; /* Define a propriedade visual color. */
+  text-decoration:none; /* Define a propriedade visual text-decoration. */
+  font-size:13px; /* Define a propriedade visual font-size. */
+  font-weight:700 /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-secondary-link:hover" desta parte da interface. */
+.account-secondary-link:hover{color:#d62a22} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-message" desta parte da interface. */
+.account-message{ /* Inicia as regras visuais deste seletor. */
+  margin:0 0 16px; /* Define a propriedade visual margin. */
+  padding:12px 14px; /* Define a propriedade visual padding. */
+  border-radius:12px; /* Define a propriedade visual border-radius. */
+  font-size:13px; /* Define a propriedade visual font-size. */
+  font-weight:600; /* Define a propriedade visual font-weight. */
+  line-height:1.4 /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-message.error" desta parte da interface. */
+.account-message.error{color:#9d2520;background:#fff0ef;border:1px solid #f3c9c6} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-message.success" desta parte da interface. */
+.account-message.success{color:#176a3b;background:#eaf8ef;border:1px solid #c2e7ce} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-message.info" desta parte da interface. */
+.account-message.info{color:#5f6570;background:#f4f5f7;border:1px solid #e2e4e8} /* Participa da configuração visual deste componente. */
+/* Centraliza verticalmente os ícones de mostrar/ocultar senha. */
+.password-inline .toggle-password, /* Participa da configuração visual deste componente. */
+.password-field .toggle-password, /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-password-field .toggle-password" desta parte da interface. */
+.account-password-field .toggle-password{ /* Inicia as regras visuais deste seletor. */
+  top:50%; /* Define a propriedade visual top. */
+  right:8px; /* Define a propriedade visual right. */
+  transform:translateY(-50%); /* Define a propriedade visual transform. */
+  margin:0 /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".toggle-password i" desta parte da interface. */
+.toggle-password i{line-height:1} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".profile" desta parte da interface. */
+.profile{border:0;background:transparent} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".profile .profile-arrow" desta parte da interface. */
+.profile .profile-arrow{color:#8b9099;font-size:13px} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width:700px){ /* Inicia as regras visuais deste seletor. */
+  .account-modal,.account-page-modal{padding:14px} /* Participa da configuração visual deste componente. */
+  .account-dialog{padding:26px 20px 22px;border-radius:22px;max-height:calc(100vh - 28px)} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+.sidebar nav details > .submenu{ /* Inicia as regras visuais deste seletor. */
+    display:none; /* Define a propriedade visual display. */
+} /* Encerra as regras visuais do seletor anterior. */
+.sidebar nav details:hover > .submenu, /* Participa da configuração visual deste componente. */
+.sidebar nav details:focus-within > .submenu{ /* Inicia as regras visuais deste seletor. */
+    display:flex; /* Define a propriedade visual display. */
+} /* Encerra as regras visuais do seletor anterior. */
+.sidebar nav details:hover > summary .arrow, /* Participa da configuração visual deste componente. */
+.sidebar nav details:focus-within > summary .arrow{ /* Inicia as regras visuais deste seletor. */
+    transform:rotate(180deg); /* Define a propriedade visual transform. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* ============================================================================
+   DASHBOARD BEAUTY PET
+   --------------------------------------------------------------------------
+   Estilos exclusivos da tela inicial. O dashboard novo usa classes próprias
+   (kpi-card, dashboard-abas, card-painel etc.) que não existiam no CSS antigo.
+   Esta seção mantém a identidade visual do restante do sistema.
+   ========================================================================== */
+
+.dashboard{ /* Inicia as regras visuais deste seletor. */
+    --dash-amarelo:#fff7c9;; /* Define a propriedade visual --dash-amarelo. */
+    --dash-amarelo-claro:#fff4ab; /* Define a propriedade visual --dash-amarelo-claro. */
+    --dash-vermelho:#ef3028; /* Define a propriedade visual --dash-vermelho. */
+    --dash-texto:#262626; /* Define a propriedade visual --dash-texto. */
+    --dash-cinza:#6f737a; /* Define a propriedade visual --dash-cinza. */
+    --dash-borda:#ececf0; /* Define a propriedade visual --dash-borda. */
+    --dash-fundo:#f7f7f9; /* Define a propriedade visual --dash-fundo. */
+    --dash-branco:#fff; /* Define a propriedade visual --dash-branco. */
+    --dash-sombra:0 10px 30px rgba(34,34,34,.08); /* Define a propriedade visual --dash-sombra. */
+    display:flex; /* Define a propriedade visual display. */
+    flex-direction:column; /* Define a propriedade visual flex-direction. */
+    gap:22px; /* Define a propriedade visual gap. */
+    width:100%; /* Define a propriedade visual width. */
+    color:var(--dash-texto); /* Define a propriedade visual color. */
+} /* Encerra as regras visuais do seletor anterior. */
+.dashboard *, /* Participa da configuração visual deste componente. */
+.dashboard *::before, /* Participa da configuração visual deste componente. */
+.dashboard *::after{box-sizing:border-box} /* Participa da configuração visual deste componente. */
+.dashboard-aba{ /* Inicia as regras visuais deste seletor. */
+    appearance:none; /* Define a propriedade visual appearance. */
+    border:0; /* Define a propriedade visual border. */
+    background:transparent; /* Define a propriedade visual background. */
+    color:#666; /* Define a propriedade visual color. */
+    display:inline-flex; /* Define a propriedade visual display. */
+    align-items:center; /* Define a propriedade visual align-items. */
+    gap:8px; /* Define a propriedade visual gap. */
+    padding:13px 14px; /* Define a propriedade visual padding. */
+    border-radius:12px 12px 0 0; /* Define a propriedade visual border-radius. */
+    font:inherit; /* Define a propriedade visual font. */
+    font-weight:600; /* Define a propriedade visual font-weight. */
+    white-space:nowrap; /* Define a propriedade visual white-space. */
+    cursor:pointer; /* Define a propriedade visual cursor. */
+    transition:.2s ease; /* Define a propriedade visual transition. */
+} /* Encerra as regras visuais do seletor anterior. */
+.dashboard-aba:hover{background:rgba(255,255,255,.55);color:#262626} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width:680px){ /* Inicia as regras visuais deste seletor. */
+    .dashboard-aba{padding:11px 10px;font-size:12px} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Container do componente de busca */
+[data-search-picker="pet"] {
+    position: relative;
+}
+/* Container da lista */
+[data-search-results] {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1050;
+    padding: 4px 0;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+}
+[data-search-results][hidden] {
+    display: none !important;
+}

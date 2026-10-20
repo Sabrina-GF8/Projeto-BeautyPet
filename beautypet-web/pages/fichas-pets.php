@@ -113,6 +113,8 @@ $tituloPagina = 'Fichas dos pets';
 // Define qual opção do menu está ativa.
 $paginaAtiva = 'fichas-pets';
 
+// Define o(s) CSS desta página em assets/css/ (fichas.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'fichas';
 // Carrega o topo da página.
 require __DIR__ . '/../includes/topo.php';
 ?>

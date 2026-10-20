@@ -252,6 +252,8 @@ $tituloPagina = $modoEdicao ? 'Editar tutor' : 'Cadastro de tutor'; // Armazena 
 // Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'cadastro-tutor'; // Armazena em paginaAtiva o valor usado nas próximas etapas deste fluxo.
 
+// Define o(s) CSS desta página em assets/css/ (cadastro.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'cadastro';
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou função compartilhada necessária nesta página.
 ?> // Executa esta instrução como parte da regra de negócio desta página.

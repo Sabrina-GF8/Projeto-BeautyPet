@@ -161,6 +161,8 @@ $tituloPagina = 'Ficha de ' . $pet['nome'];
 // Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'fichas-pets';
 
+// Define o(s) CSS desta página em assets/css/ (ficha.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'ficha';
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php';
 ?>

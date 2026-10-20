@@ -1,0 +1,78 @@
+/*
+ * ARQUIVO: assets/css/novo-usuario.css
+ * USADO POR: pages/novo-usuario.php
+ * RESPONSABILIDADE: Tela de criação de novo usuário.
+ * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ */
+
+/* Estiliza o(s) elemento(s) ".field-error" desta parte da interface. */
+.field-error{color:#b91c1c;font-size:13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field-label" desta parte da interface. */
+.field-label{color:#444;font-size:14px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".create-user-dialog" desta parte da interface. */
+.create-user-dialog{width:min(680px,100%)} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-dialog-icon.create" desta parte da interface. */
+.account-dialog-icon.create{background:#fff0ee;color:#d92c23} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-form-row" desta parte da interface. */
+.account-form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-field-error" desta parte da interface. */
+.account-field-error{color:#b92720;font-size:12px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-button-link" desta parte da interface. */
+.account-button-link{margin-top:16px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-first-access" desta parte da interface. */
+.account-first-access{ /* Inicia as regras visuais deste seletor. */
+  display:flex; /* Define a propriedade visual display. */
+  align-items:flex-start; /* Define a propriedade visual align-items. */
+  gap:12px; /* Define a propriedade visual gap. */
+  margin-bottom:17px; /* Define a propriedade visual margin-bottom. */
+  padding:13px 14px; /* Define a propriedade visual padding. */
+  border:1px solid #eed88a; /* Define a propriedade visual border. */
+  border-radius:14px; /* Define a propriedade visual border-radius. */
+  background:#fff8d8 /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-first-access>i" desta parte da interface. */
+.account-first-access>i{margin-top:2px;color:#b27c00;font-size:18px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-first-access div" desta parte da interface. */
+.account-first-access div{display:flex;flex-direction:column;gap:2px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-first-access strong" desta parte da interface. */
+.account-first-access strong{font-size:13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-first-access small" desta parte da interface. */
+.account-first-access small{color:#766d53;line-height:1.35} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-readonly-field" desta parte da interface. */
+.account-readonly-field{ /* Inicia as regras visuais deste seletor. */
+  height:48px; /* Define a propriedade visual height. */
+  display:flex; /* Define a propriedade visual display. */
+  align-items:center; /* Define a propriedade visual align-items. */
+  gap:9px; /* Define a propriedade visual gap. */
+  padding:0 13px; /* Define a propriedade visual padding. */
+  border:1px solid #e0e3e8; /* Define a propriedade visual border. */
+  border-radius:13px; /* Define a propriedade visual border-radius. */
+  background:#f7f8fa; /* Define a propriedade visual background. */
+  color:#555d68; /* Define a propriedade visual color. */
+  font-weight:700 /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-active-option" desta parte da interface. */
+.account-active-option{ /* Inicia as regras visuais deste seletor. */
+  min-height:48px; /* Define a propriedade visual min-height. */
+  display:flex; /* Define a propriedade visual display. */
+  align-items:center; /* Define a propriedade visual align-items. */
+  gap:10px; /* Define a propriedade visual gap. */
+  padding:8px 12px; /* Define a propriedade visual padding. */
+  border:1px solid #dfe2e8; /* Define a propriedade visual border. */
+  border-radius:13px; /* Define a propriedade visual border-radius. */
+  background:#fff; /* Define a propriedade visual background. */
+  cursor:pointer /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".account-active-option input" desta parte da interface. */
+.account-active-option input{width:18px;height:18px;flex:0 0 auto;accent-color:#ef2c23} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-active-option span" desta parte da interface. */
+.account-active-option span{display:flex;flex-direction:column;gap:1px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-active-option strong" desta parte da interface. */
+.account-active-option strong{font-size:13px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".account-active-option small" desta parte da interface. */
+.account-active-option small{color:#818793;font-size:11px} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width:700px){ /* Inicia as regras visuais deste seletor. */
+  .account-form-row{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
+  .create-user-dialog{width:min(470px,100%)} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */

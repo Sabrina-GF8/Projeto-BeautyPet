@@ -1,0 +1,181 @@
+/*
+ * ARQUIVO: assets/css/solicitacoes-agendamento.css
+ * USADO POR: pages/solicitacoes-agendamento.php
+ * RESPONSABILIDADE: Solicitações de agendamento vindas do aplicativo mobile.
+ * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ */
+
+/* Estiliza o(s) elemento(s) ".page" desta parte da interface. */
+.page{min-height:100%;padding:30px;background:white;border-radius:12px;box-shadow:0 3px 10px #0001} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page h1" desta parte da interface. */
+.page h1{margin-bottom:10px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page p" desta parte da interface. */
+.page p{color:#666} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page-heading" desta parte da interface. */
+.page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:25px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page-heading h1" desta parte da interface. */
+.page-heading h1{margin:0;font-size:27px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".page-heading small,.counter" desta parte da interface. */
+.page-heading small,.counter{color:#6d6d6d} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field" desta parte da interface. */
+.field{grid-column:span 4;display:flex;flex-direction:column;gap:6px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field label,.checkbox-field label" desta parte da interface. */
+.field label,.checkbox-field label{color:#444;font-size:14px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field input,.field select,.field textarea" desta parte da interface. */
+.field input,.field select,.field textarea{width:100%;padding:12px 13px;border:1px solid #dedede;border-radius:8px;outline:none;background:white} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field textarea" desta parte da interface. */
+.field textarea{min-height:110px;resize:vertical} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".field input:focus,.field select:focus,.field textarea:focus" desta parte da interface. */
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#f3b000;box-shadow:0 0 0 3px #f3b00020} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 900px){ /* Inicia as regras visuais deste seletor. */
+  .page{padding:20px} /* Participa da configuração visual deste componente. */
+  .field,.field.span-2,.field.span-3,.field.span-4,.field.span-5,.field.span-6,.field.span-7,.field.span-8,.field.span-9,.field.span-10{grid-column:span 6} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 650px){ /* Inicia as regras visuais deste seletor. */
+  .page-heading{flex-direction:column} /* Participa da configuração visual deste componente. */
+  .field,.field.span-2,.field.span-3,.field.span-4,.field.span-5,.field.span-6,.field.span-7,.field.span-8,.field.span-9,.field.span-10,.field.span-12{grid-column:span 12} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".message" desta parte da interface. */
+.message{max-width:1050px;margin:0 auto 18px;padding:13px 16px;border-radius:10px;font-weight:600} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".message.success" desta parte da interface. */
+.message.success{color:#176b32;background:#eaf8ef;border:1px solid #b8e2c5} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".message.error" desta parte da interface. */
+.message.error{color:#9d1c1c;background:#fff0f0;border:1px solid #efbcbc} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".back-link" desta parte da interface. */
+.back-link{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;color:#555;text-decoration:none;font-weight:600} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".back-link:hover" desta parte da interface. */
+.back-link:hover{color:#111} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-page,.requests-page" desta parte da interface. */
+.agenda-page,.requests-page{background:#fff9bd} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-heading" desta parte da interface. */
+.agenda-heading{align-items:flex-start;gap:20px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".primary-action-button,.secondary-action-button" desta parte da interface. */
+.primary-action-button,.secondary-action-button{min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 15px;border:1px solid transparent;border-radius:10px;text-decoration:none;font-weight:700;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".primary-action-button" desta parte da interface. */
+.primary-action-button{background:#f3b000;color:#222} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".primary-action-button:hover" desta parte da interface. */
+.primary-action-button:hover{background:#d99d00} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button" desta parte da interface. */
+.secondary-action-button{background:white;color:#333;border-color:#dedede} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button:hover" desta parte da interface. */
+.secondary-action-button:hover{border-color:#f3b000;background:#fffdf0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-form-card,.reschedule-card" desta parte da interface. */
+.agenda-form-card,.reschedule-card{max-width:1050px;margin:0 auto 18px;padding:20px;border:1px solid #ddd;border-radius:14px;background:white;box-shadow:0 3px 10px #0001} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-card-title h2,.reschedule-card h2" desta parte da interface. */
+.agenda-card-title h2,.reschedule-card h2{font-size:21px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-card-title small,.reschedule-card small" desta parte da interface. */
+.agenda-card-title small,.reschedule-card small{display:block;margin-top:4px;color:#777} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-section" desta parte da interface. */
+.agenda-section{max-width:1050px;margin:0 auto 22px;overflow:hidden;border:1px solid #d9d9d9;border-radius:14px;background:white;box-shadow:0 3px 9px #0001} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-empty" desta parte da interface. */
+.agenda-empty{padding:25px;color:#777;text-align:center} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-pet,.agenda-table-pet" desta parte da interface. */
+.agenda-pet,.agenda-table-pet{display:flex;align-items:center;gap:11px;min-width:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-pet img,.agenda-table-pet img,.agenda-pet-fallback" desta parte da interface. */
+.agenda-pet img,.agenda-table-pet img,.agenda-pet-fallback{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-pet-fallback" desta parte da interface. */
+.agenda-pet-fallback{display:grid;place-items:center;background:#ffe98c;color:#b27b00} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-pet div" desta parte da interface. */
+.agenda-pet div{min-width:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-pet strong,.agenda-pet small" desta parte da interface. */
+.agenda-pet strong,.agenda-pet small{display:block} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-pet strong" desta parte da interface. */
+.agenda-pet strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-pet small" desta parte da interface. */
+.agenda-pet small{margin-top:3px;color:#777} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge" desta parte da interface. */
+.status-badge{display:inline-flex;align-items:center;justify-content:center;width:fit-content;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.success" desta parte da interface. */
+.status-badge.success{background:#d9f8e4;color:#13773a} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.warning" desta parte da interface. */
+.status-badge.warning{background:#fff0c7;color:#9b6200} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.info" desta parte da interface. */
+.status-badge.info{background:#dfeaff;color:#245cc4} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.danger" desta parte da interface. */
+.status-badge.danger{background:#ffe3e3;color:#b21f1f} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.neutral" desta parte da interface. */
+.status-badge.neutral{background:#ececec;color:#666} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-row-actions,.request-actions" desta parte da interface. */
+.agenda-row-actions,.request-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".agenda-row-actions form,.request-actions form" desta parte da interface. */
+.agenda-row-actions form,.request-actions form{margin:0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".small-action-button,.icon-action-button,.request-button" desta parte da interface. */
+.small-action-button,.icon-action-button,.request-button{min-height:34px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:8px;text-decoration:none;font-weight:700;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".icon-action-button" desta parte da interface. */
+.icon-action-button{width:34px;color:#555;background:#eee} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".icon-action-button.danger" desta parte da interface. */
+.icon-action-button.danger{color:#b21f1f;background:#ffe4e4} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".back-link" desta parte da interface. */
+.back-link{display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;color:#555;text-decoration:none;font-weight:600} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".back-link:hover" desta parte da interface. */
+.back-link:hover{color:#111} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".requests-card" desta parte da interface. */
+.requests-card{max-width:1050px;margin:0 auto;overflow:hidden;border:1px solid #ddd;border-radius:14px;background:white;box-shadow:0 3px 10px #0001} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-tabs" desta parte da interface. */
+.request-tabs{display:flex;align-items:center;gap:0;margin-top:0;padding:0 18px;border-bottom:1px solid #eee} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-tabs a" desta parte da interface. */
+.request-tabs a{display:flex;align-items:center;gap:8px;padding:16px 20px 13px;border-bottom:3px solid transparent;color:#444;text-decoration:none;font-weight:700} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-tabs a.active" desta parte da interface. */
+.request-tabs a.active{border-bottom-color:#ef2b23;color:#111} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-tabs span" desta parte da interface. */
+.request-tabs span{min-width:22px;height:22px;display:inline-grid;place-items:center;padding:0 6px;border-radius:999px;background:#ef2b23;color:white;font-size:12px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-list" desta parte da interface. */
+.request-list{display:grid;gap:9px;padding:14px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-item" desta parte da interface. */
+.request-item{display:grid;grid-template-columns:minmax(210px, 1.1fr) minmax(170px, .8fr) minmax(150px, .7fr) auto;align-items:center;gap:16px;padding:13px 14px;border:1px solid #eee;border-radius:11px;background:#f7f7f7} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-info small,.request-info strong" desta parte da interface. */
+.request-info small,.request-info strong{display:block} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-info small" desta parte da interface. */
+.request-info small{margin-bottom:4px;color:#777} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-button" desta parte da interface. */
+.request-button{padding:8px 11px;color:white;font-size:12px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-button.confirm" desta parte da interface. */
+.request-button.confirm{background:#1b9d50} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".request-button.reschedule" desta parte da interface. */
+.request-button.reschedule{background:#ef3b32} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".reschedule-card" desta parte da interface. */
+.reschedule-card{display:grid;grid-template-columns:minmax(220px, 1fr) minmax(160px, .5fr) minmax(140px, .4fr) auto auto;align-items:end;gap:12px} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".reschedule-card .field" desta parte da interface. */
+.reschedule-card .field{margin:0} /* Participa da configuração visual deste componente. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 1050px){ /* Inicia as regras visuais deste seletor. */
+  .request-item{grid-template-columns:1fr 1fr} /* Participa da configuração visual deste componente. */
+  .request-actions{grid-column:1 / -1;justify-content:flex-start} /* Participa da configuração visual deste componente. */
+  .reschedule-card{grid-template-columns:1fr 1fr} /* Participa da configuração visual deste componente. */
+  .reschedule-card>div:first-child{grid-column:1 / -1} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
+@media (max-width: 720px){ /* Inicia as regras visuais deste seletor. */
+  .agenda-heading,.agenda-heading-actions,.agenda-date-bar,.agenda-date-bar form,.request-tabs{align-items:stretch;flex-direction:column} /* Participa da configuração visual deste componente. */
+  .agenda-compact-item,.request-item,.reschedule-card{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
+  .request-tabs{padding:0} /* Participa da configuração visual deste componente. */
+  .request-tabs a{width:100%;justify-content:space-between;border-bottom:1px solid #eee} /* Participa da configuração visual deste componente. */
+  .request-tabs a.active{border-left:4px solid #ef2b23;border-bottom-color:#eee} /* Participa da configuração visual deste componente. */
+  .request-actions{justify-content:flex-start;flex-wrap:wrap} /* Participa da configuração visual deste componente. */
+} /* Encerra as regras visuais do seletor anterior. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button.small" desta parte da interface. */
+.secondary-action-button.small{min-height:36px;padding:8px 12px;border:0;cursor:pointer} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button" desta parte da interface. */
+.secondary-action-button{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 16px;border:1px solid #eadca5;border-radius:12px;background:#fff;color:#403c34;text-decoration:none;font-weight:700;box-shadow:0 8px 20px #00000008;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".secondary-action-button:hover" desta parte da interface. */
+.secondary-action-button:hover{transform:translateY(-1px);background:#fffdf4;box-shadow:0 10px 24px #0000000f} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge" desta parte da interface. */
+.status-badge{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.success" desta parte da interface. */
+.status-badge.success{color:#11663a;background:#daf5e7} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.warning" desta parte da interface. */
+.status-badge.warning{color:#9b6100;background:#fff0c2} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.info" desta parte da interface. */
+.status-badge.info{color:#184aa7;background:#dde9ff} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.danger" desta parte da interface. */
+.status-badge.danger{color:#b42318;background:#ffe0dc} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".status-badge.neutral" desta parte da interface. */
+.status-badge.neutral{color:#666;background:#f0f0f0} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".icon-action-button" desta parte da interface. */
+.icon-action-button{width:36px;height:36px;display:grid;place-items:center;border:1px solid #e4e8f0;border-radius:12px;background:#fff;color:#59606e;text-decoration:none;cursor:pointer;transition:.2s} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".icon-action-button:hover" desta parte da interface. */
+.icon-action-button:hover{background:#f5f7fb} /* Participa da configuração visual deste componente. */
+/* Estiliza o(s) elemento(s) ".icon-action-button.danger:hover" desta parte da interface. */
+.icon-action-button.danger:hover{background:#fff1f0;color:#c1271f;border-color:#f0cbc8} /* Participa da configuração visual deste componente. */

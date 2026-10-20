@@ -278,6 +278,8 @@ if ($editarId !== null) {
 $tituloPagina = 'Solicitações de agendamento';
 // Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'solicitacoes-agendamento';
+// Define o(s) CSS desta página em assets/css/ (solicitacoes-agendamento.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'solicitacoes-agendamento';
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php';
 ?>

@@ -108,6 +108,8 @@ $tituloPagina = 'Fichas dos tutores';
 // Define a página ativa no menu.
 $paginaAtiva = 'fichas-tutores';
 
+// Define o(s) CSS desta página em assets/css/ (fichas.css); o includes/topo.php monta os <link> correspondentes.
+$cssPagina = 'fichas';
 // Carrega o topo da página.
 require __DIR__ . '/../includes/topo.php';
 
