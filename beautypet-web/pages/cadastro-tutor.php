@@ -244,7 +244,7 @@ $totalTutores = (int) $pdo // Armazena em totalTutores o valor usado nas próxim
     ->query('SELECT COUNT(*) FROM clientes WHERE ativo = TRUE') // Executa uma consulta direta ao PostgreSQL.
     // Obtém somente a primeira coluna do resultado, útil para contagens, IDs e totais simples.
     ->fetchColumn(); // Obtém a primeira coluna do resultado, normalmente um ID, total ou contagem.
-?> // Executa esta instrução como parte da regra de negócio desta página.
+/* [BP-ALTERAÇÃO #9] O comentário "//" ficava depois do fechamento do PHP e aparecia como texto na tela. */ ?>
 
 <?php // Executa esta instrução como parte da regra de negócio desta página.
 // Define o título exibido na aba/navegador pelo template compartilhado.
@@ -256,7 +256,7 @@ $paginaAtiva = 'cadastro-tutor'; // Armazena em paginaAtiva o valor usado nas pr
 $cssPagina = 'cadastro';
 // Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou função compartilhada necessária nesta página.
-?> // Executa esta instrução como parte da regra de negócio desta página.
+/* [BP-ALTERAÇÃO #9] O comentário "//" ficava depois do fechamento do PHP e aparecia como texto na tela. */ ?>
 
 <div class="page registration-page"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
                 <!-- Bloco visual "page-heading" que organiza esta parte da interface. -->
@@ -299,6 +299,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <!-- Rótulo do campo "CPF", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="cpf">CPF</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <input <?php /* Cria um campo para entrada de dados. */ ?>
+                                    data-mascara="cpf" <?php /* [BP-ALTERAÇÃO #6] Máscara 000.000.000-00 (assets/js/mascaras.js). */ ?>
                                     id="cpf" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     name="cpf" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     type="text" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -320,6 +321,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <!-- Rótulo do campo "Telefone", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="telefone">Telefone</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <input <?php /* Cria um campo para entrada de dados. */ ?>
+                                    data-mascara="telefone" <?php /* [BP-ALTERAÇÃO #6] Máscara (00) 00000-0000. */ ?>
                                     id="telefone" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     name="telefone_principal" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     type="tel" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -332,6 +334,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <!-- Rótulo do campo "WhatsApp / telefone reserva", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="telefoneReserva">WhatsApp / telefone reserva</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <input <?php /* Cria um campo para entrada de dados. */ ?>
+                                    data-mascara="telefone" <?php /* [BP-ALTERAÇÃO #6] Máscara (00) 00000-0000. */ ?>
                                     id="telefoneReserva" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     name="telefone_reserva" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     type="tel" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -377,7 +380,8 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <!-- Rótulo do campo "CEP", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="cep">CEP</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Campo "cep" utilizado para enviar esta informação no formulário. -->
-                                <input id="cep" name="cep" type="text" inputmode="numeric" maxlength="9" <?php /* Cria um campo para entrada de dados. */ ?>
+                                <input id="cep" name="cep" type="text" inputmode="numeric" maxlength="9" data-mascara="cep" <?php /* [BP-ALTERAÇÃO #6] Máscara 00000-000 + preenche o endereço pelo CEP. */ ?>
+                                    <?php /* Cria um campo para entrada de dados. */ ?>
                                     value="<?= escapar($dados['cep'] ?? '') ?>" placeholder="00000-000"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
@@ -412,7 +416,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                     ]; // Abre, fecha ou encerra a estrutura iniciada nas linhas relacionadas.
                                     // Percorre cada item da coleção para processar os registros individualmente.
                                     foreach ($estados as $estado): // Percorre a coleção e processa cada registro individualmente.
-                                    ?> // Executa esta instrução como parte da regra de negócio desta página.
+                                    /* [BP-ALTERAÇÃO #9] O comentário "//" ficava depois do fechamento do PHP e aparecia como texto na tela. */ ?>
                                         <option value="<?= $estado ?>" <?php /* Define uma opção selecionável. */ ?>
                                             <?= (($dados['estado'] ?? '') === $estado) ? 'selected' : '' ?>> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                             <?= $estado ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>

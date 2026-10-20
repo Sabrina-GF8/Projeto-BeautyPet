@@ -731,11 +731,8 @@ body.lista-modal-aberta {
   transition: .2s;
 }
 
-/* Realca a linha quando o mouse passa por cima. */
-.atendimento-item:hover {
-  border-color: var(--bp-amarelo);
-  background: #fffdf5;
-}
+/* [BP-ALTERAÇÃO #8] Removido o hover de .atendimento-item: a linha do atendimento não é clicável.
+   Regra antiga: .atendimento-item:hover { border-color: var(--bp-amarelo); background: #fffdf5; } */
 
 /* Agrupa a foto e a identificacao do pet. */
 .atendimento-pet {

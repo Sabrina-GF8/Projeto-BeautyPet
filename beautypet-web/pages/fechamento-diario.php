@@ -2996,27 +2996,27 @@ require __DIR__ . '/../includes/topo.php';
 
                     <div class="field span-6">
                         <label>Banho <small>Esperado: <?= (int) ($conferenciaFechamento['banho'] ?? 0) ?></small></label>
-                        <input name="quantidade_banho" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho'] ?? '')) ?>">
+                        <input name="quantidade_banho" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
                     </div>
 
                     <div class="field span-6">
                         <label>Banho e tosa <small>Esperado: <?= (int) ($conferenciaFechamento['banho_tosa'] ?? 0) ?></small></label>
-                        <input name="quantidade_banho_tosa" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho_tosa'] ?? '')) ?>">
+                        <input name="quantidade_banho_tosa" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho_tosa'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
                     </div>
 
                     <div class="field span-6">
                         <label>Tosa higiênica <small>Esperado: <?= (int) ($conferenciaFechamento['higienica'] ?? 0) ?></small></label>
-                        <input name="quantidade_higienica" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_higienica'] ?? '')) ?>">
+                        <input name="quantidade_higienica" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_higienica'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
                     </div>
 
                     <div class="field span-6">
                         <label>Creche <small>Esperado: <?= (int) ($conferenciaFechamento['creche'] ?? 0) ?></small></label>
-                        <input name="quantidade_creche" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_creche'] ?? '')) ?>">
+                        <input name="quantidade_creche" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_creche'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
                     </div>
 
                     <div class="field span-6">
                         <label>Hotel <small>Esperado: <?= (int) ($conferenciaFechamento['hotel'] ?? 0) ?></small></label>
-                        <input name="quantidade_hotel" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_hotel'] ?? '')) ?>">
+                        <input name="quantidade_hotel" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_hotel'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
                     </div>
 
                     <div class="field span-12">
@@ -3025,17 +3025,17 @@ require __DIR__ . '/../includes/topo.php';
 
                     <div class="field span-4">
                         <label>Dinheiro contado <small>Esperado: <?= formatarMoeda($conferenciaFechamento['dinheiro'] ?? 0) ?></small></label>
-                        <div class="money-input"><span>R$</span><input name="valor_dinheiro_contado" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_dinheiro_contado'] ?? '')) ?>"></div>
+                        <div class="money-input"><span>R$</span><input name="valor_dinheiro_contado" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_dinheiro_contado'] ?? '0.00')) /* [BP-ALTERAÇÃO #7] Começa em 0,00 em vez de vazio. */ ?>"></div>
                     </div>
 
                     <div class="field span-4">
                         <label>Pix conferido <small>Esperado: <?= formatarMoeda($conferenciaFechamento['pix'] ?? 0) ?></small></label>
-                        <div class="money-input"><span>R$</span><input name="valor_pix_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_pix_conferido'] ?? '')) ?>"></div>
+                        <div class="money-input"><span>R$</span><input name="valor_pix_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_pix_conferido'] ?? '0.00')) /* [BP-ALTERAÇÃO #7] Começa em 0,00 em vez de vazio. */ ?>"></div>
                     </div>
 
                     <div class="field span-4">
                         <label>Cartão conferido <small>Esperado: <?= formatarMoeda($conferenciaFechamento['cartao'] ?? 0) ?></small></label>
-                        <div class="money-input"><span>R$</span><input name="valor_cartao_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_cartao_conferido'] ?? '')) ?>"></div>
+                        <div class="money-input"><span>R$</span><input name="valor_cartao_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_cartao_conferido'] ?? '0.00')) /* [BP-ALTERAÇÃO #7] Começa em 0,00 em vez de vazio. */ ?>"></div>
                     </div>
 
                     <div class="field span-12">
@@ -3169,7 +3169,7 @@ require __DIR__ . '/../includes/topo.php';
         </select>
         <div class="money-input">
             <span>R$</span>
-            <input data-daily-extra-value data-extra-field="valor" type="number" min="0" step="0.01" placeholder="0,00">
+            <input data-daily-extra-value data-extra-field="valor" type="number" min="0" step="0.01" value="0.00"><?php /* [BP-ALTERAÇÃO #7] Começa em 0,00 (adicional com 0 é ignorado ao salvar). */ ?>
         </div>
         <input data-extra-field="descricao" type="text" maxlength="500" placeholder="Observação (opcional)">
         <button type="button" data-remove-daily-extra aria-label="Remover adicional"><i class="fa-solid fa-xmark"></i></button>

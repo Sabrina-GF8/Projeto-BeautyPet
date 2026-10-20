@@ -324,8 +324,12 @@ require __DIR__ . '/../includes/topo.php';
 
             <h2>Pets vinculados</h2>
 
-            <!-- Link para cadastrar um novo pet. -->
-            <a href="cadastro-pet.php">Cadastrar novo pet</a>
+            <!-- [BP-ALTERAÇÃO #10] Antes era um texto-link solto e o tutor precisava ser buscado de novo.
+                 Agora usa o mesmo botão do "Editar tutor" (.detail-edit-button) e já envia o tutor (?tutor=ID). -->
+            <a class="detail-edit-button" href="cadastro-pet.php?tutor=<?= (int) $id ?>">
+                <i class="fa-solid fa-paw"></i>
+                Cadastrar novo pet
+            </a>
 
         </div>
 

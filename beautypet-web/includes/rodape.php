@@ -229,7 +229,8 @@ document.querySelectorAll("[data-search-picker]").forEach(picker => {
 
         try {
             // Armazena em "response" um valor usado pela lógica executada no navegador.
-            const response = await fetch(`busca-registros.php?tipo=${encodeURIComponent(type)}&q=${encodeURIComponent(q)}`, {
+            // [BP-ALTERAÇÃO #5] Caminho absoluto: o caminho relativo dava 404 no Dashboard (index.php fica fora de pages/).
+            const response = await fetch(`<?= BASE_URL ?>/pages/busca-registros.php?tipo=${encodeURIComponent(type)}&q=${encodeURIComponent(q)}`, {
                 headers: {"X-Requested-With": "XMLHttpRequest"}
             });
 
@@ -306,7 +307,8 @@ if (globalSearch) {
 
         try {
             // Armazena em "response" um valor usado pela lógica executada no navegador.
-            const response = await fetch(`busca-registros.php?tipo=geral&q=${encodeURIComponent(q)}`);
+            // [BP-ALTERAÇÃO #5] Caminho absoluto: o caminho relativo dava 404 no Dashboard (index.php fica fora de pages/).
+            const response = await fetch(`<?= BASE_URL ?>/pages/busca-registros.php?tipo=geral&q=${encodeURIComponent(q)}`);
             // Verifica esta condição antes de alterar a interface ou continuar o processamento.
             if (!response.ok) throw new Error("Falha na busca");
             // Armazena em "items" um valor usado pela lógica executada no navegador.
@@ -380,7 +382,7 @@ if (requestNotificationBell && requestNotificationBadge) { <?php /* Compõe o co
     const consultarSolicitacoesMobile = async () => { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
         try { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
             const resposta = await fetch( <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                `notificacoes-solicitacoes.php?_=${Date.now()}`, <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                `<?= BASE_URL ?>/pages/notificacoes-solicitacoes.php?_=${Date.now()}`, <?php /* [BP-ALTERAÇÃO #5] Caminho absoluto (antes dava 404 no Dashboard). */ ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                 { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                     cache: "no-store", <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                     headers: { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -411,6 +413,10 @@ if (requestNotificationBell && requestNotificationBadge) { <?php /* Compõe o co
                 window.setTimeout(() => { <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                     requestNotificationBell.classList.remove("notification-arrived"); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                 }, 800); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+
+                // [BP-ALTERAÇÃO #4] Avisa o assets/js/preferencias.js; se "Alerta visual" estiver ligado em
+                // Configurações, aparece um aviso grande na tela (ajuda quem não ouve ou não está olhando o sino).
+                document.dispatchEvent(new CustomEvent("beautypet:nova-solicitacao", { detail: { total: totalAtual } }));
             } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
 
             atualizarVisualSino(totalAtual); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -433,5 +439,8 @@ if (requestNotificationBell && requestNotificationBadge) { <?php /* Compõe o co
     }); <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
 } <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
 </script> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
+
+<!-- [BP-ALTERAÇÃO #6] Máscaras de CPF, telefone, CEP, dinheiro e peso (veja as instruções no topo do arquivo). -->
+<script src="<?= BASE_URL ?>/assets/js/mascaras.js?v=bp-mascaras-v1"></script>
 </body> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 </html> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>

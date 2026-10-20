@@ -76,7 +76,8 @@ button.kpi-card{ /* Inicia as regras visuais deste seletor. */
     cursor:pointer; /* Define a propriedade visual cursor. */
 } /* Encerra as regras visuais do seletor anterior. */
 button.kpi-card:disabled{cursor:default;opacity:.82} /* Participa da configuração visual deste componente. */
-.kpi-card:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(31,35,48,.1)} /* Participa da configuração visual deste componente. */
+/* [BP-ALTERAÇÃO #8] Hover só no card que é botão (.kpi-card-botao). Antes valia para todos os .kpi-card, inclusive os informativos (<article>). */
+.kpi-card-botao:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(31,35,48,.1)}
 .kpi-card-alerta{border-color:#ffd6d3;background:linear-gradient(180deg,#fff,#fff8f7)} /* Participa da configuração visual deste componente. */
 .kpi-icone{ /* Inicia as regras visuais deste seletor. */
     width:38px; /* Define a propriedade visual width. */

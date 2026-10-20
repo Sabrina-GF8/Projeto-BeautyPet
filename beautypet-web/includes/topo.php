@@ -88,8 +88,15 @@ try {
         <link rel="stylesheet" href="<?= BASE_URL ?>/assets/dashboard.css?v=dashboard-v1">
     <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <!-- [BP-ALTERAÇÃO #4] Preferências de aparência/acessibilidade (escolhidas em pages/configuracoes.php).
+         Ficam no <head> para o tema escuro ser aplicado antes de a página aparecer. -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/preferencias.css?v=bp-config-v1">
+    <script src="<?= BASE_URL ?>/assets/js/preferencias.js?v=bp-config-v1"></script>
 </head>
 <body>
+<!-- [BP-ALTERAÇÃO #4] Acessibilidade: quem usa teclado ou leitor de tela pula direto o menu. Só aparece ao receber foco (Tab). -->
+<a class="bp-pular-conteudo" href="#conteudo-principal">Pular para o conteúdo</a>
 <div class="container">
     <aside class="sidebar">
         <div class="logo">
@@ -101,20 +108,21 @@ try {
         </div>
 
         <nav>
-            <a href="<?= BASE_URL ?>/index.php"
+            <?php /* [BP-ALTERAÇÃO #4] aria-label: com o menu recolhido o texto fica invisível, e o leitor de tela (cegos) não lia o nome do item. */ ?>
+            <a href="<?= BASE_URL ?>/index.php" aria-label="Dashboard"
                 class="menu-item <?= $paginaAtiva === 'dashboard' ? 'active' : '' ?>">
                 <i class="fa-solid fa-table-columns"></i>
                 <span>Dashboard</span>
             </a>
 
-            <a href="<?= BASE_URL ?>/pages/agenda.php"
+            <a href="<?= BASE_URL ?>/pages/agenda.php" aria-label="Agenda"
                 class="menu-item <?= in_array($paginaAtiva, ['agenda', 'solicitacoes-agendamento'], true) ? 'active' : '' ?>">
                 <i class="fa-regular fa-calendar"></i>
                 <span>Agenda</span>
             </a>
 
             <details <?= in_array($paginaAtiva, ['fechamento-diario', 'fechamento-mensal'], true) ? 'open' : '' ?>>
-                <summary class="menu-item <?= in_array($paginaAtiva, ['fechamento-diario', 'fechamento-mensal'], true) ? 'active' : '' ?>">
+                <summary aria-label="Fechamentos" class="menu-item <?= in_array($paginaAtiva, ['fechamento-diario', 'fechamento-mensal'], true) ? 'active' : '' ?>">
                     <div class="menu-left">
                         <i class="fa-solid fa-file-circle-check"></i>
                         <span>Fechamentos</span>
@@ -134,7 +142,7 @@ try {
             </details>
 
             <details <?= in_array($paginaAtiva, ['cadastro-tutor', 'fichas-tutores'], true) ? 'open' : '' ?>>
-                <summary class="menu-item <?= in_array($paginaAtiva, ['cadastro-tutor', 'fichas-tutores'], true) ? 'active' : '' ?>">
+                <summary aria-label="Tutores" class="menu-item <?= in_array($paginaAtiva, ['cadastro-tutor', 'fichas-tutores'], true) ? 'active' : '' ?>">
                     <div class="menu-left">
                         <i class="fa-solid fa-users"></i>
                         <span>Tutores</span>
@@ -156,7 +164,7 @@ try {
             </details>
 
             <details <?= in_array($paginaAtiva, ['cadastro-pet', 'fichas-pets'], true) ? 'open' : '' ?>>
-                <summary class="menu-item <?= in_array($paginaAtiva, ['cadastro-pet', 'fichas-pets'], true) ? 'active' : '' ?>">
+                <summary aria-label="Pets" class="menu-item <?= in_array($paginaAtiva, ['cadastro-pet', 'fichas-pets'], true) ? 'active' : '' ?>">
                     <div class="menu-left">
                         <i class="fa-solid fa-paw"></i>
                         <span>Pets</span>
@@ -177,12 +185,15 @@ try {
                 </a>
             </details>
 
-            <a href="<?= BASE_URL ?>/pages/financeiro.php" class="menu-item">
+            <?php /* [BP-ALTERAÇÃO #5] Financeiro e Configurações: as páginas foram criadas e o item fica destacado quando aberto. */ ?>
+            <a href="<?= BASE_URL ?>/pages/financeiro.php" aria-label="Financeiro"
+                class="menu-item <?= $paginaAtiva === 'financeiro' ? 'active' : '' ?>">
                 <i class="fa-solid fa-dollar-sign"></i>
                 <span>Financeiro</span>
             </a>
 
-            <a href="<?= BASE_URL ?>/pages/configuracoes.php" class="menu-item">
+            <a href="<?= BASE_URL ?>/pages/configuracoes.php" aria-label="Configurações"
+                class="menu-item <?= $paginaAtiva === 'configuracoes' ? 'active' : '' ?>">
                 <i class="fa-solid fa-gear"></i>
                 <span>Configurações</span>
             </a>
@@ -217,6 +228,13 @@ try {
                         <?= $totalSolicitacoesPendentesTopo > 0 ? '' : 'hidden' ?>>
                         <?= $totalSolicitacoesPendentesTopo > 99 ? '99+' : $totalSolicitacoesPendentesTopo ?>
                     </span>
+                </a>
+
+                <!-- [BP-ALTERAÇÃO #4] Engrenagem de Configurações ao lado do sino (lugar onde as pessoas costumam procurar). -->
+                <a class="settings-link <?= $paginaAtiva === 'configuracoes' ? 'active' : '' ?>"
+                    href="<?= BASE_URL ?>/pages/configuracoes.php"
+                    aria-label="Configurações" title="Configurações">
+                    <i class="fa-solid fa-gear" aria-hidden="true"></i>
                 </a>
 
                 <div class="profile-container">
@@ -310,5 +328,14 @@ try {
             </div>
         </div>
 
+        <?php if (($mensagemUsuario['tipo'] ?? '') === 'success'): ?>
+            <!-- [BP-ALTERAÇÃO #4] A mensagem "Usuário alterado para..." era gravada mas nunca aparecia
+                 (o modal só abre sozinho quando dá erro). Agora aparece um aviso no canto da tela. -->
+            <div class="bp-aviso-flutuante" role="status">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <span><?= escapar($mensagemUsuario['texto']) ?></span>
+            </div>
+        <?php endif; ?>
+
         <!-- Área principal onde o conteúdo específico da página é exibido. -->
-        <main>
+        <main id="conteudo-principal" tabindex="-1"><?php /* [BP-ALTERAÇÃO #4] id usado pelo link "Pular para o conteúdo". */ ?>

@@ -282,6 +282,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['salvo'])) { // Testa es
     $dados = []; // Armazena em dados o valor usado nas próximas etapas deste fluxo.
 } // Abre, fecha ou encerra a estrutura iniciada nas linhas relacionadas.
 
+// [BP-ALTERAÇÃO #10] Vindo da ficha do tutor (cadastro-pet.php?tutor=ID), o tutor já chega selecionado.
+// Só vale para um cadastro novo aberto por GET; na edição o tutor continua sendo o do pet.
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $editarId === null && empty($dados['cliente_id'])) {
+    $tutorDaFichaId = inteiroOuNull($_GET['tutor'] ?? null);
+
+    if ($tutorDaFichaId !== null) {
+        $dados['cliente_id'] = $tutorDaFichaId;
+    }
+}
+
 // Preserva o valor selecionado de "tutorSelecionadoId" para preencher o formulário corretamente.
 $tutorSelecionadoId = inteiroOuNull($dados['cliente_id'] ?? null); // Armazena em tutorSelecionadoId o valor usado nas próximas etapas deste fluxo.
 // Preserva o valor selecionado de "tutorSelecionado" para preencher o formulário corretamente.
@@ -430,7 +440,8 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <!-- Rótulo do campo "Peso (kg)", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="peso">Peso (kg)</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Campo "peso" utilizado para enviar esta informação no formulário. -->
-                                <input id="peso" name="peso" type="number" min="0" step="0.01" <?php /* Cria um campo para entrada de dados. */ ?>
+                                <input id="peso" name="peso" type="number" min="0" step="0.01" data-mascara="decimal" <?php /* [BP-ALTERAÇÃO #6] Peso com vírgula (assets/js/mascaras.js). */ ?>
+                                    <?php /* Cria um campo para entrada de dados. */ ?>
                                     value="<?= escapar($dados['peso'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="Ex.: 10,5"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>

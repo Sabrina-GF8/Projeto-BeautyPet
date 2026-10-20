@@ -198,6 +198,9 @@
 .detail-edit-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 15px;border:1px solid #eadca5;border-radius:12px;background:#fff;color:#4c4638;text-decoration:none;font-weight:800;box-shadow:0 6px 16px #00000008;transition:.2s} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".detail-edit-button:hover" desta parte da interface. */
 .detail-edit-button:hover{transform:translateY(-1px);background:#fff9e6;border-color:#dfc965} /* Participa da configuração visual deste componente. */
+/* [BP-ALTERAÇÃO #10] O botão "Cadastrar novo pet" fica dentro de .section-title, cuja regra "a" deixava o texto dourado.
+   Esta regra mantém a mesma cor do botão "Editar tutor". */
+.section-title a.detail-edit-button{color:#4c4638}
 /* Estiliza o(s) elemento(s) ".detail-edit-message" desta parte da interface. */
 .detail-edit-message{max-width:1150px;margin:0 auto 14px} /* Participa da configuração visual deste componente. */
 /* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */

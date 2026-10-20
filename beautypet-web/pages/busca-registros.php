@@ -223,7 +223,7 @@ $stmt = $pdo->prepare(
                 'detail' => 'Pet'
                     . ($raca !== '' ? ' • ' . $raca : ' • raça não informada')
                     . ' • Tutor: ' . (string) $item['tutor'],
-                'url' => 'ficha-pet.php?id=' . (int) $item['id'],
+                'url' => BASE_URL . '/pages/ficha-pet.php?id=' . (int) $item['id'], // [BP-ALTERAÇÃO #5] Link absoluto para funcionar também a partir do Dashboard.
                 'kind' => 'pet',
             ];
         }
@@ -241,7 +241,7 @@ $stmt = $pdo->prepare(
                 'id' => (int) $item['id'],
                 'label' => (string) $item['nome'],
                 'detail' => $detalhe,
-                'url' => 'ficha-tutor.php?id=' . (int) $item['id'],
+                'url' => BASE_URL . '/pages/ficha-tutor.php?id=' . (int) $item['id'], // [BP-ALTERAÇÃO #5] Link absoluto para funcionar também a partir do Dashboard.
                 'kind' => 'tutor',
             ];
         }

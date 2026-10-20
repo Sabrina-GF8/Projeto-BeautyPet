@@ -25,7 +25,9 @@ button,input,select,textarea{font:inherit} /* Participa da configuração visual
 /* Estiliza o(s) elemento(s) ".sidebar:hover" desta parte da interface. */
 .sidebar:hover{width:260px} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".logo" desta parte da interface. */
-.logo{display:flex;align-items:center;gap:15px;padding:20px 16px;border-bottom:1px solid #eee} /* Participa da configuração visual deste componente. */
+/* [BP-ALTERAÇÃO #11] Altura fixa de 75px (já contando a borda, box-sizing:border-box), igual ao header, para a linha do logo encontrar a linha do topo.
+   Antes: padding:20px 16px deixava a linha uns 8px abaixo da linha do header. Cor da borda igual à do header (#e5e5e5). */
+.logo{display:flex;align-items:center;gap:15px;height:75px;padding:0 16px;border-bottom:1px solid #e5e5e5} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".logo img" desta parte da interface. */
 .logo img{width:42px;height:42px;object-fit:contain;flex-shrink:0} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".logo-text,.menu-item span,.submenu span,.arrow" desta parte da interface. */
@@ -225,7 +227,8 @@ button.profile{border:0;background:transparent;font:inherit;text-align:left} /* 
 /* Estiliza o(s) elemento(s) ".calendar-event" desta parte da interface. */
 .calendar-event{display:flex;align-items:center;gap:12px;min-width:0;padding:12px 13px;border:1px solid #eceff4;border-radius:16px;background:#fbfcfe;transition:.2s} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".calendar-event:hover" desta parte da interface. */
-.calendar-event:hover{transform:translateY(-1px);box-shadow:0 10px 22px #0000000d} /* Participa da configuração visual deste componente. */
+/* [BP-ALTERAÇÃO #8] Removido o hover de .calendar-event: o card da agenda não é clicável (só os botões de ação dentro dele).
+   Regra antiga: .calendar-event:hover{transform:translateY(-1px);box-shadow:0 10px 22px #0000000d} */
 /* ===== Acesso de usuários em modal ===== */
 .account-modal, /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".account-page-modal" desta parte da interface. */
@@ -517,3 +520,9 @@ body.account-modal-open{overflow:hidden} /* Participa da configuração visual d
 [data-search-results][hidden] {
     display: none !important;
 }
+
+/* [BP-ALTERAÇÃO #6] Máscaras (assets/js/mascaras.js).
+   O campo numérico original fica escondido (continua enviando "12.34" para o PHP);
+   a pessoa digita no campo "gêmeo" que mostra "12,34". */
+.bp-mascara-original{display:none!important}
+.bp-mascara-gemeo{text-align:left}

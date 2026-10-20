@@ -505,7 +505,7 @@ body.daily-modal-open{overflow:hidden} /* Participa da configuração visual des
 /* Estiliza o(s) elemento(s) ".daily-empty-row:nth-child(even) td" desta parte da interface. */
 .daily-empty-row:nth-child(even) td{background:#fcfcfd!important} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-empty-row:hover td" desta parte da interface. */
-.daily-empty-row:hover td{background:#fffdf6!important} /* Participa da configuração visual deste componente. */
+/* [BP-ALTERAÇÃO #8] Removido o hover da linha vazia (não é clicável). Regra antiga: .daily-empty-row:hover td{background:#fffdf6!important} */
 /* Estiliza o(s) elemento(s) ".daily-empty-row .daily-code" desta parte da interface. */
 .daily-empty-row .daily-code{color:transparent} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-row-action" desta parte da interface. */
@@ -682,7 +682,7 @@ body.daily-modal-open{overflow:hidden} /* Participa da configuração visual des
 /* Estiliza o(s) elemento(s) ".daily-service-summary-item" desta parte da interface. */
 .daily-service-summary-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;padding:13px 14px;border:1px solid #eef0f4;border-radius:17px;background:#f9fafc;transition:.18s} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-service-summary-item:hover" desta parte da interface. */
-.daily-service-summary-item:hover{background:#fffdf6;border-color:#eee1ae} /* Participa da configuração visual deste componente. */
+/* [BP-ALTERAÇÃO #8] Removido o hover do resumo de serviços (não é clicável). Regra antiga: .daily-service-summary-item:hover{background:#fffdf6;border-color:#eee1ae} */
 /* Estiliza o(s) elemento(s) ".daily-service-summary-main" desta parte da interface. */
 .daily-service-summary-main{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:5px 9px} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-service-summary-main>strong" desta parte da interface. */

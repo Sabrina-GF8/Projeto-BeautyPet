@@ -1,0 +1,56 @@
+/*
+ * ARQUIVO: assets/css/configuracoes.css
+ * [BP-ALTERAÇÃO #4] Arquivo novo. USADO POR: pages/configuracoes.php (junto com cadastro.css).
+ * RESPONSABILIDADE: só o visual próprio da página de Configurações. Formulários, campos, botão
+ * "Salvar" e mensagens vêm do cadastro.css, para manter o mesmo padrão das outras telas.
+ */
+
+.settings-page{background:#fff9bf}
+.settings-page .page-heading h1 i{color:#c99300;margin-right:6px}
+
+/* Cada seção (Conta, Aparência...) é um cartão, um embaixo do outro. */
+.settings-card{margin-bottom:22px}
+.settings-card h2 i{width:26px;color:#c99300}
+
+/* Usuário atual */
+.settings-account{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.settings-account>div:nth-child(2){display:flex;flex-direction:column;gap:3px;min-width:0}
+.settings-account small{color:#6d6d6d}
+.settings-account-actions{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+
+/* Botão secundário (mesmo estilo do "Editar tutor" da ficha) */
+.settings-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 15px;border:1px solid #eadca5;border-radius:12px;background:#fff;color:#4c4638;font:inherit;font-weight:800;text-decoration:none;cursor:pointer;transition:.2s}
+.settings-button:hover{background:#fff9e6;border-color:#dfc965}
+
+.settings-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:4px 25px 22px}
+.settings-saved{color:#176a3b;font-weight:700;font-size:14px}
+
+/* Opções de tema e tamanho de letra (cartões clicáveis) */
+.settings-choices{display:flex;gap:12px;flex-wrap:wrap}
+.settings-choice{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-width:140px;min-height:96px;padding:14px;border:2px solid #e3e3e3;border-radius:14px;background:#fff;color:#444;cursor:pointer;transition:.2s}
+.settings-choice:hover{border-color:#e9cf6b}
+.settings-choice i{font-size:22px}
+.settings-choice input{position:absolute;opacity:0;pointer-events:none}
+.settings-choice:has(input:checked){border-color:#f3b000;background:#fff7d6;color:#222;font-weight:700}
+.settings-choice:has(input:focus-visible){outline:3px solid #1a5fd0;outline-offset:2px}
+.settings-font-sample{font-weight:800;line-height:1}
+
+/* Liga/desliga */
+.settings-toggles{display:flex;flex-direction:column;gap:14px}
+.settings-toggles h3{margin-bottom:4px}
+.settings-toggle{display:flex;align-items:flex-start;gap:14px;cursor:pointer}
+.settings-toggle span{display:flex;flex-direction:column;gap:3px}
+.settings-toggle small{color:#6d6d6d;line-height:1.4}
+.settings-toggle input{appearance:none;flex-shrink:0;position:relative;width:46px;height:26px;margin-top:2px;border-radius:999px;background:#cfd2d8;cursor:pointer;transition:background .2s}
+.settings-toggle input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:left .2s}
+.settings-toggle input:checked{background:#f3b000}
+.settings-toggle input:checked::after{left:23px}
+.settings-toggle input:focus-visible{outline:3px solid #1a5fd0;outline-offset:2px}
+
+.settings-note{display:flex;gap:8px;align-items:flex-start;margin-top:6px;color:#6d6d6d;font-size:13px;line-height:1.45}
+.settings-note i{margin-top:2px}
+
+@media (max-width:650px){
+  .settings-account-actions{margin-left:0;width:100%}
+  .settings-choice{flex:1;min-width:0}
+}
