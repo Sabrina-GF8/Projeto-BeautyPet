@@ -1164,7 +1164,7 @@ function buscarOcupacaoBanhoTosa(
                 a.data_hora_inicio,
                 COALESCE(
                     a.data_hora_fim,
-                    DATE_ADD(a.data_hora_inicio, INTERVAL 30 MINUTE)
+                    a.data_hora_inicio + INTERVAL '30 minutes'
                 ) AS data_hora_fim
             FROM agendamentos a
             JOIN agendamento_itens ai
@@ -1174,10 +1174,10 @@ function buscarOcupacaoBanhoTosa(
             JOIN categorias_servico cs
               ON cs.id = s.categoria_id
             WHERE a.status NOT IN ('CANCELADO', 'RECUSADO')
-              AND a.data_hora_inicio < DATE_ADD(:data_fim, INTERVAL 1 DAY)
+              AND a.data_hora_inicio < CAST(:data_fim AS timestamp) + INTERVAL '1 day'
               AND COALESCE(
                     a.data_hora_fim,
-                    DATE_ADD(a.data_hora_inicio, INTERVAL 30 MINUTE)
+                    a.data_hora_inicio + INTERVAL '30 minutes'
                   ) > :data_inicio
               AND (
                     LOWER(cs.nome) LIKE '%banho%'
