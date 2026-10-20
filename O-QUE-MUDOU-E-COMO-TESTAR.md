@@ -1,13 +1,5 @@
-# Beauty Pet – o que mudou e como testar
 
-Todas as mudanças no código estão marcadas com **`[BP-ALTERAÇÃO #número]`**.
-Para achar uma mudança, basta buscar esse texto no VS Code (Ctrl+Shift+F).
-
----
-
-## Lista para o pessoal testar
-
-Marque ✅ se funcionou ou ❌ se não funcionou. Se der ❌, mande um print.
+## Lista para testar
 
 **Menu e topo**
 - [ ] A linha embaixo do logo (menu da esquerda) encontra certinho a linha do topo.
