@@ -32,11 +32,25 @@
 /* Estiliza o(s) elemento(s) ".records-page" desta parte da interface. */
 .records-page{background:#fff9bf} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".records-search" desta parte da interface. */
-.records-search{max-width:1050px;margin:0 auto 24px;display:flex;align-items:center;gap:12px;padding:12px 16px;background:white;border:1px solid #dedede;border-radius:12px} /* Participa da configuração visual deste componente. */
+.records-search{position:relative;z-index:30;max-width:1050px;margin:0 auto 24px;display:flex;align-items:center;gap:12px;padding:13px 16px;background:#fff;border:1px solid #dedede;border-radius:16px;box-shadow:0 5px 16px #00000008;transition:border-color .18s,box-shadow .18s} /* Participa da configuração visual deste componente. */
+.records-search:focus-within{border-color:#e4bf36;box-shadow:0 0 0 3px #f3c4001f,0 8px 20px #0000000a}
 /* Estiliza o(s) elemento(s) ".records-search i" desta parte da interface. */
-.records-search i{color:#999} /* Participa da configuração visual deste componente. */
+.records-search>i{color:#8b8f97} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".records-search input" desta parte da interface. */
-.records-search input{flex:1;min-width:0;border:0;outline:0;background:transparent} /* Participa da configuração visual deste componente. */
+.records-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#363a42;font-size:14px} /* Participa da configuração visual deste componente. */
+.records-search input::placeholder{color:#9a9ea6}
+/* Sugestões personalizadas das páginas de fichas. A caixa é clara para não usar o autocomplete preto do navegador. */
+.records-live-results{position:absolute;z-index:3600;top:calc(100% + 8px);left:0;right:0;max-height:360px;overflow-y:auto;padding:7px;border:1px solid #e4e6ea;border-radius:16px;background:#fff;box-shadow:0 22px 58px #1118271f}
+.records-live-results[hidden]{display:none!important}
+.records-live-option{display:flex;align-items:center;gap:11px;width:100%;padding:10px 11px;border-radius:11px;background:#fff;color:#3f444d;text-decoration:none;transition:background .16s}
+.records-live-option:hover,.records-live-option:focus{background:#fff8dd;outline:0}
+.records-live-visual{width:40px;height:40px;display:grid;place-items:center;flex:0 0 auto;overflow:hidden;border-radius:11px;background:#fff2b7;color:#906900}
+.records-live-visual img{width:100%;height:100%;display:block;object-fit:cover}
+.records-live-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+.records-live-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#343841;font-size:13px;font-weight:800}
+.records-live-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#848a94;font-size:11px}
+.records-live-loading,.records-live-empty{padding:13px;color:#858b95;text-align:center;font-size:12px}
+.records-live-loading i{margin-right:6px;color:#d6a500}
 /* Estiliza o(s) elemento(s) ".clear-search" desta parte da interface. */
 .clear-search{width:30px;height:30px;display:grid;place-items:center;color:#777;border-radius:50%;text-decoration:none} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".clear-search:hover" desta parte da interface. */

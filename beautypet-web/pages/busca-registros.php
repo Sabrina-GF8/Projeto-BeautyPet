@@ -36,22 +36,22 @@ try {
         $contem = '%' . $termo . '%';
 
 $stmt = $pdo->prepare(
-            'SELECT p.id, p.nome, c.nome AS tutor, r.nome AS raca
+            'SELECT p.id, p.nome, p.foto_url, c.nome AS tutor, r.nome AS raca
              FROM pets p
              JOIN clientes c ON c.id = p.cliente_id
              LEFT JOIN racas r ON r.id = p.raca_id
              WHERE p.ativo = TRUE
                AND c.ativo = TRUE
                AND (
-                    p.nome LIKE ?
-                    OR c.nome LIKE ?
-                    OR r.nome LIKE ?
+                    p.nome ILIKE ?
+                    OR c.nome ILIKE ?
+                    OR r.nome ILIKE ?
                )
              ORDER BY
                 CASE
-                    WHEN p.nome LIKE ? THEN 0
-                    WHEN c.nome LIKE ? THEN 1
-                    WHEN r.nome LIKE ? THEN 2
+                    WHEN p.nome ILIKE ? THEN 0
+                    WHEN c.nome ILIKE ? THEN 1
+                    WHEN r.nome ILIKE ? THEN 2
                     ELSE 3
                 END,
                 p.nome,
@@ -75,9 +75,15 @@ $stmt = $pdo->prepare(
                 return [
                     'id' => (int) $item['id'],
                     'label' => implode(' — ', $partes),
+                    'name' => (string) $item['nome'],
+                    'tutor' => (string) $item['tutor'],
+                    'raca' => $raca,
                     'detail' => $raca !== ''
-                        ? 'Pet • Raça: ' . $raca . ' • tutor responsável'
-                        : 'Pet • raça não informada • tutor responsável',
+                        ? 'Pet • ' . $raca . ' • Tutor: ' . (string) $item['tutor']
+                        : 'Pet • raça não informada • Tutor: ' . (string) $item['tutor'],
+                    'foto_url' => urlFotoPet($item['foto_url'] ?? null),
+                    'url' => 'ficha-pet.php?id=' . (int) $item['id'],
+                    'kind' => 'pet',
                 ];
             },
             $stmt->fetchAll()
@@ -112,13 +118,13 @@ $stmt = $pdo->prepare(
              FROM clientes
              WHERE ativo = TRUE
                AND (
-                    nome LIKE ?
-                    OR cpf LIKE ?
-                    OR email LIKE ?
-                    OR telefone_principal LIKE ?
+                    nome ILIKE ?
+                    OR cpf ILIKE ?
+                    OR email ILIKE ?
+                    OR telefone_principal ILIKE ?
                )
              ORDER BY
-                CASE WHEN nome LIKE ? THEN 0 ELSE 1 END,
+                CASE WHEN nome ILIKE ? THEN 0 ELSE 1 END,
                 nome
              LIMIT ' . $limite
         );
@@ -156,7 +162,10 @@ $stmt = $pdo->prepare(
                 return [
                     'id' => (int) $item['id'],
                     'label' => (string) $item['nome'],
+                    'name' => (string) $item['nome'],
                     'detail' => implode(' • ', $detalhes),
+                    'url' => 'ficha-tutor.php?id=' . (int) $item['id'],
+                    'kind' => 'tutor',
                 ];
             },
             // Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
@@ -170,84 +179,151 @@ $stmt = $pdo->prepare(
 
     // Verifica a condição abaixo antes de executar este bloco.
     if ($tipo === 'geral') {
-        // Verifica a condição abaixo antes de executar este bloco.
         if ($termo === '') {
             echo json_encode([], JSON_UNESCAPED_UNICODE);
-            // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
             exit;
         }
 
-        // Armazena em "contem" o valor necessário para as próximas etapas deste fluxo.
+        // A busca geral não diferencia maiúsculas/minúsculas e prioriza:
+        // 1) nomes que começam exatamente pelo termo (ex.: Ana / Ana Paula);
+        // 2) pets cujo tutor começa pelo termo (os "cães das Anas");
+        // 3) nomes que apenas contêm o termo no meio;
+        // 4) correspondências secundárias (raça, CPF ou e-mail).
         $contem = '%' . $termo . '%';
-        // Armazena a coleção "numeros" carregada para ser percorrida e exibida/processada a seguir.
         $numeros = preg_replace('/\D+/', '', $termo);
-        // Armazena em "cpfBusca" o valor necessário para as próximas etapas deste fluxo.
         $cpfBusca = $numeros !== '' ? '%' . $numeros . '%' : $contem;
 
-        // Armazena em "petsStmt" o valor necessário para as próximas etapas deste fluxo.
+        // Buscamos uma quantidade maior em cada grupo e fazemos a ordenação final em PHP,
+        // para que tutores e pets possam ser misturados pela relevância real da busca.
+        $limiteInterno = 30;
+
         $petsStmt = $pdo->prepare(
-            'SELECT p.id, p.nome, c.nome AS tutor, r.nome AS raca
+            'SELECT p.id, p.nome, p.foto_url, c.nome AS tutor, r.nome AS raca
              FROM pets p
              JOIN clientes c ON c.id = p.cliente_id
              LEFT JOIN racas r ON r.id = p.raca_id
              WHERE p.ativo = TRUE
                AND c.ativo = TRUE
-               AND (p.nome LIKE ? OR c.nome LIKE ? OR r.nome LIKE ?)
-             ORDER BY p.nome
-             LIMIT 8'
+               AND (
+                    p.nome ILIKE ?
+                    OR c.nome ILIKE ?
+                    OR r.nome ILIKE ?
+               )
+             ORDER BY p.nome, c.nome
+             LIMIT ' . $limiteInterno
         );
         $petsStmt->execute([$contem, $contem, $contem]);
 
-        // Armazena em "tutoresStmt" o valor necessário para as próximas etapas deste fluxo.
         $tutoresStmt = $pdo->prepare(
-            'SELECT id, nome, cpf
+            'SELECT id, nome, cpf, email
              FROM clientes
              WHERE ativo = TRUE
-               AND (nome LIKE ? OR cpf LIKE ? OR email LIKE ?)
+               AND (
+                    nome ILIKE ?
+                    OR cpf ILIKE ?
+                    OR email ILIKE ?
+               )
              ORDER BY nome
-             LIMIT 8'
+             LIMIT ' . $limiteInterno
         );
-        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
         $tutoresStmt->execute([$contem, $cpfBusca, $contem]);
 
-        // Armazena o resultado final da operação ou consulta que será devolvido ou exibido pela página.
+        $minusculo = static function (string $valor): string {
+            return function_exists('mb_strtolower')
+                ? mb_strtolower(trim($valor), 'UTF-8')
+                : strtolower(trim($valor));
+        };
+
+        // Considera "Ana" e "Ana Paula" como começo exato do nome,
+        // mas não trata "Anabela" como se fosse uma pessoa chamada Ana.
+        $comecaComoNome = static function (string $valor, string $busca) use ($minusculo): bool {
+            $valor = $minusculo($valor);
+            $busca = $minusculo($busca);
+
+            return $valor === $busca
+                || str_starts_with($valor, $busca . ' ')
+                || str_starts_with($valor, $busca . '-');
+        };
+
+        $contemTermo = static function (string $valor, string $busca) use ($minusculo): bool {
+            return str_contains($minusculo($valor), $minusculo($busca));
+        };
+
         $resultado = [];
 
-        // Percorre cada item da coleção para processar os registros individualmente.
-        foreach ($petsStmt->fetchAll() as $item) {
-            $raca = trim((string) ($item['raca'] ?? ''));
-
-            $resultado[] = [
-                'id' => (int) $item['id'],
-                'label' => (string) $item['nome'],
-                'detail' => 'Pet'
-                    . ($raca !== '' ? ' • ' . $raca : ' • raça não informada')
-                    . ' • Tutor: ' . (string) $item['tutor'],
-                'url' => BASE_URL . '/pages/ficha-pet.php?id=' . (int) $item['id'], // [BP-ALTERAÇÃO #5] Link absoluto para funcionar também a partir do Dashboard.
-                'kind' => 'pet',
-            ];
-        }
-
-        // Percorre cada item da coleção para processar os registros individualmente.
         foreach ($tutoresStmt->fetchAll() as $item) {
-            // Armazena em "detalhe" o valor necessário para as próximas etapas deste fluxo.
+            $nome = (string) $item['nome'];
+
+            if ($comecaComoNome($nome, $termo)) {
+                $prioridade = 0; // Ana, Ana Paula, etc.
+            } elseif ($contemTermo($nome, $termo)) {
+                $prioridade = 2; // Mariana, Joana, Anabela, etc.
+            } else {
+                $prioridade = 4; // CPF ou e-mail.
+            }
+
             $detalhe = 'Tutor';
-            // Verifica a condição abaixo antes de executar este bloco.
             if (!empty($item['cpf'])) {
                 $detalhe .= ' • ' . formatarCpf((string) $item['cpf']);
             }
 
             $resultado[] = [
                 'id' => (int) $item['id'],
-                'label' => (string) $item['nome'],
+                'label' => $nome,
                 'detail' => $detalhe,
-                'url' => BASE_URL . '/pages/ficha-tutor.php?id=' . (int) $item['id'], // [BP-ALTERAÇÃO #5] Link absoluto para funcionar também a partir do Dashboard.
+                'url' => 'ficha-tutor.php?id=' . (int) $item['id'],
                 'kind' => 'tutor',
+                '_prioridade' => $prioridade,
+                '_ordem' => $minusculo($nome),
             ];
         }
 
-        echo json_encode(array_slice($resultado, 0, $limite), JSON_UNESCAPED_UNICODE);
-        // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
+        foreach ($petsStmt->fetchAll() as $item) {
+            $nomePet = (string) $item['nome'];
+            $nomeTutor = (string) $item['tutor'];
+            $raca = trim((string) ($item['raca'] ?? ''));
+
+            if ($comecaComoNome($nomePet, $termo)) {
+                $prioridade = 0; // Pet chamado Ana / Ana alguma coisa.
+            } elseif ($comecaComoNome($nomeTutor, $termo)) {
+                $prioridade = 1; // Cão/pet de uma Ana.
+            } elseif ($contemTermo($nomePet, $termo) || $contemTermo($nomeTutor, $termo)) {
+                $prioridade = 2; // Termo aparece no meio do nome do pet ou tutor.
+            } else {
+                $prioridade = 4; // Correspondência apenas pela raça.
+            }
+
+            $resultado[] = [
+                'id' => (int) $item['id'],
+                'label' => $nomePet,
+                'detail' => 'Pet'
+                    . ($raca !== '' ? ' • ' . $raca : ' • raça não informada')
+                    . ' • Tutor: ' . $nomeTutor,
+                'url' => 'ficha-pet.php?id=' . (int) $item['id'],
+                'kind' => 'pet',
+                'foto_url' => urlFotoPet($item['foto_url'] ?? null),
+                '_prioridade' => $prioridade,
+                '_ordem' => $minusculo($nomePet),
+            ];
+        }
+
+        usort($resultado, static function (array $a, array $b): int {
+            $comparacaoPrioridade = ($a['_prioridade'] ?? 99) <=> ($b['_prioridade'] ?? 99);
+            if ($comparacaoPrioridade !== 0) {
+                return $comparacaoPrioridade;
+            }
+
+            return strcmp((string) ($a['_ordem'] ?? ''), (string) ($b['_ordem'] ?? ''));
+        });
+
+        $resultado = array_slice($resultado, 0, $limite);
+
+        foreach ($resultado as &$item) {
+            unset($item['_prioridade'], $item['_ordem']);
+        }
+        unset($item);
+
+        echo json_encode($resultado, JSON_UNESCAPED_UNICODE);
         exit;
     }
 

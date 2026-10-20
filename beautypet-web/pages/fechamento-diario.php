@@ -2433,8 +2433,7 @@ require __DIR__ . '/../includes/topo.php';
             <!-- Rótulo do campo "Data do fechamento", indicando ao usuário qual informação deve ser preenchida. -->
             <label for="dataFechamento">Data do fechamento</label>
             <!-- Campo "data" utilizado para enviar esta informação no formulário. -->
-            <input id="dataFechamento" name="data" type="date" value="<?= escapar($dataSelecionada) ?>">
-            <button type="submit">Abrir</button>
+            <input id="dataFechamento" name="data" type="date" value="<?= escapar($dataSelecionada) ?>" onchange="this.form.submit()">
         </form>
 
         <strong class="daily-date-title"><?= escapar(formatarData($dataSelecionada)) ?></strong>

@@ -515,8 +515,7 @@ require __DIR__ . '/../includes/topo.php';
             <!-- Rótulo do campo "Escolher mês", indicando ao usuário qual informação deve ser preenchida. -->
             <label for="monthlyPeriod">Escolher mês</label>
             <!-- Campo "mes" utilizado para enviar esta informação no formulário. -->
-            <input id="monthlyPeriod" name="mes" type="month" value="<?= escapar($competencia) ?>">
-            <button type="submit">Abrir</button>
+            <input id="monthlyPeriod" name="mes" type="month" value="<?= escapar($competencia) ?>" onchange="this.form.submit()">
         </form>
     </div>
 

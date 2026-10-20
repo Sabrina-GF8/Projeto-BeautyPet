@@ -148,7 +148,11 @@ require __DIR__ . '/../includes/topo.php';
     </div>
 
     <!-- Formulário de pesquisa dos pets. -->
-    <form class="records-search" method="get">
+    <form
+        class="records-search records-live-search"
+        method="get"
+        data-records-live-search="pet"
+        autocomplete="off">
 
         <!-- Ícone de pesquisa. -->
         <i class="fa-solid fa-magnifying-glass"></i>
@@ -158,7 +162,10 @@ require __DIR__ . '/../includes/topo.php';
             type="search"
             name="busca"
             value="<?= escapar($busca) ?>"
-            placeholder="Buscar por nome do pet, tutor, espécie ou raça">
+            placeholder="Buscar por nome do pet, tutor, espécie ou raça"
+            autocomplete="off"
+            spellcheck="false"
+            data-records-live-input>
 
         <!-- Exibe o botão para limpar a pesquisa. -->
         <?php if ($busca !== ''): ?>
@@ -170,6 +177,13 @@ require __DIR__ . '/../includes/topo.php';
             </a>
 
         <?php endif; ?>
+
+        <!-- Sugestões exibidas enquanto o nome é digitado. -->
+        <div
+            class="records-live-results"
+            data-records-live-results
+            aria-live="polite"
+            hidden></div>
 
     </form>
 

@@ -140,7 +140,11 @@ require __DIR__ . '/../includes/topo.php';
     </div>
 
     <!-- Formulário utilizado para pesquisar tutores. -->
-    <form class="records-search" method="get">
+    <form
+        class="records-search records-live-search"
+        method="get"
+        data-records-live-search="tutor"
+        autocomplete="off">
 
         <i class="fa-solid fa-magnifying-glass"></i>
 
@@ -148,7 +152,10 @@ require __DIR__ . '/../includes/topo.php';
             type="search"
             name="busca"
             value="<?= escapar($busca) ?>"
-            placeholder="Buscar por nome, CPF ou e-mail">
+            placeholder="Buscar por nome, CPF ou e-mail"
+            autocomplete="off"
+            spellcheck="false"
+            data-records-live-input>
 
         <?php if ($busca !== ''): ?>
 
@@ -160,6 +167,13 @@ require __DIR__ . '/../includes/topo.php';
             </a>
 
         <?php endif; ?>
+
+        <!-- Sugestões exibidas enquanto o nome é digitado. -->
+        <div
+            class="records-live-results"
+            data-records-live-results
+            aria-live="polite"
+            hidden></div>
 
     </form>
 

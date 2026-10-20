@@ -957,8 +957,7 @@ require __DIR__ . '/../includes/topo.php';
             <!-- Rótulo do campo "Data", indicando ao usuário qual informação deve ser preenchida. -->
             <label for="dataAgenda">Data</label>
             <!-- Campo "data" utilizado para enviar esta informação no formulário. -->
-            <input id="dataAgenda" name="data" type="date" value="<?= escapar($dataSelecionada) ?>">
-            <button type="submit">Abrir</button>
+            <input id="dataAgenda" name="data" type="date" value="<?= escapar($dataSelecionada) ?>" onchange="this.form.submit()">
         </form>
 
         <strong class="calendar-date-title">

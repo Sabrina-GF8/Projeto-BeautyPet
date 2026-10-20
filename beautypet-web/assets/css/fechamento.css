@@ -142,7 +142,6 @@
 /* Estiliza o(s) elemento(s) ".daily-date-form input:focus" desta parte da interface. */
 .daily-date-form input:focus{border-color:#e8b600;box-shadow:0 0 0 3px #f2c40022} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-date-form button" desta parte da interface. */
-.daily-date-form button{height:42px;padding:0 15px;border:1px solid #e2e3e7;border-radius:12px;background:#fff;color:#444;font-weight:800;cursor:pointer} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-date-title" desta parte da interface. */
 .daily-date-title{justify-self:end;padding:11px 16px;border-radius:14px;background:#fff8dd;color:#584c22;white-space:nowrap} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-summary-grid" desta parte da interface. */
@@ -437,7 +436,7 @@ body.daily-modal-open{overflow:hidden} /* Participa da configuração visual des
   .daily-summary-grid,.daily-payment-strip{grid-template-columns:1fr 1fr} /* Participa da configuração visual deste componente. */
   .daily-date-toolbar{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
   .daily-date-form{grid-column:auto;flex-wrap:wrap} /* Participa da configuração visual deste componente. */
-  .daily-date-form input,.daily-date-form button{width:100%} /* Participa da configuração visual deste componente. */
+  .daily-date-form input{width:100%} /* Participa da configuração visual deste componente. */
   .daily-sheet-header{align-items:stretch;flex-direction:column} /* Participa da configuração visual deste componente. */
   .daily-sheet-actions{display:grid;grid-template-columns:1fr 1fr} /* Participa da configuração visual deste componente. */
   .daily-payment-input-grid,.daily-credit-row,.daily-live-total{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
@@ -459,7 +458,7 @@ body.daily-modal-open{overflow:hidden} /* Participa da configuração visual des
 /* Estiliza o(s) elemento(s) ".daily-date-toolbar" desta parte da interface. */
 .daily-date-toolbar{border-radius:24px;margin-bottom:22px;padding:15px 18px} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-date-nav>a,.daily-date-form input,.daily-date-form button" desta parte da interface. */
-.daily-date-nav>a,.daily-date-form input,.daily-date-form button{border-radius:14px} /* Participa da configuração visual deste componente. */
+.daily-date-nav>a,.daily-date-form input{border-radius:14px} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-date-title" desta parte da interface. */
 .daily-date-title{border-radius:16px} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".daily-sheet-card,.daily-detail-card,.daily-cash-card" desta parte da interface. */
@@ -780,13 +779,11 @@ body.daily-modal-open{overflow:hidden} /* Participa da configuração visual des
 /* Estiliza o(s) elemento(s) ".monthly-period-bar form label" desta parte da interface. */
 .monthly-period-bar form label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".monthly-period-bar input,.monthly-period-bar button" desta parte da interface. */
-.monthly-period-bar input,.monthly-period-bar button{height:42px;border-radius:12px;font:inherit} /* Participa da configuração visual deste componente. */
+.monthly-period-bar input{height:42px;border-radius:12px;font:inherit} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".monthly-period-bar input" desta parte da interface. */
 .monthly-period-bar input{min-width:180px;padding:0 11px;border:1px solid #e4e5e8;background:#fbfbfc} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".monthly-period-bar button" desta parte da interface. */
-.monthly-period-bar button{padding:0 15px;border:1px solid #e4e5e8;background:#fff;color:#4c515b;font-weight:800;cursor:pointer} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".monthly-period-bar button:hover" desta parte da interface. */
-.monthly-period-bar button:hover{background:#fff8df} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".monthly-sheet-card,.monthly-summary-section,.monthly-detail-card" desta parte da interface. */
 .monthly-sheet-card,.monthly-summary-section,.monthly-detail-card{border:1px solid #e9ebef;border-radius:23px;background:#fff;box-shadow:0 18px 38px #00000008} /* Participa da configuração visual deste componente. */
 /* Estiliza o(s) elemento(s) ".monthly-sheet-card" desta parte da interface. */
@@ -967,7 +964,7 @@ body.monthly-modal-open{overflow:hidden} /* Participa da configuração visual d
   .monthly-heading-actions{width:100%;justify-content:flex-start} /* Participa da configuração visual deste componente. */
   .monthly-primary-action,.monthly-secondary-action{flex:1} /* Participa da configuração visual deste componente. */
   .monthly-period-bar form{flex-direction:column;align-items:stretch} /* Participa da configuração visual deste componente. */
-  .monthly-period-bar input,.monthly-period-bar button{width:100%} /* Participa da configuração visual deste componente. */
+  .monthly-period-bar input{width:100%} /* Participa da configuração visual deste componente. */
   .monthly-sheet-head,.monthly-section-title{align-items:flex-start;flex-direction:column} /* Participa da configuração visual deste componente. */
   .monthly-summary-grid{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
   .monthly-service-list article{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
