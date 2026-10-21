@@ -1,4 +1,5 @@
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -42,7 +43,7 @@ export default function Perfil() {
   }>({});
   const [pets, setPets] = useState<{ id: number; nome: string }[]>([]);
 
-  useEffect(() => {
+  function carregarPerfil() {
     api<{
       cliente: {
         nome?: string;
@@ -56,7 +57,21 @@ export default function Perfil() {
         setCliente(resposta.cliente || {});
         setPets(resposta.pets || []);
       })
-      .catch(() => {});
+      .catch((erro) => {
+        // HEURÍSTICA 9: antes o erro era engolido e o perfil aparecia em branco.
+        Alert.alert(
+          'Não foi possível carregar seu perfil',
+          erro instanceof Error ? erro.message : 'Verifique sua conexão e tente novamente.',
+          [
+            { text: 'Agora não', style: 'cancel' },
+            { text: 'Tentar novamente', onPress: carregarPerfil },
+          ]
+        );
+      });
+  }
+
+  useEffect(() => {
+    carregarPerfil();
   }, []);
 
   async function sair() {

@@ -9,7 +9,8 @@ $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 // Caso o ID não seja válido, retorna para a página de fichas dos tutores.
 if (!$id) {
-    header('Location: fichas-tutores.php');
+    // HEURÍSTICA 9: volta para a lista explicando o motivo.
+    header('Location: fichas-tutores.php?nao_encontrado=1');
     exit;
 }
 
@@ -61,8 +62,9 @@ $tutor = $stmt->fetch();
 
 // Caso o tutor não seja encontrado, retorna um erro 404.
 if (!$tutor) {
-    http_response_code(404);
-    exit('Tutor não encontrado.');
+    // HEURÍSTICA 9: antes aparecia uma página em branco só com "Tutor não encontrado.", sem menu nem saída.
+    header('Location: fichas-tutores.php?nao_encontrado=1');
+    exit;
 }
 
 // Consulta os pets vinculados ao tutor,

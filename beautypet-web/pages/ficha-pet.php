@@ -15,7 +15,8 @@ $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 // Verifica a condição abaixo antes de executar este bloco.
 if (!$id) {
     // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
-    header('Location: fichas-pets.php');
+    // HEURÍSTICA 9: volta para a lista explicando o motivo.
+    header('Location: fichas-pets.php?nao_encontrado=1');
     // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
     exit;
 }
@@ -61,9 +62,9 @@ $pet = $stmt->fetch();
 
 // Verifica a condição abaixo antes de executar este bloco.
 if (!$pet) {
-    http_response_code(404);
-    // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
-    exit('Pet não encontrado.');
+    // HEURÍSTICA 9: antes aparecia uma página em branco só com "Pet não encontrado.", sem menu nem saída.
+    header('Location: fichas-pets.php?nao_encontrado=1');
+    exit;
 }
 
 // Armazena a coleção "sqlPacotes" carregada para ser percorrida e exibida/processada a seguir.

@@ -165,6 +165,12 @@ export default function Agenda() {
     setErroAgenda,
   ] = useState('');
 
+  // HEURÍSTICA 9: muda a cada toque em "Tentar novamente" para recarregar a agenda.
+  const [
+    tentativaAgenda,
+    setTentativaAgenda,
+  ] = useState(0);
+
 
   // ==========================================================
   // CARREGA A AGENDA TODA VEZ QUE A TELA GANHA FOCO
@@ -260,7 +266,7 @@ export default function Agenda() {
 
       };
 
-    }, [])
+    }, [tentativaAgenda])
 
   );
 
@@ -675,13 +681,25 @@ export default function Agenda() {
 
           ) : erroAgenda ? (
 
-            <Text
-              style={
-                styles.erroEvento
-              }
-            >
-              {erroAgenda}
-            </Text>
+            <View>
+              <Text
+                style={
+                  styles.erroEvento
+                }
+              >
+                {erroAgenda}
+              </Text>
+
+              {/* HEURÍSTICA 9: oferece a saída do erro sem precisar fechar a tela. */}
+              <TouchableOpacity
+                onPress={() => setTentativaAgenda((valor) => valor + 1)}
+                accessibilityRole="button"
+              >
+                <Text style={[styles.erroEvento, { fontWeight: '700', textDecorationLine: 'underline' }]}>
+                  Tentar novamente
+                </Text>
+              </TouchableOpacity>
+            </View>
 
           ) : eventosDoDia.length === 0 ? (
 

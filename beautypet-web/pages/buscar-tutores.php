@@ -29,7 +29,8 @@ try {
 
     echo json_encode($tutores);
 } catch (Throwable $e) {
-    // Retorna o erro exato em JSON para você ver o que falhou
+    // HEURÍSTICA 9: o detalhe técnico vai para o log do servidor; a tela recebe uma mensagem amigável.
+    error_log('[BeautyPet] buscar-tutores: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['erro' => $e->getMessage()]);
+    echo json_encode(['erro' => 'Não foi possível buscar tutores agora. Tente novamente.']);
 }

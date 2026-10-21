@@ -28,7 +28,14 @@ export default function Servicos() {
       servicos: { id: number; nome: string; descricao?: string | null; categoria: string }[];
     }>("servicos")
       .then((resposta) => setServicosBanco(resposta.servicos || []))
-      .catch(() => setServicosBanco([]));
+      .catch((erro) => {
+        setServicosBanco([]);
+        // HEURÍSTICA 9: lista vazia parecia "não há serviços"; agora o usuário sabe que foi falha de conexão.
+        Alert.alert(
+          'Não foi possível carregar os serviços',
+          erro instanceof Error ? erro.message : 'Verifique sua conexão e abra esta tela novamente.'
+        );
+      });
   }, []);
 
   function encontrarServicoId(rotulo: string) {

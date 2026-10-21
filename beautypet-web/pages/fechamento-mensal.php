@@ -167,72 +167,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Identifica qual ação o formulário solicitou para direcionar o processamento correto.
     $acao = (string) ($_POST['acao'] ?? '');
 
-    // Verifica a condição abaixo antes de executar este bloco.
-    if ($acao === 'finalizar_mes' && !$mensalFechado) {
-        // Guarda observações informadas pela equipe para acompanhar o cadastro, agendamento ou lançamento.
-        $observacoes = textoOuNull($_POST['observacoes'] ?? null);
+    // HEURÍSTICA 9: antes não havia try/catch; uma falha do banco virava página de erro fatal.
+    try {
+        // Verifica a condição abaixo antes de executar este bloco.
+        if ($acao === 'finalizar_mes' && !$mensalFechado) {
+            // Guarda observações informadas pela equipe para acompanhar o cadastro, agendamento ou lançamento.
+            $observacoes = textoOuNull($_POST['observacoes'] ?? null);
 
-        // Prepara uma consulta em "fechamentos_diarios" para carregar os dados necessários a esta etapa.
-        $stmt = $pdo->prepare(
-            "SELECT COUNT(*)
-             FROM fechamentos_diarios f
-             WHERE f.data_fechamento BETWEEN ? AND ?
-               AND f.status <> 'FECHADO'
-               AND EXISTS (
-                    SELECT 1
-                    FROM lancamentos_diarios l
-                    WHERE l.fechamento_diario_id = f.id
-               )"
-        );
-        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
-        $stmt->execute([$inicioMes, $fimMes]);
-        // Obtém somente a primeira coluna do resultado, útil para contagens, IDs e totais simples.
-        $diasPendentes = (int) $stmt->fetchColumn();
+            // Prepara uma consulta em "fechamentos_diarios" para carregar os dados necessários a esta etapa.
+            $stmt = $pdo->prepare(
+                "SELECT COUNT(*)
+                 FROM fechamentos_diarios f
+                 WHERE f.data_fechamento BETWEEN ? AND ?
+                   AND f.status <> 'FECHADO'
+                   AND EXISTS (
+                        SELECT 1
+                        FROM lancamentos_diarios l
+                        WHERE l.fechamento_diario_id = f.id
+                   )"
+            );
+            // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
+            $stmt->execute([$inicioMes, $fimMes]);
+            // Obtém somente a primeira coluna do resultado, útil para contagens, IDs e totais simples.
+            $diasPendentes = (int) $stmt->fetchColumn();
+
+            // Verifica a condição abaixo antes de executar este bloco.
+            if ($diasPendentes > 0) {
+                // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
+                // HEURÍSTICA 9: informa quantos dias faltam e onde resolver.
+                $mensagem = 'Ainda ' . ($diasPendentes === 1 ? 'existe 1 dia' : 'existem ' . $diasPendentes . ' dias')
+                    . ' com movimento sem fechamento. Abra o Fechamento diário desses dias, finalize-os e depois feche o mês.';
+                // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
+                $tipoMensagem = 'error';
+            // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
+            } else {
+                // Prepara a atualização do registro correspondente em "fechamentos_mensais" com os novos dados.
+                $stmt = $pdo->prepare(
+                    "UPDATE fechamentos_mensais
+                     SET status = 'FECHADO',
+                         observacoes = ?,
+                         fechado_por = ?,
+                         fechado_em = CURRENT_TIMESTAMP
+                     WHERE id = ?"
+                );
+                // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
+                $stmt->execute([$observacoes, $usuarioId, $fechamentoMensalId]);
+
+                // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
+                header('Location: fechamento-mensal.php?mes=' . urlencode($competencia) . '&fechado=1');
+                // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
+                exit;
+            }
+        }
 
         // Verifica a condição abaixo antes de executar este bloco.
-        if ($diasPendentes > 0) {
-            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-            $mensagem = 'Ainda existem dias com movimento que não foram finalizados. Feche esses dias antes de fechar o mês.';
-            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-            $tipoMensagem = 'error';
-        // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
-        } else {
-            // Prepara a atualização do registro correspondente em "fechamentos_mensais" com os novos dados.
+        if ($acao === 'reabrir_mes' && $administrador && $mensalFechado) {
+            // Prepara uma consulta em "vw_fechamento_diario" para carregar os dados necessários a esta etapa.
             $stmt = $pdo->prepare(
                 "UPDATE fechamentos_mensais
-                 SET status = 'FECHADO',
-                     observacoes = ?,
-                     fechado_por = ?,
-                     fechado_em = CURRENT_TIMESTAMP
+                 SET status = 'REABERTO',
+                     fechado_por = NULL,
+                     fechado_em = NULL
                  WHERE id = ?"
             );
             // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
-            $stmt->execute([$observacoes, $usuarioId, $fechamentoMensalId]);
+            $stmt->execute([$fechamentoMensalId]);
 
             // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
-            header('Location: fechamento-mensal.php?mes=' . urlencode($competencia) . '&fechado=1');
+            header('Location: fechamento-mensal.php?mes=' . urlencode($competencia) . '&reaberto=1');
             // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
             exit;
         }
-    }
 
-    // Verifica a condição abaixo antes de executar este bloco.
-    if ($acao === 'reabrir_mes' && $administrador && $mensalFechado) {
-        // Prepara uma consulta em "vw_fechamento_diario" para carregar os dados necessários a esta etapa.
-        $stmt = $pdo->prepare(
-            "UPDATE fechamentos_mensais
-             SET status = 'REABERTO',
-                 fechado_por = NULL,
-                 fechado_em = NULL
-             WHERE id = ?"
-        );
-        // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
-        $stmt->execute([$fechamentoMensalId]);
-
-        // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
-        header('Location: fechamento-mensal.php?mes=' . urlencode($competencia) . '&reaberto=1');
-        // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
-        exit;
+        // HEURÍSTICA 9: antes o clique de quem não é administrador era ignorado sem explicação.
+        if ($acao === 'reabrir_mes' && !$administrador) {
+            $mensagem = 'Somente administradores podem reabrir o mês. Peça a um administrador ou troque de usuário no menu do perfil.';
+            $tipoMensagem = 'error';
+        }
+    } catch (Throwable $erro) {
+        error_log('[BeautyPet] fechamento-mensal: ' . $erro->getMessage());
+        $mensagem = $acao === 'reabrir_mes'
+            ? 'Não foi possível reabrir o mês agora. Nada foi alterado: tente novamente em instantes.'
+            : 'Não foi possível fechar o mês agora. Nada foi alterado: confira a internet e tente novamente.';
+        $tipoMensagem = 'error';
     }
 }
 
@@ -491,7 +508,7 @@ require __DIR__ . '/../includes/topo.php';
     </div>
 
     <?php if ($mensagem !== ''): ?>
-        <div class="message <?= escapar($tipoMensagem) ?> monthly-message">
+        <div class="message <?= escapar($tipoMensagem) ?> monthly-message" role="<?= $tipoMensagem === 'error' ? 'alert' : 'status' ?>">
             <?= escapar($mensagem) ?>
         </div>
     <?php endif; ?>

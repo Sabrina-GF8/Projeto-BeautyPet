@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -45,9 +46,7 @@ export default function Home() {
   const [proximoAgendamento, setProximoAgendamento] =
     useState<ProximoAgendamento | null>(null);
 
-  useEffect(() => {
-    refreshNotifications();
-
+  function carregarHome() {
     api<{
       cliente: { nome: string };
       proximo_agendamento: ProximoAgendamento | null;
@@ -56,9 +55,22 @@ export default function Home() {
         setNomeTutor(resposta.cliente?.nome || "");
         setProximoAgendamento(resposta.proximo_agendamento || null);
       })
-      .catch(() => {
-        // Mantém a tela funcionando mesmo se a API estiver temporariamente indisponível.
+      .catch((erro) => {
+        // HEURÍSTICA 9: antes a falha era ignorada e a tela ficava vazia sem explicação.
+        Alert.alert(
+          "Não foi possível carregar seus dados",
+          erro instanceof Error ? erro.message : "Verifique sua conexão e tente novamente.",
+          [
+            { text: "Agora não", style: "cancel" },
+            { text: "Tentar novamente", onPress: carregarHome },
+          ]
+        );
       });
+  }
+
+  useEffect(() => {
+    refreshNotifications();
+    carregarHome();
   }, []);
 
   function formatarDataAgendamento(valor?: string | null) {

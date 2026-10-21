@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
             // Verifica a condição abaixo antes de executar este bloco.
             if ($verificarEmail->fetchColumn() !== false) {
                 // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                $mensagem = 'Já existe um usuário cadastrado com esse e-mail.';
+                $mensagem = 'Já existe um usuário cadastrado com esse e-mail. Use outro e-mail ou peça para trocar a senha do usuário existente.';
                 // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                 $tipoMensagem = 'error';
                 // Guarda a mensagem de erro específica relacionada à validação ou duplicidade de e-mail.
@@ -148,7 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
                 exit;
             }        } catch (PDOException $erro) {
             // Verifica a condição abaixo antes de executar este bloco.
-            if ((int) ($erro->errorInfo[1] ?? 0) === 1062) {
+            // HEURÍSTICA 9: o banco é PostgreSQL; duplicidade é o SQLSTATE 23505 (o 1062 era do MySQL e nunca disparava).
+            if (($erro->errorInfo[0] ?? '') === '23505' || (string) $erro->getCode() === '23505') {
                 // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
                 $mensagem = 'Já existe um usuário cadastrado com esse e-mail.';
                 // Guarda a mensagem de erro específica relacionada à validação ou duplicidade de e-mail.
@@ -156,7 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
             // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
             } else {
                 // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                $mensagem = 'Não foi possível criar o usuário.';
+                error_log('[BeautyPet] novo-usuario: ' . $erro->getMessage());
+                $mensagem = 'Não foi possível criar o usuário agora. Os dados continuam no formulário: tente salvar novamente.';
             }
             // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';

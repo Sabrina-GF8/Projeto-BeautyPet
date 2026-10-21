@@ -125,7 +125,10 @@ function renderizarAcoesAgenda(array $item, string $dataSelecionada): void
 }
 
 // Confere se a data recebida pela URL é válida; se não for, a página volta para a data atual.
+// HEURÍSTICA 9: antes a troca para hoje era silenciosa; agora o usuário é avisado.
+$avisoDataInvalida = false;
 if (!dataSqlValida($dataSelecionada)) {
+    $avisoDataInvalida = isset($_GET['data']) && $_GET['data'] !== '';
     // Define a data que a página irá consultar/exibir, usando a data recebida na URL ou o dia atual.
     $dataSelecionada = date('Y-m-d');
 }
@@ -181,8 +184,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Impede continuar enquanto pet e serviço obrigatórios não tiverem sido selecionados corretamente.
         if ($petId === null || $servico === null) {
-            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-            $mensagem = 'Selecione o pet e o serviço.';
+            // HEURÍSTICA 9: diz exatamente qual dos dois campos está faltando.
+            $mensagem = match (true) {
+                $petId === null && $servico === null => 'Selecione o pet e o serviço para agendar.',
+                $petId === null => 'Selecione o pet: digite o nome e clique em um resultado da lista.',
+                default => 'Selecione o serviço que será realizado.',
+            };
             // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
             // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
@@ -308,11 +315,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Monta a data e hora completas de início no formato esperado pelo banco de dados.
                 $inicio = $dataSelecionada . ' ' . $horaInicio . ':00';
 
+                // HEURÍSTICA 9: verifica conflito de horário do mesmo pet antes de salvar.
+                $horarioConflito = $fim === null || strtotime($fim) > strtotime($inicio)
+                    ? conflitoHorarioPet($pdo, $petId, $inicio, $fim, $agendamentoId)
+                    : null;
+
                 // Garante que o término seja realmente posterior ao início do atendimento.
                 if ($fim !== null && strtotime($fim) <= strtotime($inicio)) {
                     // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                    $mensagem = 'O término deve ser posterior ao início.';
+                    $mensagem = 'O horário de término deve ser depois do início. Ajuste o término e salve novamente.';
                     // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
+                    $tipoMensagem = 'error';
+                // HEURÍSTICA 9: não deixa criar agendamento num horário que já passou.
+                // Creche e hotel guardam 00:00 como horário técnico: para eles só a data importa.
+                } elseif (
+                    $acao === 'criar_agendamento'
+                    && (in_array($categoriaAgenda ?? '', ['creche', 'hotel'], true)
+                        ? $dataSelecionada < date('Y-m-d')
+                        : dataHoraJaPassou($dataSelecionada, $horaInicio))
+                ) {
+                    $mensagem = 'Esse horário já passou. Escolha um horário a partir de agora ou mude a data no calendário.';
+                    $tipoMensagem = 'error';
+                } elseif ($horarioConflito !== null) {
+                    $mensagem = 'Este pet já tem um agendamento às ' . $horarioConflito . ' nesse período. Escolha outro horário ou edite o agendamento existente.';
                     $tipoMensagem = 'error';
                     // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
                 } else {
@@ -458,9 +483,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
 
                         // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                        $mensagem = $erro instanceof RuntimeException
+                        // HEURÍSTICA 9: erro técnico vai para o log; o usuário recebe o próximo passo.
+                        if (!erroDeRegra($erro)) {
+                            error_log('[BeautyPet] agenda salvar: ' . $erro->getMessage());
+                        }
+                        $mensagem = erroDeRegra($erro)
                             ? $erro->getMessage()
-                            : 'Não foi possível salvar o agendamento.';
+                            : 'Não foi possível salvar o agendamento agora. Os dados continuam no formulário: confira a internet e tente salvar de novo.';
                         // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                         $tipoMensagem = 'error';
                     }
@@ -478,42 +507,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Armazena a coleção "statusPermitidos" carregada para ser percorrida e exibida/processada a seguir.
         $statusPermitidos = ['EM_ATENDIMENTO', 'CONCLUIDO', 'CANCELADO'];
 
-        // Verifica a condição abaixo antes de executar este bloco.
-        if (
-            // Valida a existência do identificador antes de alterar ou excluir um agendamento.
-            $agendamentoId === null
-            || !in_array($novoStatus, $statusPermitidos, true)
-        ) {
-            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-            $mensagem = 'Não foi possível atualizar esse agendamento.';
-            // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
+        // HEURÍSTICA 9: separa os dois motivos (antes era uma única mensagem genérica).
+        if ($agendamentoId === null) {
+            $mensagem = 'Agendamento não identificado. Atualize a página e tente novamente.';
+            $tipoMensagem = 'error';
+        } elseif (!in_array($novoStatus, $statusPermitidos, true)) {
+            $mensagem = 'Status inválido. Escolha Em atendimento, Concluído ou Cancelado.';
             $tipoMensagem = 'error';
             // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
         } else {
-            // Prepara a atualização do registro correspondente em "agendamentos" com os novos dados.
-            $stmt = $pdo->prepare(
-                'UPDATE agendamentos
-                 SET status = :status,
-                     respondido_por = :usuario_id,
-                     respondido_em = CURRENT_TIMESTAMP
-                 WHERE id = :id'
-            );
+            // HEURÍSTICA 9: falha do banco não derruba mais a página inteira.
+            try {
+                // Prepara a atualização do registro correspondente em "agendamentos" com os novos dados.
+                $stmt = $pdo->prepare(
+                    'UPDATE agendamentos
+                     SET status = :status,
+                         respondido_por = :usuario_id,
+                         respondido_em = CURRENT_TIMESTAMP
+                     WHERE id = :id'
+                );
 
-            // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
-            $stmt->execute([
-                ':status'     => $novoStatus,
-                ':usuario_id' => $usuarioId,
-                ':id'         => $agendamentoId,
-            ]);
+                // Executa a instrução preparada enviando os parâmetros de forma separada e segura.
+                $stmt->execute([
+                    ':status'     => $novoStatus,
+                    ':usuario_id' => $usuarioId,
+                    ':id'         => $agendamentoId,
+                ]);
 
-            // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
-            header(
-                'Location: agenda.php?data='
-                    . urlencode($dataSelecionada)
-                    . '&atualizado=1'
-            );
-            // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
-            exit;
+                if ($stmt->rowCount() === 0) {
+                    throw new RuntimeException('Esse agendamento não existe mais (pode ter sido excluído). Atualize a página.');
+                }
+
+                // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
+                header(
+                    'Location: agenda.php?data='
+                        . urlencode($dataSelecionada)
+                        . '&atualizado=1'
+                );
+                // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
+                exit;
+            } catch (Throwable $erro) {
+                if (!erroDeRegra($erro)) {
+                    error_log('[BeautyPet] agenda status: ' . $erro->getMessage());
+                }
+                $mensagem = erroDeRegra($erro)
+                    ? $erro->getMessage()
+                    : 'Não foi possível alterar o status agora. Nada foi modificado: tente novamente em instantes.';
+                $tipoMensagem = 'error';
+            }
         }
     }
 
@@ -561,15 +602,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
                 exit;
                 // Captura uma falha ocorrida no bloco anterior para desfazer operações e exibir uma mensagem controlada.
-            } catch (Throwable) {
+            } catch (Throwable $erro) {
                 // Confere se existe uma transação aberta antes de tentar desfazê-la.
                 if ($pdo->inTransaction()) {
                     // Desfaz as alterações da transação atual porque alguma etapa falhou.
                     $pdo->rollBack();
                 }
 
-                // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                $mensagem = 'Não foi possível excluir o agendamento.';
+                // HEURÍSTICA 9: registra a causa e diz ao usuário que nada foi apagado.
+                error_log('[BeautyPet] agenda excluir: ' . $erro->getMessage());
+                $mensagem = 'Não foi possível excluir o agendamento. Nada foi apagado: atualize a página e tente novamente.';
                 // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                 $tipoMensagem = 'error';
             }
@@ -606,8 +648,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
     } elseif (isset($_GET['sem_permissao'])) {
         // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'Somente administradores podem configurar a agenda-padrão.';
+        $mensagem = 'Somente administradores podem configurar a agenda-padrão. Peça a um administrador ou troque de usuário no menu do perfil.';
         // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
+        $tipoMensagem = 'error';
+    } elseif ($avisoDataInvalida) {
+        $mensagem = 'A data informada é inválida. Mostrando a agenda de hoje.';
         $tipoMensagem = 'error';
     }
 }
@@ -935,7 +980,7 @@ require __DIR__ . '/../includes/topo.php';
     </div>
 
     <?php if ($mensagem !== ''): ?>
-        <div class="message <?= escapar($tipoMensagem) ?>">
+        <div class="message <?= escapar($tipoMensagem) ?>" role="<?= $tipoMensagem === 'error' ? 'alert' : 'status' ?>">
             <?= escapar($mensagem) ?>
         </div>
     <?php endif; ?>
@@ -1449,7 +1494,7 @@ require __DIR__ . '/../includes/topo.php';
                 if (!petResults) return;
 
                 if (!pets || pets.length === 0) {
-                    petResults.innerHTML = '<div class="search-picker-empty" style="padding: 10px; color: #777;">Nenhum pet encontrado</div>';
+                    petResults.innerHTML = '<div class="search-picker-empty" style="padding: 10px; color: #777;">Nenhum pet encontrado. Confira o nome ou cadastre o pet em Cadastro de pet.</div>';
                 } else {
                     // Mapeia usando a propriedade 'label' retornada pelo seu PHP
                     petResults.innerHTML = pets.map(pet => `
@@ -1465,6 +1510,11 @@ require __DIR__ . '/../includes/topo.php';
                 petResults.hidden = false;
             } catch (erro) {
                 console.error('Erro ao buscar pets:', erro);
+                // HEURÍSTICA 9: antes o erro só ia para o console; agora o usuário vê o que aconteceu.
+                if (petResults) {
+                    petResults.innerHTML = '<div class="search-picker-empty" role="alert" style="padding: 10px; color: #b91c1c;">Não foi possível buscar pets agora. Verifique a conexão e digite novamente.</div>';
+                    petResults.hidden = false;
+                }
             }
         };
 

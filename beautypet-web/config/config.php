@@ -36,6 +36,46 @@ if (!defined('BASE_URL')) {
 // 2. AMBIENTE E CONEXÃO COM POSTGRESQL / SUPABASE
 // ============================================================================
 
+// HEURÍSTICA 9: datas e horários comparados no fuso do Brasil (evita recusar horário válido como "já passou").
+date_default_timezone_set('America/Sao_Paulo');
+
+/**
+ * HEURÍSTICA 9: diferencia erro de regra de negócio (mensagem pensada para o usuário)
+ * de erro técnico do banco. PDOException herda de RuntimeException, por isso é excluída:
+ * a mensagem técnica do banco nunca deve aparecer na tela.
+ */
+function erroDeRegra(Throwable $erro): bool
+{
+    return $erro instanceof RuntimeException && !($erro instanceof PDOException);
+}
+
+/**
+ * HEURÍSTICA 9 (reconhecer, diagnosticar e recuperar erros):
+ * mostra uma página amigável quando o sistema não consegue iniciar.
+ * O detalhe técnico vai para o log do servidor (error_log), nunca para a tela,
+ * e o usuário recebe o que fazer a seguir + um botão "Tentar novamente".
+ */
+function encerrarComErroSistema(string $titulo, string $orientacao, string $detalheTecnico = ''): never
+{
+    if ($detalheTecnico !== '') {
+        error_log('[BeautyPet] ' . $titulo . ' - ' . $detalheTecnico);
+    }
+
+    http_response_code(503);
+    $tituloSeguro = htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8');
+    $orientacaoSegura = htmlspecialchars($orientacao, ENT_QUOTES, 'UTF-8');
+
+    exit('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<title>Beauty Pet - ' . $tituloSeguro . '</title></head>'
+        . '<body style="font-family:Arial,sans-serif;background:#f6f1f8;margin:0;padding:40px 16px;">'
+        . '<main role="alert" style="max-width:520px;margin:0 auto;background:#fff;border-left:6px solid #c0392b;border-radius:12px;padding:24px;">'
+        . '<h1 style="margin-top:0;color:#c0392b;font-size:22px;">' . $tituloSeguro . '</h1>'
+        . '<p style="color:#333;line-height:1.5;">' . $orientacaoSegura . '</p>'
+        . '<a href="" style="display:inline-block;margin-top:8px;padding:10px 18px;background:#7b3fa0;color:#fff;border-radius:8px;text-decoration:none;">Tentar novamente</a>'
+        . '</main></body></html>');
+}
+
 // Leitura do arquivo .env.
 require_once __DIR__ . '/env.php';
 
@@ -43,18 +83,28 @@ require_once __DIR__ . '/env.php';
 carregarEnv(__DIR__ . '/.env');
 $databaseUrl = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') ?: '';
 
+// HEURÍSTICA 9: erros de instalação dizem exatamente o que corrigir (quem vê é quem instala o sistema).
 if ($databaseUrl === '') {
-    exit('DATABASE_URL não configurada. Copie a string de conexão PostgreSQL do Supabase para config/.env.');
+    encerrarComErroSistema(
+        'Banco de dados não configurado',
+        'O arquivo config/.env não tem a DATABASE_URL. Copie config/.env.exemplo para config/.env e cole a string de conexão do Supabase (Project Settings > Database).'
+    );
 }
 
 if (!in_array('pgsql', PDO::getAvailableDrivers(), true)) {
-    exit('O driver PDO_PGSQL não está habilitado no PHP. Ative extension=pdo_pgsql no php.ini e reinicie o Apache.');
+    encerrarComErroSistema(
+        'Extensão do PHP desativada',
+        'O PHP não está com o driver do PostgreSQL ligado. No XAMPP, abra o php.ini, remova o ";" da linha extension=pdo_pgsql e reinicie o Apache.'
+    );
 }
 
 $partesBanco = parse_url($databaseUrl);
 
 if ($partesBanco === false || empty($partesBanco['host']) || empty($partesBanco['user'])) {
-    exit('DATABASE_URL inválida. Use a string PostgreSQL exibida em Supabase > Project Settings > Database.');
+    encerrarComErroSistema(
+        'Endereço do banco inválido',
+        'A DATABASE_URL do arquivo config/.env está incompleta. Copie novamente a string PostgreSQL em Supabase > Project Settings > Database.'
+    );
 }
 
 $hostBanco = (string) $partesBanco['host'];
@@ -79,9 +129,18 @@ try {
     );
     $pdo->exec("SET TIME ZONE 'America/Sao_Paulo'");
 } catch (PDOException $erro) {
-    exit('Não foi possível conectar ao Supabase/PostgreSQL: ' . $erro->getMessage());
+    // HEURÍSTICA 9: antes a mensagem técnica do PDO (host, usuário, SSL) aparecia na tela.
+    encerrarComErroSistema(
+        'Não foi possível conectar ao banco de dados',
+        'Verifique sua conexão com a internet e tente novamente em alguns minutos. Se o problema continuar, avise o administrador do sistema.',
+        $erro->getMessage()
+    );
 } catch (Exception $erro) {
-    exit('Erro na configuração de ambiente: ' . $erro->getMessage());
+    encerrarComErroSistema(
+        'Erro na configuração do sistema',
+        'Confira o arquivo config/.env e tente novamente. Se o problema continuar, avise o administrador do sistema.',
+        $erro->getMessage()
+    );
 }
 
 // ============================================================================
@@ -573,6 +632,60 @@ function dataSqlValida(?string $data): bool
         && $objeto->format('Y-m-d') === $data;
 }
 
+// ----------------------------------------------------------------------------
+// HEURÍSTICA 9: validações reutilizáveis que impedem dados impossíveis
+// (o mesmo papel do exemplo "idade menor que 18" de um cadastro).
+// ----------------------------------------------------------------------------
+
+/** Data de nascimento/registro não pode ser depois de hoje. */
+function dataNaoFutura(string $dataSql): bool
+{
+    return $dataSql <= date('Y-m-d');
+}
+
+/** Agendamentos não podem começar num horário que já passou. */
+function dataHoraJaPassou(string $dataSql, string $horaSql): bool
+{
+    $inicio = DateTime::createFromFormat('Y-m-d H:i', $dataSql . ' ' . substr($horaSql, 0, 5));
+
+    return $inicio !== false && $inicio < new DateTime();
+}
+
+/** Telefone brasileiro: DDD + número (10 ou 11 dígitos). */
+function telefoneValido(?string $telefone): bool
+{
+    $digitos = preg_replace('/\D+/', '', $telefone ?? '');
+
+    return strlen($digitos) === 10 || strlen($digitos) === 11;
+}
+
+function emailValido(?string $email): bool
+{
+    return $email !== null && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+}
+
+/** Classe CSS que destaca o campo com erro (usa .input-error, que já existe no CSS). */
+function classeErroCampo(array $errosCampo, string $campo): string
+{
+    return isset($errosCampo[$campo]) ? ' input-error' : '';
+}
+
+/** Mensagem curta embaixo do campo, dizendo o que corrigir. */
+function mensagemErroCampo(array $errosCampo, string $campo): string
+{
+    if (!isset($errosCampo[$campo])) {
+        return '';
+    }
+
+    return '<small class="field-error" role="alert">' . escapar($errosCampo[$campo]) . '</small>';
+}
+
+/** Atributos de acessibilidade para leitores de tela anunciarem o campo inválido. */
+function ariaErroCampo(array $errosCampo, string $campo): string
+{
+    return isset($errosCampo[$campo]) ? ' aria-invalid="true"' : '';
+}
+
 function horaSqlValida(?string $hora): bool
 {
     if ($hora === null || $hora === '') {
@@ -1013,6 +1126,66 @@ function padraoSobreposto(
     return (int) $stmt->fetchColumn() > 0;
 }
 
+/**
+ * HEURÍSTICA 9: impede agendar o mesmo pet duas vezes no mesmo horário.
+ * Retorna o horário (HH:MM) do agendamento que conflita, ou null se estiver livre.
+ * Estadias longas (hotel/creche, acima de 12h) não bloqueiam, porque o pet pode
+ * tomar banho durante a hospedagem.
+ */
+function conflitoHorarioPet(PDO $pdo, int $petId, string $inicio, ?string $fim, ?int $ignorarId = null): ?string
+{
+    $fimCalculado = $fim ?? date('Y-m-d H:i:s', strtotime($inicio) + 30 * 60);
+
+    if (strtotime($fimCalculado) - strtotime($inicio) > 12 * 3600) {
+        return null;
+    }
+
+    $sql = "SELECT TO_CHAR(data_hora_inicio, 'HH24:MI')
+            FROM agendamentos
+            WHERE pet_id = :pet_id
+              AND status NOT IN ('CANCELADO', 'RECUSADO')
+              AND data_hora_inicio < :novo_fim
+              AND COALESCE(data_hora_fim, data_hora_inicio + INTERVAL '30 minutes') > :novo_inicio
+              AND COALESCE(data_hora_fim, data_hora_inicio + INTERVAL '30 minutes') - data_hora_inicio <= INTERVAL '12 hours'";
+    $parametros = [
+        ':pet_id'      => $petId,
+        ':novo_fim'    => $fimCalculado,
+        ':novo_inicio' => $inicio,
+    ];
+
+    if ($ignorarId !== null) {
+        $sql .= ' AND id <> :ignorar_id';
+        $parametros[':ignorar_id'] = $ignorarId;
+    }
+
+    try {
+        $stmt = $pdo->prepare($sql . ' ORDER BY data_hora_inicio LIMIT 1');
+        $stmt->execute($parametros);
+        $horario = $stmt->fetchColumn();
+    } catch (Throwable $erro) {
+        // Se a verificação falhar, não bloqueia o agendamento; só registra para o desenvolvedor.
+        error_log('[BeautyPet] conflitoHorarioPet: ' . $erro->getMessage());
+        return null;
+    }
+
+    return $horario === false ? null : (string) $horario;
+}
+
+/**
+ * HEURÍSTICA 9: antes valores fora da faixa eram trocados em silêncio (ex.: 9 virava 5).
+ * Agora a página consegue avisar o usuário antes de salvar.
+ */
+function vagasForaDaFaixa(mixed $valor): bool
+{
+    if ($valor === null || $valor === '') {
+        return false;
+    }
+
+    $numero = filter_var($valor, FILTER_VALIDATE_INT);
+
+    return $numero === false || $numero < 0 || $numero > 5;
+}
+
 function quantidadeVagas(mixed $valor): int
 {
     $numero = filter_var($valor, FILTER_VALIDATE_INT);
@@ -1053,15 +1226,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'trocar_
         exit;
     }
 
-    $stmt = $pdo->prepare(
-        'SELECT id, nome, email, senha_hash
-         FROM usuarios
-         WHERE LOWER(TRIM(email)) = :email
-           AND ativo = TRUE
-         LIMIT 1'
-    );
-    $stmt->execute([':email' => $emailNormalizado]);
-    $usuarioTroca = $stmt->fetch();
+    // HEURÍSTICA 9: uma falha do banco no login não pode virar página de erro fatal.
+    try {
+        $stmt = $pdo->prepare(
+            'SELECT id, nome, email, senha_hash
+             FROM usuarios
+             WHERE LOWER(TRIM(email)) = :email
+               AND ativo = TRUE
+             LIMIT 1'
+        );
+        $stmt->execute([':email' => $emailNormalizado]);
+        $usuarioTroca = $stmt->fetch();
+    } catch (Throwable $erro) {
+        error_log('[BeautyPet] Falha ao verificar login: ' . $erro->getMessage());
+        $_SESSION['usuario_troca_email'] = $emailNormalizado;
+        definirMensagemUsuario('error', 'Não foi possível verificar seu acesso agora. Confira a internet e tente novamente.');
+        header('Location: ' . $retorno);
+        exit;
+    }
 
     if (!$usuarioTroca || !password_verify($senhaDigitada, $usuarioTroca['senha_hash'])) {
         $_SESSION['usuario_troca_email'] = $emailNormalizado;

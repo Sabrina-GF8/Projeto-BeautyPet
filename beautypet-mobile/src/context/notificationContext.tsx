@@ -5,6 +5,8 @@ import {
   useState,
 } from "react";
 
+import { Alert } from "react-native";
+
 import { api, obterTokenSessao } from "../lib/api";
 
 type Notification = {
@@ -71,12 +73,29 @@ export function NotificationProvider({
 
     api("marcar_notificacao_lida", {
       notificacao_id: id,
-    }).catch(() => {});
+    }).catch(() => {
+      // HEURÍSTICA 9: antes parecia salvo mesmo quando falhava; agora desfaz a marcação.
+      setNotifications((notifications) =>
+        notifications.map((notification) =>
+          notification.id === id
+            ? { ...notification, read: false }
+            : notification
+        )
+      );
+    });
   }
 
   function clearNotifications() {
+    const anteriores = notifications;
     setNotifications([]);
-    api("limpar_notificacoes").catch(() => {});
+    api("limpar_notificacoes").catch((erro) => {
+      // HEURÍSTICA 9: restaura a lista e explica o que aconteceu.
+      setNotifications(anteriores);
+      Alert.alert(
+        "Não foi possível limpar as notificações",
+        erro instanceof Error ? erro.message : "Verifique sua conexão e tente novamente."
+      );
+    });
   }
 
   useEffect(() => {

@@ -117,6 +117,11 @@ require __DIR__ . '/../includes/topo.php';
 
 <div class="page records-page">
 
+    <?php if (isset($_GET['nao_encontrado'])): ?>
+        <?php /* HEURÍSTICA 9: explica por que o usuário voltou para a lista e o que fazer. */ ?>
+        <div class="message error" role="alert">O tutor procurado não foi encontrado ou foi removido. Pesquise novamente na lista abaixo.</div>
+    <?php endif; ?>
+
     <!-- Cabeçalho da página de fichas dos tutores. -->
     <div class="page-heading">
 

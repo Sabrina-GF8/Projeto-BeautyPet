@@ -229,6 +229,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Percorre cada item da coleção para processar os registros individualmente.
                     foreach ($horarios as $horario) {
+                        // HEURÍSTICA 9: antes um valor como 9 ou -1 era trocado em silêncio; agora o usuário é avisado.
+                        if (vagasForaDaFaixa($vagasEnviadas[$horario] ?? 0)) {
+                            throw new RuntimeException('A quantidade de vagas das ' . $horario . ' deve ser um número inteiro entre 0 e 5. Corrija e salve novamente.');
+                        }
+
                         // Guarda a quantidade informada e usada para vagas, créditos, itens ou repetições.
                         $quantidade = quantidadeVagas(
                             $vagasEnviadas[$horario] ?? 0
@@ -261,9 +266,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                    $mensagem = $erro instanceof RuntimeException
+                    // HEURÍSTICA 9: erro técnico vai para o log; o usuário recebe o próximo passo.
+                    if (!erroDeRegra($erro)) {
+                        error_log('[BeautyPet] agenda-padrao: ' . $erro->getMessage());
+                    }
+                    $mensagem = erroDeRegra($erro)
                         ? $erro->getMessage()
-                        : 'Não foi possível salvar a agenda-padrão.';
+                        : 'Não foi possível salvar a agenda-padrão agora. Nada foi alterado: confira a internet e tente novamente.';
                     // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
                     $tipoMensagem = 'error';
                 }
@@ -461,7 +470,7 @@ require __DIR__ . '/../includes/topo.php';
     </div>
 
     <?php if ($mensagem !== ''): ?>
-        <div class="message <?= escapar($tipoMensagem) ?>">
+        <div class="message <?= escapar($tipoMensagem) ?>" role="<?= $tipoMensagem === 'error' ? 'alert' : 'status' ?>">
             <?= escapar($mensagem) ?>
         </div>
     <?php endif; ?>

@@ -23,6 +23,8 @@ $dados = $_POST; // Armazena em dados o valor usado nas próximas etapas deste f
 $fotoSalva = null; // Armazena em fotoSalva o valor usado nas próximas etapas deste fluxo.
 // Guarda o caminho da foto já cadastrada para mantê-la quando nenhuma nova imagem for enviada.
 $fotoAtual = null; // Armazena em fotoAtual o valor usado nas próximas etapas deste fluxo.
+// HEURÍSTICA 9: guarda o erro de cada campo para destacá-lo e explicar o que corrigir.
+$errosCampo = [];
 
 // Trata os parâmetros da URL usados principalmente para exibir mensagens após redirecionamentos.
 if ($modoEdicao && $_SERVER['REQUEST_METHOD'] === 'GET') { // Testa esta condição antes de executar o bloco correspondente.
@@ -73,31 +75,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Testa esta condição antes de e
     // Guarda o caminho da foto já cadastrada para mantê-la quando nenhuma nova imagem for enviada.
     $fotoAtual = textoOuNull($_POST['foto_atual'] ?? null); // Armazena em fotoAtual o valor usado nas próximas etapas deste fluxo.
 
-    // Verifica a condição abaixo antes de executar este bloco.
-    if ($nome === null || $clienteId === null || $especieId === null) { // Testa esta condição antes de executar o bloco correspondente.
-        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'Preencha o nome, a espécie e o tutor responsável.'; // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
-        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-        $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
-    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
-    } elseif (!in_array($sexo, ['MACHO', 'FEMEA', 'NAO_INFORMADO'], true)) { // Executa esta instrução como parte da regra de negócio desta página.
-        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'Selecione um sexo válido.'; // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
-        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-        $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
-    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
-    } elseif ($porte !== null && !in_array($porte, ['PEQUENO', 'MEDIO', 'GRANDE'], true)) { // Executa esta instrução como parte da regra de negócio desta página.
-        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'Selecione um porte válido.'; // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
-        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-        $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
-    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
-    } elseif ($peso !== null && (!is_numeric($peso) || (float) $peso < 0)) { // Executa esta instrução como parte da regra de negócio desta página.
-        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'Informe um peso válido.'; // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
-        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-        $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
-    // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
+    // HEURÍSTICA 9: aceita peso com vírgula (ex.: 4,5), como o usuário digita no Brasil.
+    if ($peso !== null) {
+        $peso = str_replace(',', '.', $peso);
+    }
+    $dataNascimento = textoOuNull($_POST['data_nascimento'] ?? null);
+
+    // HEURÍSTICA 9: cada campo recebe sua própria mensagem (antes era uma única frase para três campos).
+    if ($nome === null) {
+        $errosCampo['nome'] = 'Informe o nome do pet.';
+    }
+    if ($especieId === null) {
+        $errosCampo['especie_id'] = 'Selecione a espécie.';
+    }
+    if ($clienteId === null) {
+        $errosCampo['cliente_id'] = 'Pesquise e clique no tutor responsável na lista.';
+    }
+    if (!in_array($sexo, ['MACHO', 'FEMEA', 'NAO_INFORMADO'], true)) {
+        $errosCampo['sexo'] = 'Selecione um sexo válido.';
+    }
+    if ($porte !== null && !in_array($porte, ['PEQUENO', 'MEDIO', 'GRANDE'], true)) {
+        $errosCampo['porte'] = 'Selecione um porte válido.';
+    }
+    // HEURÍSTICA 9: peso zero ou negativo é impossível.
+    if ($peso !== null && (!is_numeric($peso) || (float) $peso <= 0)) {
+        $errosCampo['peso'] = 'Informe um peso maior que zero (ex.: 4,5).';
+    } elseif ($peso !== null && (float) $peso > 150) {
+        $errosCampo['peso'] = 'O peso informado parece alto demais. Confira se digitou em quilos (ex.: 12,5).';
+    }
+    // HEURÍSTICA 9: data de nascimento no futuro é impossível (mesma ideia do exemplo "idade < 18").
+    if ($dataNascimento !== null) {
+        if (!dataSqlValida($dataNascimento)) {
+            $errosCampo['data_nascimento'] = 'Informe uma data de nascimento válida.';
+        } elseif (!dataNaoFutura($dataNascimento)) {
+            $errosCampo['data_nascimento'] = 'A data de nascimento não pode ser depois de hoje.';
+        } elseif ($dataNascimento < date('Y-m-d', strtotime('-40 years'))) {
+            $errosCampo['data_nascimento'] = 'A data de nascimento está muito antiga. Confira o ano digitado.';
+        }
+    }
+
+    if ($errosCampo) {
+        $mensagem = count($errosCampo) === 1
+            ? 'Corrija o campo destacado: ' . reset($errosCampo)
+            : 'Corrija os ' . count($errosCampo) . ' campos destacados em vermelho e salve novamente.';
+        $tipoMensagem = 'error';
     } else { // Executa esta instrução como parte da regra de negócio desta página.
         // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
         try { // Executa esta instrução como parte da regra de negócio desta página.
@@ -163,7 +184,7 @@ $parametros = [
     ':cor'                         => textoOuNull($_POST['cor'] ?? null),
     ':peso'                        => $peso !== null ? (float) $peso : null,
     ':porte'                       => $porte,
-    ':data_nascimento'             => textoOuNull($_POST['data_nascimento'] ?? null),
+    ':data_nascimento'             => $dataNascimento,
     ':nascimento_aproximado'       => isset($_POST['nascimento_aproximado']) ? 'true' : 'false',
     ':castrado'                    => $castradoVal,
     ':vacinacao_em_dia'            => isset($_POST['vacinacao_em_dia']) ? 'true' : 'false',
@@ -263,9 +284,17 @@ $parametros = [
             } // Abre, fecha ou encerra a estrutura iniciada nas linhas relacionadas.
 
             // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-            $mensagem = $erro instanceof RuntimeException // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
+            // HEURÍSTICA 9: regra de negócio mostra a causa; erro técnico vai para o log e o usuário recebe o próximo passo.
+            if (!erroDeRegra($erro)) {
+                error_log('[BeautyPet] cadastro-pet: ' . $erro->getMessage());
+            }
+            $mensagem = erroDeRegra($erro) // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
                 ? $erro->getMessage() // Executa esta instrução como parte da regra de negócio desta página.
-                : 'Não foi possível salvar o pet.'; // Executa esta instrução como parte da regra de negócio desta página.
+                : 'Não foi possível salvar o pet agora. Seus dados continuam no formulário: confira a internet e clique em Salvar novamente.'; // Executa esta instrução como parte da regra de negócio desta página.
+            // HEURÍSTICA 9: o navegador limpa o campo de arquivo após o envio; avisa para selecionar a foto de novo.
+            if (!empty($_FILES['foto']['name'])) {
+                $mensagem .= ' Selecione a foto novamente antes de salvar.';
+            }
             // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
         } // Abre, fecha ou encerra a estrutura iniciada nas linhas relacionadas.
@@ -337,7 +366,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                 </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                 <?php if ($mensagem !== ''): ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                    <div class="message <?= escapar($tipoMensagem) ?>"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
+                    <div class="message <?= escapar($tipoMensagem) ?>" role="<?= $tipoMensagem === 'error' ? 'alert' : 'status' ?>"> <?php /* HEURÍSTICA 9: role="alert" faz o leitor de tela anunciar o erro. */ ?>
                         <?= escapar($mensagem) ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                     </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                 <?php endif; ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -377,16 +406,17 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <!-- Rótulo do campo "Nome do pet", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="nome">Nome do pet</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Campo "nome" utilizado para enviar esta informação no formulário. -->
-                                <input id="nome" name="nome" type="text" <?php /* Cria um campo para entrada de dados. */ ?>
+                                <input id="nome" name="nome" type="text" class="<?= trim(classeErroCampo($errosCampo, 'nome')) ?>"<?= ariaErroCampo($errosCampo, 'nome') ?> <?php /* Cria um campo para entrada de dados. */ ?>
                                     value="<?= escapar($dados['nome'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="Nome do pet" required> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'nome') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-3"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
                                 <!-- Rótulo do campo "Espécie", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="especie">Espécie</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Lista de seleção "especie_id" com as opções válidas para este dado. -->
-                                <select id="especie" name="especie_id" required> <?php /* Cria uma lista de opções. */ ?>
+                                <select id="especie" name="especie_id" class="<?= trim(classeErroCampo($errosCampo, 'especie_id')) ?>"<?= ariaErroCampo($errosCampo, 'especie_id') ?> required> <?php /* Cria uma lista de opções. */ ?>
                                     <option value="">Selecione</option> <?php /* Define uma opção selecionável. */ ?>
 
                                     <?php foreach ($especies as $especie): ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -396,6 +426,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                         </option> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                                     <?php endforeach; ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                 </select> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'especie_id') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-3"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
@@ -420,7 +451,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <!-- Rótulo do campo "Sexo", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="sexo">Sexo</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Lista de seleção "sexo" com as opções válidas para este dado. -->
-                                <select id="sexo" name="sexo" required> <?php /* Cria uma lista de opções. */ ?>
+                                <select id="sexo" name="sexo" class="<?= trim(classeErroCampo($errosCampo, 'sexo')) ?>" required> <?php /* Cria uma lista de opções. */ ?>
                                     <option value="NAO_INFORMADO" <?php /* Define uma opção selecionável. */ ?>
                                         <?= (($dados['sexo'] ?? 'NAO_INFORMADO') === 'NAO_INFORMADO') ? 'selected' : '' ?>> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                         Não informado <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -434,36 +465,41 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                         Fêmea <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     </option> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                                 </select> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'sexo') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-3"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
                                 <!-- Rótulo do campo "Peso (kg)", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="peso">Peso (kg)</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Campo "peso" utilizado para enviar esta informação no formulário. -->
-                                <input id="peso" name="peso" type="number" min="0" step="0.01" data-mascara="decimal" <?php /* [BP-ALTERAÇÃO #6] Peso com vírgula (assets/js/mascaras.js). */ ?>
+                                <input id="peso" name="peso" type="number" min="0.01" max="150" step="0.01" data-mascara="decimal" class="<?= trim(classeErroCampo($errosCampo, 'peso')) ?>"<?= ariaErroCampo($errosCampo, 'peso') ?> <?php /* [BP-ALTERAÇÃO #6] Peso com vírgula (assets/js/mascaras.js). */ ?>
                                     <?php /* Cria um campo para entrada de dados. */ ?>
                                     value="<?= escapar($dados['peso'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="Ex.: 10,5"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'peso') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-3"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
                                 <!-- Rótulo do campo "Porte", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="porte">Porte</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Lista de seleção "porte" com as opções válidas para este dado. -->
-                                <select id="porte" name="porte"> <?php /* Cria uma lista de opções. */ ?>
+                                <select id="porte" name="porte" class="<?= trim(classeErroCampo($errosCampo, 'porte')) ?>"> <?php /* Cria uma lista de opções. */ ?>
                                     <option value="">Selecione</option> <?php /* Define uma opção selecionável. */ ?>
                                     <option value="PEQUENO" <?= (($dados['porte'] ?? '') === 'PEQUENO') ? 'selected' : '' ?>>Pequeno</option> <?php /* Define uma opção selecionável. */ ?>
                                     <option value="MEDIO" <?= (($dados['porte'] ?? '') === 'MEDIO') ? 'selected' : '' ?>>Médio</option> <?php /* Define uma opção selecionável. */ ?>
                                     <option value="GRANDE" <?= (($dados['porte'] ?? '') === 'GRANDE') ? 'selected' : '' ?>>Grande</option> <?php /* Define uma opção selecionável. */ ?>
                                 </select> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'porte') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-4"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
                                 <!-- Rótulo do campo "Data de nascimento", indicando ao usuário qual informação deve ser preenchida. -->
                                 <label for="nascimento">Data de nascimento</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Campo "data_nascimento" utilizado para enviar esta informação no formulário. -->
-                                <input id="nascimento" name="data_nascimento" type="date" <?php /* Cria um campo para entrada de dados. */ ?>
+                                <?php /* HEURÍSTICA 9: max=hoje impede escolher data futura já no calendário do navegador. */ ?>
+                                <input id="nascimento" name="data_nascimento" type="date" max="<?= date('Y-m-d') ?>" class="<?= trim(classeErroCampo($errosCampo, 'data_nascimento')) ?>"<?= ariaErroCampo($errosCampo, 'data_nascimento') ?> <?php /* Cria um campo para entrada de dados. */ ?>
                                     value="<?= escapar($dados['data_nascimento'] ?? '') ?>"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'data_nascimento') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-4"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
@@ -478,6 +514,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                         <i class="fa-solid fa-magnifying-glass"></i> <?php /* Cria ou abre o elemento HTML i. */ ?>
                                         <input <?php /* Cria um campo para entrada de dados. */ ?>
                                             id="tutorBusca" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                            class="<?= trim(classeErroCampo($errosCampo, 'cliente_id')) ?>"<?= ariaErroCampo($errosCampo, 'cliente_id') ?>
                                             data-search-input <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                             type="search" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                             autocomplete="off" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -494,6 +531,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                     <!-- Bloco visual "search-picker-results" que organiza esta parte da interface. -->
                                     <div class="search-picker-results" data-search-results hidden></div> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
                                 </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'cliente_id') ?>
                                 <small class="field-help">Digite para pesquisar. O sistema não carrega milhares de tutores de uma vez.</small> <?php /* Cria ou abre o elemento HTML small. */ ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
@@ -601,8 +639,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(tutores => {
                         caixaResultados.innerHTML = '';
 
+                        // HEURÍSTICA 9: o servidor devolve { erro } quando a busca falha; mostra o motivo em vez de quebrar.
+                        if (!Array.isArray(tutores)) {
+                            throw new Error(tutores && tutores.erro ? tutores.erro : 'Resposta inválida');
+                        }
+
                         if (tutores.length === 0) {
-                            caixaResultados.innerHTML = '<div class="picker-item-empty">Nenhum tutor encontrado</div>';
+                            caixaResultados.innerHTML = '<div class="picker-item-empty">Nenhum tutor encontrado. Confira o nome ou cadastre o tutor em Cadastro de tutor.</div>';
                         } else {
                             tutores.forEach(tutor => {
                                 const item = document.createElement('div');
@@ -624,7 +667,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         caixaResultados.hidden = false;
                     })
                     .catch(() => {
-                        caixaResultados.innerHTML = '<div class="picker-item-empty">Erro ao carregar dados</div>';
+                        // HEURÍSTICA 9: explica a causa provável e como recuperar.
+                        caixaResultados.innerHTML = '<div class="picker-item-empty" role="alert">Não foi possível buscar tutores agora. Verifique a conexão e digite novamente.</div>';
                         caixaResultados.hidden = false;
                     });
             }, 300);

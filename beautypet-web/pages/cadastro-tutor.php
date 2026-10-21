@@ -62,6 +62,8 @@ $mensagem = ''; // Armazena em mensagem o valor usado nas próximas etapas deste
 $tipoMensagem = ''; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
 // Guarda a mensagem de erro específica encontrada durante a validação do CPF.
 $erroCpf = false; // Armazena em erroCpf o valor usado nas próximas etapas deste fluxo.
+// HEURÍSTICA 9: guarda o erro de cada campo para destacá-lo e explicar o que corrigir.
+$errosCampo = [];
 // Lê o identificador enviado pela URL para saber se a página está em modo de edição.
 $editarId = inteiroOuNull($_GET['editar'] ?? $_POST['tutor_id'] ?? null); // Armazena em editarId o valor usado nas próximas etapas deste fluxo.
 // Indica se o formulário está alterando um registro existente em vez de criar um novo.
@@ -102,27 +104,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Testa esta condição antes de e
     // Armazena em "cep" o valor necessário para as próximas etapas deste fluxo.
     $cep = somenteNumeros($_POST['cep'] ?? null); // Armazena em cep o valor usado nas próximas etapas deste fluxo.
 
-    // Verifica a condição abaixo antes de executar este bloco.
-    if ($nome === null || $telefonePrincipal === null) { // Testa esta condição antes de executar o bloco correspondente.
-        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'Preencha o nome e o telefone principal.'; // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
-        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-        $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
-    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
-    } elseif ($cpf !== null && !cpfValido($cpf)) { // Executa esta instrução como parte da regra de negócio desta página.
-        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'CPF inválido. Confira os números digitados.'; // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
-        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-        $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
-        // Guarda a mensagem de erro específica encontrada durante a validação do CPF.
-        $erroCpf = true; // Armazena em erroCpf o valor usado nas próximas etapas deste fluxo.
-    // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
-    } elseif ($cep !== null && strlen($cep) !== 8) { // Executa esta instrução como parte da regra de negócio desta página.
-        // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'O CEP deve possuir 8 números.'; // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
-        // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
-        $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
-    // Quando nenhuma das condições anteriores for atendida, executa este fluxo alternativo.
+    // HEURÍSTICA 9: cada campo recebe sua própria mensagem (antes nome e telefone eram uma frase só).
+    if ($nome === null) {
+        $errosCampo['nome'] = 'Informe o nome completo do tutor.';
+    }
+    if ($telefonePrincipal === null) {
+        $errosCampo['telefone_principal'] = 'Informe o telefone principal.';
+    } elseif (!telefoneValido($telefonePrincipal)) {
+        $errosCampo['telefone_principal'] = 'O telefone deve ter DDD + número (10 ou 11 dígitos). Ex.: (11) 99999-9999.';
+    }
+    if ($telefoneReserva !== null && !telefoneValido($telefoneReserva)) {
+        $errosCampo['telefone_reserva'] = 'O telefone reserva deve ter DDD + número (10 ou 11 dígitos).';
+    }
+    if ($cpf !== null && !cpfValido($cpf)) {
+        $errosCampo['cpf'] = 'CPF inválido: os dígitos verificadores não conferem. Confira os números digitados.';
+    }
+    if ($email !== null && !emailValido($email)) {
+        $errosCampo['email'] = 'Informe um e-mail válido (ex.: nome@email.com).';
+    }
+    if ($cep !== null && strlen($cep) !== 8) {
+        $errosCampo['cep'] = 'O CEP deve ter 8 números (ex.: 01310-100).';
+    }
+
+    $erroCpf = isset($errosCampo['cpf']);
+
+    if ($errosCampo) {
+        $mensagem = count($errosCampo) === 1
+            ? 'Corrija o campo destacado: ' . reset($errosCampo)
+            : 'Corrija os ' . count($errosCampo) . ' campos destacados em vermelho e salve novamente.';
+        $tipoMensagem = 'error';
     } else { // Executa esta instrução como parte da regra de negócio desta página.
         // Inicia o bloco protegido para que falhas de banco/regra sejam tratadas sem interromper a página.
         try { // Executa esta instrução como parte da regra de negócio desta página.
@@ -144,7 +154,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Testa esta condição antes de e
                 // Verifica a condição abaixo antes de executar este bloco.
                 if ($stmt->fetch()) { // Testa esta condição antes de executar o bloco correspondente.
                     // Interrompe este fluxo com uma exceção controlada porque a regra necessária não foi atendida.
-                    throw new RuntimeException('Já existe um tutor cadastrado com esse CPF.'); // Lança uma exceção para interromper a operação com uma mensagem controlada.
+                    // HEURÍSTICA 9: destaca o CPF e indica onde encontrar o cadastro que já existe.
+                    $erroCpf = true;
+                    $errosCampo['cpf'] = 'Este CPF já pertence a outro tutor.';
+                    throw new RuntimeException('Já existe um tutor cadastrado com esse CPF. Procure por ele em Fichas de tutores para editar o cadastro existente.'); // Lança uma exceção para interromper a operação com uma mensagem controlada.
                 } // Abre, fecha ou encerra a estrutura iniciada nas linhas relacionadas.
             } // Abre, fecha ou encerra a estrutura iniciada nas linhas relacionadas.
 
@@ -220,9 +233,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // Testa esta condição antes de e
         // Captura uma falha ocorrida no bloco anterior para desfazer operações e exibir uma mensagem controlada.
         } catch (Throwable $erro) { // Executa esta instrução como parte da regra de negócio desta página.
             // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-            $mensagem = $erro instanceof RuntimeException // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
+            // HEURÍSTICA 9: erro técnico vai para o log; o usuário recebe a causa provável e o próximo passo.
+            if (!erroDeRegra($erro)) {
+                error_log('[BeautyPet] cadastro-tutor: ' . $erro->getMessage());
+            }
+            $mensagem = erroDeRegra($erro) // Armazena em mensagem o valor usado nas próximas etapas deste fluxo.
                 ? $erro->getMessage() // Executa esta instrução como parte da regra de negócio desta página.
-                : 'Não foi possível salvar o tutor.'; // Executa esta instrução como parte da regra de negócio desta página.
+                : 'Não foi possível salvar o tutor agora. Seus dados continuam no formulário: confira a internet e clique em Salvar novamente.'; // Executa esta instrução como parte da regra de negócio desta página.
             // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error'; // Armazena em tipoMensagem o valor usado nas próximas etapas deste fluxo.
         } // Abre, fecha ou encerra a estrutura iniciada nas linhas relacionadas.
@@ -269,7 +286,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                 </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                 <?php if ($mensagem !== ''): ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                    <div class="message <?= escapar($tipoMensagem) ?>"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
+                    <div class="message <?= escapar($tipoMensagem) ?>" role="<?= $tipoMensagem === 'error' ? 'alert' : 'status' ?>"> <?php /* HEURÍSTICA 9: role="alert" faz o leitor de tela anunciar o erro. */ ?>
                         <?= escapar($mensagem) ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                     </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                 <?php endif; ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
@@ -290,9 +307,11 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                     id="nome" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     name="nome" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     type="text" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                    class="<?= trim(classeErroCampo($errosCampo, 'nome')) ?>"<?= ariaErroCampo($errosCampo, 'nome') ?>
                                     value="<?= escapar($dados['nome'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="Nome do tutor" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     required> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'nome') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-4"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
@@ -306,15 +325,11 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                     inputmode="numeric" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     maxlength="14" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     class="<?= $erroCpf ? 'input-error' : '' ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                                    aria-invalid="<?= $erroCpf ? 'true' : 'false' ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                    aria-invalid="<?= $erroCpf ? 'true' : 'false' ?>" <?php /* HEURÍSTICA 9: CPF inválido ou duplicado fica destacado. */ ?>
                                     value="<?= escapar($dados['cpf'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="000.000.000-00"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
 
-                                <?php if ($erroCpf): ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                                    <small class="field-error"> <?php /* Cria ou abre o elemento HTML small. */ ?>
-                                        O CPF não passou na validação dos dígitos verificadores. <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                                    </small> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
-                                <?php endif; ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'cpf') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-4"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
@@ -325,9 +340,11 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                     id="telefone" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     name="telefone_principal" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     type="tel" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                    class="<?= trim(classeErroCampo($errosCampo, 'telefone_principal')) ?>"<?= ariaErroCampo($errosCampo, 'telefone_principal') ?>
                                     value="<?= escapar($dados['telefone_principal'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="(11) 99999-9999" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     required> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'telefone_principal') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-4"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
@@ -338,8 +355,10 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                     id="telefoneReserva" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     name="telefone_reserva" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     type="tel" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                    class="<?= trim(classeErroCampo($errosCampo, 'telefone_reserva')) ?>"<?= ariaErroCampo($errosCampo, 'telefone_reserva') ?>
                                     value="<?= escapar($dados['telefone_reserva'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="(11) 99999-9999"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'telefone_reserva') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-12"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>
@@ -349,8 +368,10 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                     id="email" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     name="email" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     type="email" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                    class="<?= trim(classeErroCampo($errosCampo, 'email')) ?>"<?= ariaErroCampo($errosCampo, 'email') ?>
                                     value="<?= escapar($dados['email'] ?? '') ?>" <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                                     placeholder="email@exemplo.com"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'email') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                         </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                     </section> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
@@ -381,8 +402,9 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <label for="cep">CEP</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Campo "cep" utilizado para enviar esta informação no formulário. -->
                                 <input id="cep" name="cep" type="text" inputmode="numeric" maxlength="9" data-mascara="cep" <?php /* [BP-ALTERAÇÃO #6] Máscara 00000-000 + preenche o endereço pelo CEP. */ ?>
-                                    <?php /* Cria um campo para entrada de dados. */ ?>
+                                    class="<?= trim(classeErroCampo($errosCampo, 'cep')) ?>"<?= ariaErroCampo($errosCampo, 'cep') ?>
                                     value="<?= escapar($dados['cep'] ?? '') ?>" placeholder="00000-000"> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
+                                <?= mensagemErroCampo($errosCampo, 'cep') ?>
                             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
 
                             <div class="field span-3"> <?php /* Organiza esta parte da interface em um contêiner. */ ?>

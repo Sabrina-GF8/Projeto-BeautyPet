@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Item = { data_fechamento: string; pet: string; servico: string; descricao?: string | null; valor_total: number };
 
@@ -13,7 +13,15 @@ export default function Budget() {
   const ano = Number(params.ano || new Date().getFullYear());
   const mes = Number(params.mes || new Date().getMonth() + 1);
 
-  useEffect(() => { api<{ itens: Item[] }>("budget", { ano, mes }).then(r => setItens(r.itens || [])).catch(() => setItens([])); }, [ano, mes]);
+  // HEURÍSTICA 9: avisa a falha em vez de mostrar uma lista vazia como se não houvesse gastos.
+  useEffect(() => {
+    api<{ itens: Item[] }>("budget", { ano, mes })
+      .then(r => setItens(r.itens || []))
+      .catch((erro) => {
+        setItens([]);
+        Alert.alert("Não foi possível carregar o orçamento", erro instanceof Error ? erro.message : "Verifique sua conexão e tente novamente.");
+      });
+  }, [ano, mes]);
   const moeda = (v: number) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const total = itens.reduce((s, i) => s + Number(i.valor_total || 0), 0);
 

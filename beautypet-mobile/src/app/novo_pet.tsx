@@ -99,6 +99,14 @@ export default function NovoPet() {
       return;
     }
 
+    // HEURÍSTICA 9: data de nascimento no futuro é impossível (avisa antes de enviar).
+    const agora = new Date();
+    const hojeLocal = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}-${String(agora.getDate()).padStart(2, "0")}`;
+    if (dataIso && dataIso > hojeLocal) {
+      Alert.alert("Novo pet", "A data de nascimento não pode ser depois de hoje.");
+      return;
+    }
+
     try {
       setSalvando(true);
       const resposta = await api<{ mensagem?: string }>("adicionar_pet", {

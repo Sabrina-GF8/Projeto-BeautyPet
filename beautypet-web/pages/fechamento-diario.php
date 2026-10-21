@@ -47,6 +47,37 @@ function valorFechamento(mixed $valor): float
 }
 
 /**
+ * HEURÍSTICA 9: valorFechamento() troca negativo/texto por R$ 0 sem avisar.
+ * Esta função procura, antes de salvar, qualquer campo de valor inválido no formulário
+ * para que o usuário seja avisado em vez de ter o valor zerado em silêncio.
+ */
+function campoValorInvalidoFechamento(array $post): bool
+{
+    foreach ($post as $chave => $valor) {
+        if (is_array($valor)) {
+            if (campoValorInvalidoFechamento($valor)) {
+                return true;
+            }
+            continue;
+        }
+
+        $ehCampoDeValor = preg_match('/^(valor|pagamento_|credito_)/', (string) $chave) === 1;
+
+        if (!$ehCampoDeValor || $valor === null || trim((string) $valor) === '') {
+            continue;
+        }
+
+        $numero = str_replace(',', '.', trim((string) $valor));
+
+        if (!is_numeric($numero) || (float) $numero < 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Agrupa o serviço em uma categoria resumida usada nas colunas e totais do fechamento.
  * Mantém esta regra isolada para evitar repetição e facilitar manutenção/testes.
  */
@@ -834,8 +865,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Identifica qual ação o formulário solicitou para direcionar o processamento correto.
     $acao = (string) ($_POST['acao'] ?? '');
 
+    // HEURÍSTICA 9: bloqueia valores negativos ou com letras antes de qualquer gravação.
+    if ($acao !== 'reabrir_fechamento' && campoValorInvalidoFechamento($_POST)) {
+        $mensagem = 'Há um valor inválido no formulário. Os valores devem ser números maiores ou iguais a zero (ex.: 35,90). Corrija e salve novamente.';
+        $tipoMensagem = 'error';
+        $acao = '';
+    }
+
     // Verifica se o fechamento já foi encerrado para impedir alterações que exigem o caixa aberto.
-    if ($fechamentoFechado && !in_array($acao, ['reabrir_fechamento'], true)) {
+    if ($fechamentoFechado && !in_array($acao, ['reabrir_fechamento', ''], true)) {
         // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
         $mensagem = 'Esse fechamento já foi finalizado. Reabra o dia para fazer alterações.';
         // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
@@ -1482,7 +1520,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                $mensagem = $erro instanceof RuntimeException
+                $mensagem = erroDeRegra($erro)
                     ? $erro->getMessage()
                     : 'Não foi possível salvar o registro.';
                 // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
@@ -1680,7 +1718,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-                $mensagem = $erro instanceof RuntimeException
+                $mensagem = erroDeRegra($erro)
                     ? $erro->getMessage()
                     : 'Não foi possível atualizar o pagamento.';
                 // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
@@ -2002,8 +2040,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->rollBack();
             }
 
-            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-            $mensagem = 'Não foi possível finalizar o fechamento.';
+            // HEURÍSTICA 9: registra a causa e garante ao usuário que nada foi gravado.
+            error_log('[BeautyPet] finalizar fechamento: ' . $erro->getMessage());
+            $mensagem = erroDeRegra($erro)
+                ? $erro->getMessage()
+                : 'Não foi possível finalizar o fechamento. Nenhum dado foi alterado: confira a internet e tente de novo.';
             // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
         }
@@ -2050,15 +2091,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
             exit;
         // Captura uma falha ocorrida no bloco anterior para desfazer operações e exibir uma mensagem controlada.
-        } catch (Throwable) {
+        } catch (Throwable $erro) {
             // Confere se existe uma transação aberta antes de tentar desfazê-la.
             if ($pdo->inTransaction()) {
                 // Desfaz as alterações da transação atual porque alguma etapa falhou.
                 $pdo->rollBack();
             }
 
-            // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-            $mensagem = 'Não foi possível reabrir o fechamento.';
+            // HEURÍSTICA 9: registra a causa e garante ao usuário que nada foi alterado.
+            error_log('[BeautyPet] reabrir fechamento: ' . $erro->getMessage());
+            $mensagem = 'Não foi possível reabrir o fechamento. O dia continua fechado: tente novamente em instantes.';
             // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
             $tipoMensagem = 'error';
         }
@@ -2412,7 +2454,7 @@ require __DIR__ . '/../includes/topo.php';
     </div>
 
     <?php if ($mensagem !== ''): ?>
-        <div class="message <?= escapar($tipoMensagem) ?> daily-close-message">
+        <div class="message <?= escapar($tipoMensagem) ?> daily-close-message" role="<?= $tipoMensagem === 'error' ? 'alert' : 'status' ?>">
             <?= escapar($mensagem) ?>
         </div>
     <?php endif; ?>
@@ -3813,7 +3855,8 @@ require __DIR__ . '/../includes/topo.php';
                 recalculate();
                 openModal('launch');
             } catch (error) {
-                alert('Não foi possível abrir esta linha para edição.');
+                // HEURÍSTICA 9: diz a causa provável e o que fazer.
+                alert('Não foi possível abrir esta linha para edição. Verifique a conexão e atualize a página (F5) antes de tentar de novo.');
             } finally {
                 button.disabled = false;
             }
@@ -3974,6 +4017,9 @@ const setupPetSearchPicker = () => {
                 resultsBox.hidden = false;
             } catch (error) {
                 console.error('Erro ao consultar pets:', error);
+                // HEURÍSTICA 9: antes o erro só ia para o console; agora o usuário vê o que aconteceu.
+                resultsBox.innerHTML = '<div class="search-picker-empty" role="alert" style="padding: 8px 12px; color: #b91c1c;">Não foi possível buscar pets agora. Verifique a conexão e digite novamente.</div>';
+                resultsBox.hidden = false;
             }
         }, 300);
     });

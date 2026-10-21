@@ -21,8 +21,68 @@ let tokenSessao: string | null = null;
 let clienteSessao: ClienteSessao | null = null;
 let sessaoJaCarregada = false;
 
-function mensagemErro(erro: any, padrao = 'Não foi possível concluir a operação.') {
-  return erro?.message || erro?.error_description || padrao;
+// HEURÍSTICA 9 (reconhecer, diagnosticar e recuperar erros):
+// antes a mensagem técnica do Supabase (em inglês) ia direto para o Alert.
+// Agora os erros conhecidos viram frases em português que dizem o que fazer,
+// e o detalhe técnico fica só no console para o desenvolvedor.
+export function mensagemErro(erro: any, padrao = 'Não foi possível concluir a operação.') {
+  const tecnico = String(erro?.message || erro?.error_description || '');
+  const codigo = String(erro?.code || '');
+  if (tecnico) console.warn('[BeautyPet] erro técnico:', codigo, tecnico);
+
+  const texto = tecnico.toLowerCase();
+
+  if (texto.includes('network request failed') || texto.includes('failed to fetch') || texto.includes('network')) {
+    return 'Sem conexão com a internet. Verifique o Wi-Fi ou os dados móveis e tente novamente.';
+  }
+  if (codigo === '23505' || texto.includes('duplicate key')) {
+    return 'Esse registro já existe. Confira se ele não foi cadastrado antes.';
+  }
+  if (codigo === '23503' || texto.includes('foreign key')) {
+    return 'Um dos itens selecionados não existe mais. Atualize a tela e selecione novamente.';
+  }
+  if (codigo === '22P02' || texto.includes('invalid input syntax')) {
+    return 'Algum campo está em formato inválido. Confira datas, valores e números digitados.';
+  }
+  if (codigo === 'PGRST301' || texto.includes('jwt') || texto.includes('expired')) {
+    return 'Sua sessão expirou. Saia e entre novamente no aplicativo.';
+  }
+  if (codigo === '42501' || texto.includes('row-level security') || texto.includes('permission denied')) {
+    return 'Você não tem permissão para esta ação. Entre novamente na sua conta.';
+  }
+  if (texto.includes('user already registered')) {
+    return 'Este e-mail já tem uma conta. Volte e toque em Entrar.';
+  }
+  if (texto.includes('password should be at least')) {
+    return 'A senha precisa ter pelo menos 6 caracteres.';
+  }
+  if (texto.includes('email not confirmed')) {
+    return 'Confirme seu e-mail pelo link enviado antes de entrar.';
+  }
+  if (texto.includes('rate limit') || texto.includes('too many')) {
+    return 'Muitas tentativas seguidas. Aguarde alguns minutos e tente novamente.';
+  }
+
+  return padrao;
+}
+
+// HEURÍSTICA 9: formato de e-mail realmente válido (antes bastava ter "@").
+function emailValido(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+// HEURÍSTICA 9: aceita "12,50" (vírgula) — antes virava NaN e passava pela validação.
+function numeroDigitado(valor: unknown) {
+  let texto = String(valor ?? '').trim();
+  // "1.234,50" -> "1234.50"; "12.5" continua "12.5".
+  if (texto.includes(',')) texto = texto.replace(/\./g, '').replace(',', '.');
+  if (texto === '') return NaN;
+  return Number(texto);
+}
+
+function hojeIso() {
+  const agora = new Date();
+  return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
 }
 
 function normalizarTexto(valor: unknown) {
@@ -310,9 +370,10 @@ export async function api<T = any>(acao: string, dados: Record<string, unknown> 
     const nome = String(dados.nome || '').trim();
     const email = String(dados.email || '').trim().toLocaleLowerCase('pt-BR');
     const senha = String(dados.senha || '');
-    if (!nome || !email.includes('@') || senha.length < 6) {
-      throw new Error('Informe nome, e-mail válido e uma senha com pelo menos 6 caracteres.');
-    }
+    // HEURÍSTICA 9: uma mensagem por problema, dizendo exatamente o que corrigir.
+    if (!nome) throw new Error('Informe seu nome.');
+    if (!emailValido(email)) throw new Error('Informe um e-mail válido (ex.: nome@email.com).');
+    if (senha.length < 6) throw new Error('A senha precisa ter pelo menos 6 caracteres.');
     const { data, error } = await supabase.auth.signUp({
       email,
       password: senha,
@@ -329,8 +390,17 @@ export async function api<T = any>(acao: string, dados: Record<string, unknown> 
   if (acao === 'login') {
     const email = String(dados.email || '').trim().toLocaleLowerCase('pt-BR');
     const senha = String(dados.senha || '');
+    if (!email || !senha) throw new Error('Digite o e-mail e a senha.');
     const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
-    if (error || !data.session) throw new Error('E-mail ou senha inválidos.');
+    // HEURÍSTICA 9: diferencia falta de internet / e-mail não confirmado de senha errada.
+    if (error) {
+      const texto = String(error.message || '').toLowerCase();
+      if (texto.includes('network') || texto.includes('fetch') || texto.includes('email not confirmed')) {
+        throw new Error(mensagemErro(error));
+      }
+      throw new Error('E-mail ou senha incorretos. Confira e tente de novo.');
+    }
+    if (!data.session) throw new Error('E-mail ou senha incorretos. Confira e tente de novo.');
     const cliente = await clienteAtual();
     return {
       sucesso: true,
@@ -438,7 +508,12 @@ export async function api<T = any>(acao: string, dados: Record<string, unknown> 
   if (acao === 'adicionar_pet') {
     const nome = String(dados.nome || '').trim();
     const especieId = Number(dados.especie_id || 0);
-    if (!nome || !especieId) throw new Error('Informe pelo menos o nome e a espécie do pet.');
+    if (!nome) throw new Error('Informe o nome do pet.');
+    if (!especieId) throw new Error('Selecione a espécie do pet.');
+    // HEURÍSTICA 9: data de nascimento no futuro é impossível.
+    if (dados.data_nascimento && String(dados.data_nascimento) > hojeIso()) {
+      throw new Error('A data de nascimento não pode ser depois de hoje.');
+    }
     const { data, error } = await supabase.from('pets').insert({
       cliente_id: clienteId,
       nome,
@@ -573,8 +648,15 @@ export async function api<T = any>(acao: string, dados: Record<string, unknown> 
     const descricao = String(dados.descricao || '').trim();
     const data = String(dados.data || '');
     const horario = String(dados.horario || '');
-    if (!titulo || !/^\d{4}-\d{2}-\d{2}$/.test(data) || !/^\d{2}:\d{2}$/.test(horario)) {
-      throw new Error('Informe título, data e horário corretamente.');
+    // HEURÍSTICA 9: uma mensagem por campo.
+    if (!titulo) throw new Error('Informe um título para o evento.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) throw new Error('Informe a data no formato DD/MM/AAAA.');
+    if (!/^\d{2}:\d{2}$/.test(horario)) throw new Error('Informe o horário no formato HH:MM (ex.: 14:30).');
+    // HEURÍSTICA 9: não deixa criar evento num horário que já passou.
+    const [ano, mes, dia] = data.split('-').map(Number);
+    const [hora, minuto] = horario.split(':').map(Number);
+    if (new Date(ano, mes - 1, dia, hora, minuto).getTime() < Date.now() - 60_000) {
+      throw new Error('Esse horário já passou. Escolha uma data e horário a partir de agora.');
     }
 
     let categoriaId = dados.categoria_id ? Number(dados.categoria_id) : null;
@@ -624,11 +706,13 @@ export async function api<T = any>(acao: string, dados: Record<string, unknown> 
     const categoriaId = Number(dados.categoria_id || 0);
     const petId = dados.pet_id ? Number(dados.pet_id) : null;
     const descricao = String(dados.descricao || '').trim();
-    const valor = Number(dados.valor || 0);
+    const valor = numeroDigitado(dados.valor);
     const dataGasto = String(dados.data_gasto || '');
-    if (!categoriaId || !descricao || valor <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(dataGasto)) {
-      throw new Error('Preencha categoria, descrição, valor e data corretamente.');
-    }
+    // HEURÍSTICA 9: antes uma só mensagem para 4 campos, e "12,50" virava NaN e chegava ao banco.
+    if (!categoriaId) throw new Error('Selecione a categoria do gasto.');
+    if (!descricao) throw new Error('Descreva o gasto (ex.: Ração 10 kg).');
+    if (!Number.isFinite(valor) || valor <= 0) throw new Error('Informe um valor maior que zero (ex.: 12,50).');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataGasto)) throw new Error('Informe a data do gasto no formato DD/MM/AAAA.');
     const { data: categoria, error: erroCategoria } = await supabase
       .from('categorias_gasto_mobile')
       .select('id,nome')
