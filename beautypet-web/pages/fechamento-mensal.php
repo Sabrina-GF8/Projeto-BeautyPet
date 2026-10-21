@@ -496,27 +496,27 @@ require __DIR__ . '/../includes/topo.php';
         </div>
     <?php endif; ?>
 
-    <div class="monthly-period-bar">
-        <a href="fechamento-mensal.php?mes=<?= escapar($competenciaAnterior) ?>" aria-label="Mês anterior">
+<div class="monthly-period-bar">
+        <!-- 1. Seta Esquerda -->
+        <a class="monthly-period-arrow" href="fechamento-mensal.php?mes=<?= escapar($competenciaAnterior) ?>" aria-label="Mês anterior">
             <i class="fa-solid fa-chevron-left"></i>
+        </a>
+
+        <!-- 2. Calendário / Mês (Submete automaticamente ao selecionar) -->
+        <form method="get" action="fechamento-mensal.php" class="monthly-period-form">
+            <label for="monthlyPeriod">Escolher mês</label>
+            <input id="monthlyPeriod" name="mes" type="month" value="<?= escapar($competencia) ?>" onchange="this.form.submit()">
+        </form>
+
+        <!-- 3. Seta Direita -->
+        <a class="monthly-period-arrow" href="fechamento-mensal.php?mes=<?= escapar($competenciaSeguinte) ?>" aria-label="Mês seguinte">
+            <i class="fa-solid fa-chevron-right"></i>
         </a>
 
         <div class="monthly-period-title">
             <small>Competência</small>
             <strong><?= escapar(nomeMesFechamento($mes)) ?> de <?= $ano ?></strong>
         </div>
-
-        <a href="fechamento-mensal.php?mes=<?= escapar($competenciaSeguinte) ?>" aria-label="Mês seguinte">
-            <i class="fa-solid fa-chevron-right"></i>
-        </a>
-
-        <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
-        <form method="get" action="fechamento-mensal.php">
-            <!-- Rótulo do campo "Escolher mês", indicando ao usuário qual informação deve ser preenchida. -->
-            <label for="monthlyPeriod">Escolher mês</label>
-            <!-- Campo "mes" utilizado para enviar esta informação no formulário. -->
-            <input id="monthlyPeriod" name="mes" type="month" value="<?= escapar($competencia) ?>" onchange="this.form.submit()">
-        </form>
     </div>
 
     <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->

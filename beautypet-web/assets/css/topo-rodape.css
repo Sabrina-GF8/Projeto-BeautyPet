@@ -5,13 +5,6 @@
  * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
  */
 
-/*
- * ARQUIVO: style.css
- * RESPONSABILIDADE: definir toda a apresentação visual do sistema web Beauty Pet.
- * Cada comentário identifica o grupo de elementos estilizado e o motivo daquele bloco.
- * As propriedades originais foram preservadas; somente documentação foi acrescentada.
- */
-
 /* Estiliza o(s) elemento(s) "*" desta parte da interface. */
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI", sans-serif}
 /* Estiliza o(s) elemento(s) "body" desta parte da interface. */

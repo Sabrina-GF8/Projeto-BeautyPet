@@ -2417,24 +2417,25 @@ require __DIR__ . '/../includes/topo.php';
         </div>
     <?php endif; ?>
 
-    <div class="daily-date-toolbar">
-        <div class="daily-date-nav">
-            <a href="fechamento-diario.php?data=<?= escapar($dataAnterior) ?>" aria-label="Dia anterior">
-                <i class="fa-solid fa-chevron-left"></i>
-            </a>
-            <a class="daily-today-button" href="fechamento-diario.php?data=<?= escapar(date('Y-m-d')) ?>">Hoje</a>
-            <a href="fechamento-diario.php?data=<?= escapar($dataSeguinte) ?>" aria-label="Dia seguinte">
-                <i class="fa-solid fa-chevron-right"></i>
-            </a>
-        </div>
+<div class="daily-date-toolbar">
+        <!-- 1. Botão Hoje -->
+        <a class="daily-today-button" href="fechamento-diario.php?data=<?= escapar(date('Y-m-d')) ?>">Hoje</a>
 
-        <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
+        <!-- 2. Seta Esquerda -->
+        <a class="daily-date-arrow" href="fechamento-diario.php?data=<?= escapar($dataAnterior) ?>" aria-label="Dia anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+
+        <!-- 3. Calendário (Submete automaticamente ao escolher a data) -->
         <form method="get" action="fechamento-diario.php" class="daily-date-form">
-            <!-- Rótulo do campo "Data do fechamento", indicando ao usuário qual informação deve ser preenchida. -->
             <label for="dataFechamento">Data do fechamento</label>
-            <!-- Campo "data" utilizado para enviar esta informação no formulário. -->
             <input id="dataFechamento" name="data" type="date" value="<?= escapar($dataSelecionada) ?>" onchange="this.form.submit()">
         </form>
+
+        <!-- 4. Seta Direita -->
+        <a class="daily-date-arrow" href="fechamento-diario.php?data=<?= escapar($dataSeguinte) ?>" aria-label="Dia seguinte">
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
 
         <strong class="daily-date-title"><?= escapar(formatarData($dataSelecionada)) ?></strong>
     </div>

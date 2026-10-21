@@ -940,26 +940,31 @@ require __DIR__ . '/../includes/topo.php';
         </div>
     <?php endif; ?>
 
-    <div class="google-calendar-toolbar">
+<div class="google-calendar-toolbar">
+        <!-- 1. Botão Hoje -->
         <a class="calendar-today-button" href="agenda.php?data=<?= escapar(date('Y-m-d')) ?>">Hoje</a>
 
+        <!-- 2. Seta para o dia anterior -->
         <div class="calendar-nav-buttons">
             <a href="agenda.php?data=<?= escapar($dataAnterior) ?>" aria-label="Dia anterior">
                 <i class="fa-solid fa-chevron-left"></i>
             </a>
+        </div>
+
+        <!-- 3. Calendário (Submete automaticamente ao alterar a data) -->
+        <form class="calendar-date-form" method="get" action="agenda.php">
+            <label for="dataAgenda">Data</label>
+            <input id="dataAgenda" name="data" type="date" value="<?= escapar($dataSelecionada) ?>" onchange="this.form.submit()">
+        </form>
+
+        <!-- 4. Seta para o dia seguinte -->
+        <div class="calendar-nav-buttons">
             <a href="agenda.php?data=<?= escapar($dataSeguinte) ?>" aria-label="Dia seguinte">
                 <i class="fa-solid fa-chevron-right"></i>
             </a>
         </div>
 
-        <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
-        <form class="calendar-date-form" method="get" action="agenda.php">
-            <!-- Rótulo do campo "Data", indicando ao usuário qual informação deve ser preenchida. -->
-            <label for="dataAgenda">Data</label>
-            <!-- Campo "data" utilizado para enviar esta informação no formulário. -->
-            <input id="dataAgenda" name="data" type="date" value="<?= escapar($dataSelecionada) ?>" onchange="this.form.submit()">
-        </form>
-
+        <!-- 5. Data por extenso no canto direito -->
         <strong class="calendar-date-title">
             <?= escapar(formatarData($dataSelecionada)) ?>
         </strong>
