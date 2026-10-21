@@ -308,7 +308,7 @@ require __DIR__ . '/../includes/topo.php';
         // Armazena a data "dataHoraEditar" usada nas validações e consultas desta página.
         $dataHoraEditar = new DateTime($solicitacaoEditar['data_hora_inicio']);
         ?>
-        <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
+<!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
         <form class="reschedule-card" method="post"
             action="solicitacoes-agendamento.php?aba=<?= escapar($aba) ?>">
             <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
@@ -317,38 +317,39 @@ require __DIR__ . '/../includes/topo.php';
             <input type="hidden" name="agendamento_id"
                 value="<?= (int) $solicitacaoEditar['id'] ?>">
 
-            <div>
+            <div class="reschedule-header">
                 <h2>Reagendar <?= escapar($solicitacaoEditar['pet']) ?></h2>
                 <small>Tutor: <?= escapar($solicitacaoEditar['tutor']) ?></small>
             </div>
 
-            <div class="field">
-                <!-- Rótulo do campo "Nova data", indicando ao usuário qual informação deve ser preenchida. -->
-                <label for="novaData">Nova data</label>
-                <!-- Campo "data" utilizado para enviar esta informação no formulário. -->
-                <input id="novaData" name="data" type="date"
-                    value="<?= escapar($dataHoraEditar->format('Y-m-d')) ?>"
-                    required>
+            <div class="reschedule-row">
+                <div class="field">
+                    <label for="novaData">Nova data</label>
+                    <input id="novaData" name="data" type="date"
+                        value="<?= escapar($dataHoraEditar->format('Y-m-d')) ?>"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label for="novaHora">Novo horário</label>
+                    <input id="novaHora" name="hora" type="time"
+                        value="<?= escapar($dataHoraEditar->format('H:i')) ?>"
+                        required>
+                </div>
             </div>
 
-            <div class="field">
-                <!-- Rótulo do campo "Novo horário", indicando ao usuário qual informação deve ser preenchida. -->
-                <label for="novaHora">Novo horário</label>
-                <!-- Campo "hora" utilizado para enviar esta informação no formulário. -->
-                <input id="novaHora" name="hora" type="time"
-                    value="<?= escapar($dataHoraEditar->format('H:i')) ?>"
-                    required>
+            <div class="reschedule-actions">
+                <a class="secondary-action-button"
+                    href="solicitacoes-agendamento.php?aba=<?= escapar($aba) ?>">
+                    Cancelar
+                </a>
+
+                <button class="primary-action-button" type="submit">
+                    Salvar alterações
+                </button>
             </div>
-
-            <button class="primary-action-button" type="submit">
-                Salvar e confirmar
-            </button>
-
-            <a class="secondary-action-button"
-                href="solicitacoes-agendamento.php?aba=<?= escapar($aba) ?>">
-                Cancelar
-            </a>
         </form>
+
     <?php endif; ?>
 
     <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
