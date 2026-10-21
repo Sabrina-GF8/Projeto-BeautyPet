@@ -82,11 +82,6 @@ try {
         <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/<?= $arquivoCssPagina ?>.css?v=css-dividido-v1">
     <?php endforeach; ?>
 
-    <?php if (($paginaAtiva ?? '') === 'dashboard'): ?>
-        <!-- MERGE DASHBOARD: estilos usados somente pela tela do Dashboard (cards, graficos, abas).
-             Carregado depois dos CSS acima e so nesta pagina, para que nenhuma outra tela mude. -->
-        <link rel="stylesheet" href="<?= BASE_URL ?>/assets/dashboard.css?v=dashboard-v1">
-    <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <!-- [BP-ALTERAÇÃO #4] Preferências de aparência/acessibilidade (escolhidas em pages/configuracoes.php).

@@ -2,10 +2,9 @@
  * ARQUIVO: assets/css/agenda.css
  * USADO POR: pages/agenda.php e pages/agenda-padrao.php
  * RESPONSABILIDADE: Agenda (calendário, horários, cartões de agendamento, modais e agenda padrão).
- * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
-/* Estiliza o(s) elemento(s) ".page" desta parte da interface. */
 .page {
   min-height: 100%;
   padding: 30px;
@@ -14,20 +13,14 @@
   box-shadow: 0 3px 10px #0001
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page h1" desta parte da interface. */
 .page h1 {
   margin-bottom: 10px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page p" desta parte da interface. */
 .page p {
   color: #666
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page-heading" desta parte da interface. */
 .page-heading {
   display: flex;
   align-items: flex-start;
@@ -36,35 +29,25 @@
   margin-bottom: 25px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page-heading h1" desta parte da interface. */
 .page-heading h1 {
   margin: 0;
   font-size: 27px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page-heading small,.counter" desta parte da interface. */
 .page-heading small,
 .counter {
   color: #6d6d6d
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".form-section" desta parte da interface. */
 .form-section {
   padding: 22px 25px;
   border-bottom: 1px solid #e7e7e7
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".form-section:last-of-type" desta parte da interface. */
 .form-section:last-of-type {
   border-bottom: none
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".form-section h3" desta parte da interface. */
 .form-section h3 {
   margin-bottom: 18px;
   font-size: 16px;
@@ -72,16 +55,12 @@
   color: #444
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".form-grid" desta parte da interface. */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 14px 20px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field" desta parte da interface. */
 .field {
   grid-column: span 4;
   display: flex;
@@ -89,64 +68,32 @@
   gap: 6px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-2" desta parte da interface. */
 .field.span-2 {
   grid-column: span 2
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-3" desta parte da interface. */
 .field.span-3 {
   grid-column: span 3
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-4" desta parte da interface. */
 .field.span-4 {
   grid-column: span 4
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-5" desta parte da interface. */
-.field.span-5 {
-  grid-column: span 5
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-6" desta parte da interface. */
 .field.span-6 {
   grid-column: span 6
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-7" desta parte da interface. */
-.field.span-7 {
-  grid-column: span 7
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-10" desta parte da interface. */
-.field.span-10 {
-  grid-column: span 10
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field.span-12" desta parte da interface. */
 .field.span-12 {
   grid-column: span 12
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field label,.checkbox-field label" desta parte da interface. */
 .field label,
 .checkbox-field label {
   color: #444;
   font-size: 14px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field input,.field select,.field textarea" desta parte da interface. */
 .field input,
 .field select,
 .field textarea {
@@ -158,15 +105,11 @@
   background: white
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field textarea" desta parte da interface. */
 .field textarea {
   min-height: 110px;
   resize: vertical
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field input:focus,.field select:focus,.field textarea:focus" desta parte da interface. */
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
@@ -174,32 +117,24 @@
   box-shadow: 0 0 0 3px #f3b00020
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".checkbox-field" desta parte da interface. */
 .checkbox-field {
   display: flex;
   align-items: center;
   gap: 8px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".checkbox-field input" desta parte da interface. */
 .checkbox-field input {
   width: 17px;
   height: 17px;
   accent-color: #f3b000
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".form-actions" desta parte da interface. */
 .form-actions {
   display: flex;
   justify-content: center;
   padding: 20px 25px 28px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".save-button" desta parte da interface. */
 .save-button {
   min-width: 150px;
   padding: 12px 24px;
@@ -212,72 +147,51 @@
   transition: .2s
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".save-button:hover" desta parte da interface. */
 .save-button:hover {
   background: #cf1c15
 }
 
-/* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width: 900px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .page {
     padding: 20px
   }
 
-  /* Participa da configuração visual deste componente. */
   .field,
-  .field.span-2,
-  .field.span-3,
-  .field.span-4,
-  .field.span-5,
-  .field.span-6,
-  .field.span-7,
-  .field.span-8,
-  .field.span-9,
-  .field.span-10 {
+.field.span-2,
+.field.span-3,
+.field.span-4,
+.field.span-6,
+.field.span-8,
+.field.span-9 {
     grid-column: span 6
   }
 
-  /* Participa da configuração visual deste componente. */
   .field.span-12 {
     grid-column: span 12
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width: 650px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .page-heading {
     flex-direction: column
   }
 
-  /* Participa da configuração visual deste componente. */
   .field,
-  .field.span-2,
-  .field.span-3,
-  .field.span-4,
-  .field.span-5,
-  .field.span-6,
-  .field.span-7,
-  .field.span-8,
-  .field.span-9,
-  .field.span-10,
-  .field.span-12 {
+.field.span-2,
+.field.span-3,
+.field.span-4,
+.field.span-6,
+.field.span-8,
+.field.span-9,
+.field.span-12 {
     grid-column: span 12
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".message" desta parte da interface. */
 .message {
   max-width: 1050px;
   margin: 0 auto 18px;
@@ -286,49 +200,23 @@
   font-weight: 600
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".message.success" desta parte da interface. */
 .message.success {
   color: #176b32;
   background: #eaf8ef;
   border: 1px solid #b8e2c5
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".message.error" desta parte da interface. */
 .message.error {
   color: #9d1c1c;
   background: #fff0f0;
   border: 1px solid #efbcbc
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field-error" desta parte da interface. */
 .field-error {
   color: #b91c1c;
   font-size: 13px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link" desta parte da interface. */
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 22px;
-  color: #555;
-  text-decoration: none;
-  font-weight: 600
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link:hover" desta parte da interface. */
-.back-link:hover {
-  color: #111
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".contact-grid>div,.data-grid>div" desta parte da interface. */
 .contact-grid>div,
 .data-grid>div {
   display: flex;
@@ -336,16 +224,12 @@
   gap: 5px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".contact-grid small,.data-grid small,.text-information small" desta parte da interface. */
 .contact-grid small,
 .data-grid small,
 .text-information small {
   color: #777
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title" desta parte da interface. */
 .section-title {
   display: flex;
   align-items: center;
@@ -354,29 +238,21 @@
   margin-bottom: 18px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title h2" desta parte da interface. */
 .section-title h2 {
   margin: 0;
   font-size: 18px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title a" desta parte da interface. */
 .section-title a {
   color: #b17e00;
   text-decoration: none;
   font-weight: 700
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title small" desta parte da interface. */
 .section-title small {
   color: #777
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".inline-empty" desta parte da interface. */
 .inline-empty {
   padding: 20px;
   color: #777;
@@ -385,48 +261,30 @@
   border-radius: 10px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".data-grid" desta parte da interface. */
 .data-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px 25px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width: 650px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .contact-grid,
   .data-grid {
     grid-template-columns: 1fr
   }
 
-  /* Participa da configuração visual deste componente. */
   .section-title {
     align-items: flex-start;
     flex-direction: column
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".field-label" desta parte da interface. */
-.field-label {
-  color: #444;
-  font-size: 14px
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".save-button i" desta parte da interface. */
 .save-button i {
   margin-right: 7px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field input.input-error,.field select.input-error,.field textarea.input-error" desta parte da interface. */
 .field input.input-error,
 .field select.input-error,
 .field textarea.input-error {
@@ -435,40 +293,29 @@
   box-shadow: 0 0 0 3px rgba(224, 68, 68, 0.10)
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field input.input-error:focus,.field select.input-error:focus,.field textarea.input-error:focus" desta parte da interface. */
 .field input.input-error:focus,
 .field select.input-error:focus,
 .field textarea.input-error:focus {
   border-color: #c62828
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-page,.requests-page" desta parte da interface. */
 .agenda-page,
 .requests-page {
   background: #fff9bd
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-heading" desta parte da interface. */
 .agenda-heading {
   align-items: flex-start;
   gap: 20px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-heading-actions" desta parte da interface. */
 .agenda-heading-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 10px
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".primary-action-button,.secondary-action-button" desta parte da interface. */
 .primary-action-button,
 .secondary-action-button {
   min-height: 42px;
@@ -484,37 +331,14 @@
   cursor: pointer
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".secondary-action-button" desta parte da interface. */
 .secondary-action-button {
-  background: white;
-  color: #333;
   border-color: #dedede
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".secondary-action-button:hover" desta parte da interface. */
 .secondary-action-button:hover {
   border-color: #f3b000;
-  background: #fffdf0
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".request-count" desta parte da interface. */
-.request-count {
-  min-width: 22px;
-  height: 22px;
-  display: inline-grid;
-  place-items: center;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: #ef2b23;
-  color: white;
-  font-size: 12px
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-form-card,.reschedule-card" desta parte da interface. */
 .agenda-form-card,
 .reschedule-card {
   max-width: 1050px;
@@ -526,8 +350,6 @@
   box-shadow: 0 3px 10px #0001
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-card-title" desta parte da interface. */
 .agenda-card-title {
   display: flex;
   align-items: flex-start;
@@ -536,15 +358,11 @@
   margin-bottom: 18px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-card-title h2,.reschedule-card h2" desta parte da interface. */
 .agenda-card-title h2,
 .reschedule-card h2 {
   font-size: 21px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-card-title small,.reschedule-card small" desta parte da interface. */
 .agenda-card-title small,
 .reschedule-card small {
   display: block;
@@ -552,8 +370,6 @@
   color: #777
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-card-title>a" desta parte da interface. */
 .agenda-card-title>a {
   width: 34px;
   height: 34px;
@@ -564,14 +380,10 @@
   text-decoration: none
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-card-title>a:hover" desta parte da interface. */
 .agenda-card-title>a:hover {
   background: #f2f2f2
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-section" desta parte da interface. */
 .agenda-section {
   max-width: 1050px;
   margin: 0 auto 22px;
@@ -582,8 +394,6 @@
   box-shadow: 0 3px 9px #0001
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-section-title" desta parte da interface. */
 .agenda-section-title {
   min-height: 54px;
   display: flex;
@@ -594,49 +404,35 @@
   border-bottom: 1px solid #eee
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-section-title>div" desta parte da interface. */
 .agenda-section-title>div {
   display: flex;
   align-items: center;
   gap: 10px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-section-title h2" desta parte da interface. */
 .agenda-section-title h2 {
   font-size: 18px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-section-title>span" desta parte da interface. */
 .agenda-section-title>span {
   color: #777;
   font-size: 13px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-empty" desta parte da interface. */
 .agenda-empty {
   padding: 25px;
   color: #777;
   text-align: center
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-pet,.agenda-table-pet" desta parte da interface. */
-.agenda-pet,
-.agenda-table-pet {
+.agenda-pet {
   display: flex;
   align-items: center;
   gap: 11px;
   min-width: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-pet img,.agenda-table-pet img,.agenda-pet-fallback" desta parte da interface. */
 .agenda-pet img,
-.agenda-table-pet img,
 .agenda-pet-fallback {
   width: 46px;
   height: 46px;
@@ -645,85 +441,30 @@
   flex-shrink: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-pet div" desta parte da interface. */
 .agenda-pet div {
   min-width: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-pet strong,.agenda-pet small" desta parte da interface. */
 .agenda-pet strong,
 .agenda-pet small {
   display: block
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-pet strong" desta parte da interface. */
 .agenda-pet strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-pet small" desta parte da interface. */
 .agenda-pet small {
   margin-top: 3px;
   color: #777
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge" desta parte da interface. */
 .status-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: fit-content;
-  padding: 6px 11px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.success" desta parte da interface. */
-.status-badge.success {
-  background: #d9f8e4;
-  color: #13773a
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.warning" desta parte da interface. */
-.status-badge.warning {
-  background: #fff0c7;
-  color: #9b6200
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.info" desta parte da interface. */
-.status-badge.info {
-  background: #dfeaff;
-  color: #245cc4
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.danger" desta parte da interface. */
-.status-badge.danger {
-  background: #ffe3e3;
-  color: #b21f1f
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.neutral" desta parte da interface. */
-.status-badge.neutral {
-  background: #ececec;
-  color: #666
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-row-actions,.request-actions" desta parte da interface. */
 .agenda-row-actions,
 .request-actions {
   display: flex;
@@ -732,15 +473,11 @@
   gap: 7px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-row-actions form,.request-actions form" desta parte da interface. */
 .agenda-row-actions form,
 .request-actions form {
   margin: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".small-action-button,.icon-action-button,.request-button" desta parte da interface. */
 .small-action-button,
 .icon-action-button,
 .request-button {
@@ -756,42 +493,11 @@
   cursor: pointer
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".small-action-button" desta parte da interface. */
-.small-action-button {
-  padding: 7px 11px;
-  color: white
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".small-action-button.start" desta parte da interface. */
-.small-action-button.start {
-  background: #2d6cdf
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".small-action-button.finish" desta parte da interface. */
-.small-action-button.finish {
-  background: #1b9d50
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".icon-action-button" desta parte da interface. */
-.icon-action-button {
-  width: 34px;
-  color: #555;
-  background: #eee
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".icon-action-button.danger" desta parte da interface. */
 .icon-action-button.danger {
   color: #b21f1f;
   background: #ffe4e4
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link" desta parte da interface. */
 .back-link {
   display: inline-flex;
   align-items: center;
@@ -802,14 +508,10 @@
   font-weight: 600
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link:hover" desta parte da interface. */
 .back-link:hover {
   color: #111
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".request-item" desta parte da interface. */
 .request-item {
   display: grid;
   grid-template-columns: minmax(210px, 1.1fr) minmax(170px, .8fr) minmax(150px, .7fr) auto;
@@ -821,85 +523,57 @@
   background: #f7f7f7
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".request-button" desta parte da interface. */
 .request-button {
   padding: 8px 11px;
   color: white;
   font-size: 12px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".request-button.confirm" desta parte da interface. */
 .request-button.confirm {
   background: #1b9d50
 }
 
-/* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width: 1050px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .request-item {
     grid-template-columns: 1fr 1fr
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width: 720px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .agenda-heading,
-  .agenda-heading-actions,
-  .agenda-date-bar,
-  .agenda-date-bar form,
-  .request-tabs {
+.agenda-heading-actions,
+.request-tabs {
     align-items: stretch;
     flex-direction: column
   }
 
-  /* Participa da configuração visual deste componente. */
   .agenda-heading-actions a {
     width: 100%
   }
 
-  /* Participa da configuração visual deste componente. */
-  .agenda-compact-item,
   .request-item,
-  .reschedule-card {
+.reschedule-card {
     grid-template-columns: 1fr
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".icon-action-button.edit" desta parte da interface. */
 .icon-action-button.edit {
   color: #7a5600;
   background: #fff0ae
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".icon-action-button.edit:hover" desta parte da interface. */
 .icon-action-button.edit:hover {
   background: #ffe171
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-address" desta parte da interface. */
 .agenda-address {
-  display: block;
-  margin-top: 5px;
-  color: #777;
   line-height: 1.35
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".field-help" desta parte da interface. */
 .field-help {
   display: block;
   margin-top: 6px;
@@ -907,14 +581,10 @@
   line-height: 1.4
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-schedule-page .agenda-form-card" desta parte da interface. */
 .standard-schedule-page .agenda-form-card {
   margin-top: 18px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-editor" desta parte da interface. */
 .capacity-editor {
   margin-top: 22px;
   padding: 18px;
@@ -923,8 +593,6 @@
   background: #fafafa
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-editor-heading" desta parte da interface. */
 .capacity-editor-heading {
   display: flex;
   align-items: center;
@@ -933,21 +601,15 @@
   margin-bottom: 14px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-editor-heading h3" desta parte da interface. */
 .capacity-editor-heading h3 {
   margin: 0 0 4px;
   font-size: 18px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-editor-heading small" desta parte da interface. */
 .capacity-editor-heading small {
   color: #717171
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".secondary-action-button.small" desta parte da interface. */
 .secondary-action-button.small {
   min-height: 36px;
   padding: 8px 12px;
@@ -955,23 +617,17 @@
   cursor: pointer
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-active-checkbox" desta parte da interface. */
 .standard-active-checkbox {
   display: flex;
   align-items: flex-end;
   padding-bottom: 11px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-list" desta parte da interface. */
 .standard-pattern-list {
   display: grid;
   gap: 12px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-card" desta parte da interface. */
 .standard-pattern-card {
   overflow: hidden;
   border: 1px solid #e8e8e8;
@@ -979,8 +635,6 @@
   background: #fff
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-summary" desta parte da interface. */
 .standard-pattern-summary {
   display: grid;
   grid-template-columns: minmax(240px, 1fr) auto auto;
@@ -989,42 +643,30 @@
   padding: 16px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-summary strong,.standard-pattern-summary span,.standard-pattern-summary small" desta parte da interface. */
 .standard-pattern-summary strong,
 .standard-pattern-summary span,
 .standard-pattern-summary small {
   display: block
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-summary>div:first-child>strong" desta parte da interface. */
 .standard-pattern-summary>div:first-child>strong {
   margin-bottom: 3px;
   font-size: 17px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-summary>div:first-child>span" desta parte da interface. */
 .standard-pattern-summary>div:first-child>span {
   margin-bottom: 4px;
   font-weight: 700
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-summary>div:first-child>small" desta parte da interface. */
 .standard-pattern-summary>div:first-child>small {
   color: #777
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-details" desta parte da interface. */
 .standard-pattern-details {
   border-top: 1px solid #ededed
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".standard-pattern-details summary" desta parte da interface. */
 .standard-pattern-details summary {
   padding: 13px 16px;
   cursor: pointer;
@@ -1032,49 +674,36 @@
   font-weight: 700
 }
 
-/* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width: 900px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .capacity-editor {
     overflow-x: auto
   }
 
-  /* Participa da configuração visual deste componente. */
   .standard-pattern-summary {
     grid-template-columns: 1fr auto
   }
 
-  /* Participa da configuração visual deste componente. */
   .standard-pattern-summary .agenda-row-actions {
     grid-column: 1 / -1;
     justify-content: flex-start
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width: 620px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .capacity-editor-heading {
     align-items: stretch;
     flex-direction: column
   }
 
-  /* Participa da configuração visual deste componente. */
   .standard-pattern-summary {
     grid-template-columns: 1fr
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".capacity-grid-header,.capacity-grid-row" desta parte da interface. */
 .capacity-grid-header,
 .capacity-grid-row {
   display: grid;
@@ -1083,23 +712,17 @@
   gap: 18px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-grid-header" desta parte da interface. */
 .capacity-grid-header {
   padding: 0 10px 8px;
   color: #777;
   font-size: 12px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-grid" desta parte da interface. */
 .capacity-grid {
   display: grid;
   gap: 8px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-grid-row" desta parte da interface. */
 .capacity-grid-row {
   padding: 10px;
   border: 1px solid #e9e9e9;
@@ -1107,14 +730,10 @@
   background: #fff
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-time" desta parte da interface. */
 .capacity-time {
   font-size: 16px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-number" desta parte da interface. */
 .capacity-number {
   width: 100%;
   height: 40px;
@@ -1125,15 +744,11 @@
   font: inherit
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-number:focus" desta parte da interface. */
 .capacity-number:focus {
   border-color: #ef3028;
   outline: 3px solid rgba(239, 48, 40, .12)
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".capacity-grid-empty" desta parte da interface. */
 .capacity-grid-empty {
   padding: 18px;
   border: 1px dashed #d7d7d7;
@@ -1142,8 +757,6 @@
   text-align: center
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pattern-preview-grid" desta parte da interface. */
 .pattern-preview-grid {
   display: grid;
   gap: 7px;
@@ -1152,8 +765,6 @@
   padding: 0 16px 16px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pattern-preview-row" desta parte da interface. */
 .pattern-preview-row {
   display: grid;
   grid-template-columns: 70px 55px 1fr;
@@ -1164,8 +775,6 @@
   background: #f7f7f7
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pattern-vagas-number" desta parte da interface. */
 .pattern-vagas-number {
   width: 42px;
   padding: 5px 0;
@@ -1176,20 +785,15 @@
   text-align: center
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pattern-preview-row small" desta parte da interface. */
 .pattern-preview-row small {
   color: #666
 }
 
-/* Participa da configuração visual deste componente. */
 /* Agenda em estilo calendário */
 .google-agenda-page {
   max-width: 1180px;
   margin: 0 auto
 }
-
-/* Participa da configuração visual deste componente. */
 
 /* ===== Agenda Container Principal Unificado ===== */
 .agenda-page.google-agenda-page {
@@ -1315,7 +919,6 @@
   font-weight: 800;
 }
 
-/* Estiliza o(s) elemento(s) ".google-calendar-card" desta parte da interface. */
 .google-calendar-card {
   margin-bottom: 18px;
   border: 1px solid #e3e3e3;
@@ -1325,85 +928,54 @@
   box-shadow: 0 2px 8px #0000000d
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header" desta parte da interface. */
 .google-calendar-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 18px;
-  border-bottom: 1px solid #ededed
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header>div" desta parte da interface. */
 .google-calendar-card-header>div {
   display: flex;
   align-items: center;
-  gap: 12px
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header h2" desta parte da interface. */
 .google-calendar-card-header h2 {
   margin: 0;
-  font-size: 18px
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header small" desta parte da interface. */
 .google-calendar-card-header small {
   display: block;
   margin-top: 3px;
-  color: #777
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-category-icon" desta parte da interface. */
 .calendar-category-icon {
-  width: 38px;
-  height: 38px;
   display: grid;
   place-items: center;
-  border-radius: 11px;
-  background: #fff1a8;
-  color: #8a6100;
   flex: 0 0 auto
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-no-schedule" desta parte da interface. */
 .calendar-no-schedule {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px;
   color: #666
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-no-schedule>i" desta parte da interface. */
 .calendar-no-schedule>i {
   font-size: 24px;
   color: #999
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-no-schedule strong,.calendar-no-schedule small" desta parte da interface. */
 .calendar-no-schedule strong,
 .calendar-no-schedule small {
   display: block
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-no-schedule small" desta parte da interface. */
 .calendar-no-schedule small {
   margin-top: 3px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-no-schedule a" desta parte da interface. */
 .calendar-no-schedule a {
   margin-left: auto;
   font-weight: 700;
@@ -1411,292 +983,64 @@
   text-decoration: none
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-grid" desta parte da interface. */
-.google-time-grid {
-  background: #fff
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-row" desta parte da interface. */
-.google-time-row {
-  display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
-  min-height: 82px;
-  border-bottom: 1px solid #eeeeee
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-row:last-child" desta parte da interface. */
 .google-time-row:last-child {
   border-bottom: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-label" desta parte da interface. */
 .google-time-label {
-  padding: 13px 12px;
-  border-right: 1px solid #eeeeee;
-  color: #666;
-  font-size: 13px;
-  font-weight: 700;
   text-align: right
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-content" desta parte da interface. */
 .google-time-content {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
   min-width: 0;
-  padding: 8px 10px
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-events" desta parte da interface. */
 .time-events {
-  display: grid;
-  gap: 7px;
   flex: 1;
-  min-width: 0
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".bath-event" desta parte da interface. */
-.bath-event {
-  border-left: 4px solid #ef3028;
-  background: #fff9f8
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main" desta parte da interface. */
-.calendar-event-main {
-  min-width: 0;
-  flex: 1
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main strong,.calendar-event-main span,.calendar-event-main small" desta parte da interface. */
 .calendar-event-main strong,
 .calendar-event-main span,
 .calendar-event-main small {
   display: block
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main strong" desta parte da interface. */
-.calendar-event-main strong {
-  font-size: 14px
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main span" desta parte da interface. */
 .calendar-event-main span {
   margin-top: 2px;
-  color: #555;
-  font-size: 13px
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main small" desta parte da interface. */
 .calendar-event-main small {
   margin-top: 3px;
-  color: #777;
-  font-size: 11px;
-  line-height: 1.35
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button" desta parte da interface. */
-.time-add-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-width: 150px;
-  padding: 10px 12px;
-  border: 1px dashed #cfcfcf;
-  border-radius: 10px;
-  background: #fff;
-  color: #555;
-  font: inherit;
-  cursor: pointer
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button span" desta parte da interface. */
-.time-add-button span {
-  font-weight: 800
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button small" desta parte da interface. */
-.time-add-button small {
-  font-size: 11px;
-  color: #777
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button:hover:not(:disabled)" desta parte da interface. */
-.time-add-button:hover:not(:disabled) {
-  border-color: #ef3028;
-  background: #fff7f6;
-  color: #b8201b
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button:disabled" desta parte da interface. */
-.time-add-button:disabled {
-  cursor: not-allowed;
-  background: #f5f5f5;
-  color: #aaa;
-  border-style: solid
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-row.is-full .google-time-label" desta parte da interface. */
-.google-time-row.is-full .google-time-label {
-  color: #aaa
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-category-grid" desta parte da interface. */
-.calendar-category-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-day-card" desta parte da interface. */
 .category-day-card {
   margin-bottom: 0;
   min-width: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-add-header" desta parte da interface. */
 .category-add-header {
   width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 15px 16px;
-  border: 0;
-  border-bottom: 1px solid #ededed;
-  background: #fff;
-  text-align: left;
   font: inherit;
-  cursor: pointer
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-add-header:hover" desta parte da interface. */
-.category-add-header:hover {
-  background: #fafafa
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-heading-text" desta parte da interface. */
-.category-heading-text {
-  min-width: 0;
-  flex: 1
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-heading-text strong,.category-heading-text small" desta parte da interface. */
 .category-heading-text strong,
 .category-heading-text small {
   display: block
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-heading-text strong" desta parte da interface. */
-.category-heading-text strong {
-  font-size: 16px
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-heading-text small" desta parte da interface. */
 .category-heading-text small {
   margin-top: 2px;
-  color: #777;
-  font-size: 11px
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-plus" desta parte da interface. */
-.category-plus {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #f3f3f3;
-  color: #555
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-day-events" desta parte da interface. */
-.category-day-events {
-  display: grid;
-  gap: 9px;
-  padding: 12px
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-event" desta parte da interface. */
-.category-event {
-  align-items: flex-start;
-  background: #fff
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-event .agenda-row-actions" desta parte da interface. */
 .category-event .agenda-row-actions {
   margin-left: auto
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-empty-add,.category-inline-add" desta parte da interface. */
 .category-empty-add,
 .category-inline-add {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 54px;
-  padding: 11px;
-  border: 1px dashed #d2d2d2;
-  border-radius: 11px;
-  background: #fafafa;
-  color: #666;
   font: inherit;
-  font-weight: 700;
-  cursor: pointer
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-inline-add" desta parte da interface. */
-.category-inline-add {
-  min-height: 42px;
-  background: #fff
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-empty-add:hover,.category-inline-add:hover" desta parte da interface. */
-.category-empty-add:hover,
-.category-inline-add:hover {
-  border-color: #ef3028;
-  color: #bd211b;
-  background: #fff8f7
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-event-modal" desta parte da interface. */
 .agenda-event-modal {
   position: fixed;
   inset: 0;
@@ -1704,57 +1048,34 @@
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  background: #00000055
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-event-modal.is-open" desta parte da interface. */
 .agenda-event-modal.is-open {
   display: flex
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-event-dialog" desta parte da interface. */
 .agenda-event-dialog {
-  width: min(620px, 100%);
   max-height: 90vh;
   overflow: auto;
-  border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 24px 70px #00000040
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-header" desta parte da interface. */
 .agenda-modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid #ececec
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-header h2" desta parte da interface. */
 .agenda-modal-header h2 {
   margin: 4px 0 0;
-  font-size: 21px
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-category" desta parte da interface. */
 .agenda-modal-category {
-  color: #777;
-  font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .04em
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-close" desta parte da interface. */
 .agenda-modal-close {
   width: 38px;
   height: 38px;
@@ -1762,187 +1083,129 @@
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: #f3f3f3;
   color: #555;
   font-size: 17px;
   cursor: pointer
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-form" desta parte da interface. */
-.agenda-modal-form {
-  padding: 18px 20px 20px
-}
-
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-grid" desta parte da interface. */
 .agenda-modal-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 14px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-grid .field" desta parte da interface. */
 .agenda-modal-grid .field {
   min-width: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-grid .span-12" desta parte da interface. */
 .agenda-modal-grid .span-12 {
   grid-column: span 12
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-grid .span-6" desta parte da interface. */
 .agenda-modal-grid .span-6 {
   grid-column: span 6
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-simple-note" desta parte da interface. */
 .agenda-simple-note {
   display: flex;
   align-items: flex-start;
   gap: 9px;
-  padding: 11px 12px;
-  border-radius: 10px;
-  background: #fff7cc;
-  color: #695000;
   font-size: 13px;
   line-height: 1.4
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-actions" desta parte da interface. */
 .agenda-modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 9px;
   margin-top: 18px;
-  padding-top: 15px;
-  border-top: 1px solid #eeeeee
-}
+  }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) "body.agenda-modal-open" desta parte da interface. */
 body.agenda-modal-open {
   overflow: hidden
 }
 
-/* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width:900px) {
 
-  /* Inicia as regras visuais deste seletor. */
-  .calendar-category-grid {
-    grid-template-columns: 1fr
-  }
-
-  /* Participa da configuração visual deste componente. */
   .google-calendar-toolbar {
     flex-wrap: wrap
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-title {
     width: 100%;
     margin-left: 0
   }
 
-  /* Participa da configuração visual deste componente. */
   .google-time-content {
     flex-direction: column
   }
 
-  /* Participa da configuração visual deste componente. */
   .time-add-button {
     min-width: 0;
     width: 100%
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width:620px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .google-calendar-toolbar {
     align-items: stretch
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-form {
     width: 100%;
     margin-left: 0
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-form input {
     min-width: 0;
     flex: 1
   }
 
-  /* Participa da configuração visual deste componente. */
   .google-time-row {
     grid-template-columns: 58px minmax(0, 1fr)
   }
 
-  /* Participa da configuração visual deste componente. */
   .google-time-label {
     padding: 12px 7px;
     font-size: 12px
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-event .agenda-row-actions {
     width: 100%;
     justify-content: flex-start
   }
 
-  /* Participa da configuração visual deste componente. */
   .agenda-event-modal {
     padding: 10px
   }
 
-  /* Participa da configuração visual deste componente. */
   .agenda-event-dialog {
     max-height: 94vh;
     border-radius: 14px
   }
 
-  /* Participa da configuração visual deste componente. */
   .agenda-modal-grid .span-6 {
     grid-column: span 12
   }
 
-  /* Participa da configuração visual deste componente. */
   .agenda-modal-actions {
     flex-direction: column-reverse
   }
 
-  /* Participa da configuração visual deste componente. */
   .agenda-modal-actions .secondary-action-button,
   .agenda-modal-actions .save-button {
     width: 100%;
     justify-content: center
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
 /* ===== Agenda redesenhada - inspiração Google Agenda, adaptada ao Beauty Pet ===== */
-/* Estiliza o(s) elemento(s) ".agenda-heading-actions" desta parte da interface. */
 .agenda-heading-actions {
   gap: 12px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".secondary-action-button" desta parte da interface. */
 .secondary-action-button {
   display: inline-flex;
   align-items: center;
@@ -1959,16 +1222,12 @@ body.agenda-modal-open {
   transition: .2s
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".secondary-action-button:hover" desta parte da interface. */
 .secondary-action-button:hover {
   transform: translateY(-1px);
   background: #fffdf4;
   box-shadow: 0 10px 24px #0000000f
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".request-count" desta parte da interface. */
 .request-count {
   display: inline-grid;
   place-items: center;
@@ -1982,8 +1241,6 @@ body.agenda-modal-open {
   font-weight: 800
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".bath-calendar-card,.category-day-card" desta parte da interface. */
 .bath-calendar-card,
 .category-day-card {
   border: 1px solid #ececec;
@@ -1993,37 +1250,27 @@ body.agenda-modal-open {
   overflow: hidden
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header" desta parte da interface. */
 .google-calendar-card-header {
   padding: 18px 20px;
   border-bottom: 1px solid #efefef;
   background: #fff
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header h2" desta parte da interface. */
 .google-calendar-card-header h2 {
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -.01em
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header small" desta parte da interface. */
 .google-calendar-card-header small {
   font-size: 13px;
   color: #7a7a7a
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-calendar-card-header>div" desta parte da interface. */
 .google-calendar-card-header>div {
   gap: 14px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-category-icon" desta parte da interface. */
 .calendar-category-icon {
   width: 44px;
   height: 44px;
@@ -2034,21 +1281,15 @@ body.agenda-modal-open {
   box-shadow: inset 0 0 0 1px #f1de96
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-no-schedule" desta parte da interface. */
 .calendar-no-schedule {
   padding: 24px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-grid" desta parte da interface. */
 .google-time-grid {
   padding: 8px 0 2px;
   background: linear-gradient(180deg, #fff 0%, #fcfcff 100%)
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-row" desta parte da interface. */
 .google-time-row {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr);
@@ -2056,8 +1297,6 @@ body.agenda-modal-open {
   border-bottom: 1px solid #f0f1f4
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-label" desta parte da interface. */
 .google-time-label {
   display: flex;
   align-items: flex-start;
@@ -2069,8 +1308,6 @@ body.agenda-modal-open {
   font-weight: 800
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-content" desta parte da interface. */
 .google-time-content {
   position: relative;
   display: grid;
@@ -2080,8 +1317,6 @@ body.agenda-modal-open {
   padding: 10px 14px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-events" desta parte da interface. */
 .time-events {
   display: grid;
   gap: 8px;
@@ -2089,28 +1324,20 @@ body.agenda-modal-open {
   min-width: 0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".bath-event" desta parte da interface. */
 .bath-event {
   border-left: 4px solid #ef3a2f;
   background: linear-gradient(180deg, #fff8f7, #fff)
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-event" desta parte da interface. */
 .category-event {
   align-items: flex-start;
   background: #fff
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-event[data-category='creche']" desta parte da interface. */
 .category-event[data-category='creche'] {
   border-left-color: #e6b800
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main" desta parte da interface. */
 .calendar-event-main {
   display: flex;
   flex-direction: column;
@@ -2119,30 +1346,22 @@ body.agenda-modal-open {
   flex: 1
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main strong" desta parte da interface. */
 .calendar-event-main strong {
   font-size: 14px;
   font-weight: 800
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main span" desta parte da interface. */
 .calendar-event-main span {
   font-size: 13px;
   color: #4e5562
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-event-main small" desta parte da interface. */
 .calendar-event-main small {
   font-size: 12px;
   color: #7b8190;
   line-height: 1.4
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge" desta parte da interface. */
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -2155,43 +1374,31 @@ body.agenda-modal-open {
   white-space: nowrap
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.success" desta parte da interface. */
 .status-badge.success {
   color: #11663a;
   background: #daf5e7
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.warning" desta parte da interface. */
 .status-badge.warning {
   color: #9b6100;
   background: #fff0c2
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.info" desta parte da interface. */
 .status-badge.info {
   color: #184aa7;
   background: #dde9ff
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.danger" desta parte da interface. */
 .status-badge.danger {
   color: #b42318;
   background: #ffe0dc
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".status-badge.neutral" desta parte da interface. */
 .status-badge.neutral {
   color: #666;
   background: #f0f0f0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button" desta parte da interface. */
 .time-add-button {
   display: flex;
   flex-direction: column;
@@ -2209,37 +1416,27 @@ body.agenda-modal-open {
   transition: .2s
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button i" desta parte da interface. */
 .time-add-button i {
   font-size: 14px;
   color: #ef3a2f
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button span" desta parte da interface. */
 .time-add-button span {
   font-size: 14px;
   font-weight: 800
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button small" desta parte da interface. */
 .time-add-button small {
   font-size: 12px;
   color: #7f8592
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button:hover:not(:disabled)" desta parte da interface. */
 .time-add-button:hover:not(:disabled) {
   background: #fff8f7;
   border-color: #ef3a2f;
   color: #b3251d
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".time-add-button:disabled" desta parte da interface. */
 .time-add-button:disabled {
   background: #f6f7f9;
   color: #a6acb7;
@@ -2247,20 +1444,14 @@ body.agenda-modal-open {
   cursor: not-allowed
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-row.is-full .google-time-label" desta parte da interface. */
 .google-time-row.is-full .google-time-label {
   color: #b4b8c0
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".google-time-row.is-full .google-time-content" desta parte da interface. */
 .google-time-row.is-full .google-time-content {
   background-image: linear-gradient(180deg, transparent 0, transparent calc(100% - 1px), #f5f5f8 calc(100% - 1px), #f5f5f8 100%)
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".calendar-category-grid" desta parte da interface. */
 .calendar-category-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2268,8 +1459,6 @@ body.agenda-modal-open {
   margin-top: 20px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-add-header" desta parte da interface. */
 .category-add-header {
   display: flex;
   align-items: center;
@@ -2283,14 +1472,10 @@ body.agenda-modal-open {
   transition: .2s
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-add-header:hover" desta parte da interface. */
 .category-add-header:hover {
   background: #fffdf5
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-heading-text" desta parte da interface. */
 .category-heading-text {
   display: flex;
   flex-direction: column;
@@ -2299,22 +1484,16 @@ body.agenda-modal-open {
   flex: 1
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-heading-text strong" desta parte da interface. */
 .category-heading-text strong {
   font-size: 18px;
   font-weight: 800
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-heading-text small" desta parte da interface. */
 .category-heading-text small {
   color: #7c8190;
   font-size: 12px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-plus" desta parte da interface. */
 .category-plus {
   width: 36px;
   height: 36px;
@@ -2325,16 +1504,12 @@ body.agenda-modal-open {
   color: #545b6a
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-day-events" desta parte da interface. */
 .category-day-events {
   display: grid;
   gap: 10px;
   padding: 14px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-empty-add,.category-inline-add" desta parte da interface. */
 .category-empty-add,
 .category-inline-add {
   width: 100%;
@@ -2353,8 +1528,6 @@ body.agenda-modal-open {
   transition: .2s
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".category-empty-add:hover,.category-inline-add:hover" desta parte da interface. */
 .category-empty-add:hover,
 .category-inline-add:hover {
   background: #fff7f5;
@@ -2362,8 +1535,6 @@ body.agenda-modal-open {
   color: #b2231c
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-address" desta parte da interface. */
 .agenda-address {
   display: block;
   margin-top: 6px;
@@ -2373,8 +1544,6 @@ body.agenda-modal-open {
   color: #6f7786
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-row-actions" desta parte da interface. */
 .agenda-row-actions {
   display: flex;
   align-items: center;
@@ -2382,8 +1551,6 @@ body.agenda-modal-open {
   justify-content: flex-end
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".icon-action-button" desta parte da interface. */
 .icon-action-button {
   width: 36px;
   height: 36px;
@@ -2398,22 +1565,16 @@ body.agenda-modal-open {
   transition: .2s
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".icon-action-button:hover" desta parte da interface. */
 .icon-action-button:hover {
   background: #f5f7fb
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".icon-action-button.danger:hover" desta parte da interface. */
 .icon-action-button.danger:hover {
   background: #fff1f0;
   color: #c1271f;
   border-color: #f0cbc8
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".small-action-button" desta parte da interface. */
 .small-action-button {
   min-height: 36px;
   padding: 0 12px;
@@ -2424,28 +1585,20 @@ body.agenda-modal-open {
   cursor: pointer
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".small-action-button.start" desta parte da interface. */
 .small-action-button.start {
   background: #f09c11
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".small-action-button.finish" desta parte da interface. */
 .small-action-button.finish {
   background: #16a34a
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-event-modal" desta parte da interface. */
 .agenda-event-modal {
   padding: 20px;
   background: #10182866;
   backdrop-filter: blur(3px)
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-event-dialog" desta parte da interface. */
 .agenda-event-dialog {
   width: min(680px, 100%);
   border-radius: 24px;
@@ -2453,42 +1606,30 @@ body.agenda-modal-open {
   box-shadow: 0 28px 80px #00000038
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-header" desta parte da interface. */
 .agenda-modal-header {
   padding: 20px 22px 16px;
   border-bottom: 1px solid #eef0f3
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-header h2" desta parte da interface. */
 .agenda-modal-header h2 {
   font-size: 24px;
   font-weight: 800;
   letter-spacing: -.02em
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-category" desta parte da interface. */
 .agenda-modal-category {
   font-size: 11px;
   color: #8b93a1
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-close" desta parte da interface. */
 .agenda-modal-close {
   background: #f4f6fa
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-form" desta parte da interface. */
 .agenda-modal-form {
   padding: 20px 22px 22px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-simple-note" desta parte da interface. */
 .agenda-simple-note {
   padding: 13px 14px;
   border-radius: 14px;
@@ -2496,22 +1637,16 @@ body.agenda-modal-open {
   color: #735400
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-actions" desta parte da interface. */
 .agenda-modal-actions {
   gap: 12px;
   padding-top: 18px;
   border-top: 1px solid #eef0f3
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-actions .secondary-action-button" desta parte da interface. */
 .agenda-modal-actions .secondary-action-button {
   min-height: 46px
 }
 
-/* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".agenda-modal-actions .save-button" desta parte da interface. */
 .agenda-modal-actions .save-button {
   display: inline-flex;
   align-items: center;
@@ -2523,114 +1658,87 @@ body.agenda-modal-open {
   box-shadow: none
 }
 
-/* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width:1100px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .google-calendar-toolbar {
     grid-template-columns: 1fr 1fr;
     justify-items: stretch
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-form {
     grid-column: 1 / -1
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-title {
     justify-self: start
   }
 
-  /* Participa da configuração visual deste componente. */
   .google-time-content {
     grid-template-columns: 1fr
   }
 
-  /* Participa da configuração visual deste componente. */
   .time-add-button {
     align-items: center;
     text-align: center
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width:900px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .agenda-page.google-agenda-page {
     padding: 18px;
     border-radius: 20px
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-category-grid {
     grid-template-columns: 1fr
   }
 
-  /* Participa da configuração visual deste componente. */
 }
 
-/* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
 @media (max-width:640px) {
 
-  /* Inicia as regras visuais deste seletor. */
   .google-calendar-toolbar {
     grid-template-columns: 1fr;
     gap: 10px
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-nav-buttons {
     order: 2
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-form {
     order: 3;
     flex-wrap: wrap
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-form input {
     width: 100%
   }
 
-  /* Participa da configuração visual deste componente. */
   .calendar-date-title {
     order: 1;
     justify-self: start
   }
 
-  /* Participa da configuração visual deste componente. */
   .google-time-row {
     grid-template-columns: 66px minmax(0, 1fr);
     min-height: 84px
   }
 
-  /* Participa da configuração visual deste componente. */
   .google-time-label {
     font-size: 12px;
     padding-right: 8px
   }
 
-  /* Participa da configuração visual deste componente. */
   .category-add-header {
     padding: 14px
   }
 
-  /* Participa da configuração visual deste componente. */
   .agenda-row-actions {
     justify-content: flex-start;
     flex-wrap: wrap
   }
 
-  /* Participa da configuração visual deste componente. */
 }
-
-/* Encerra as regras visuais do seletor anterior. */

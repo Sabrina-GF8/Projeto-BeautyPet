@@ -2,209 +2,113 @@
  * ARQUIVO: assets/css/ficha.css
  * USADO POR: pages/ficha-pet.php e pages/ficha-tutor.php
  * RESPONSABILIDADE: Ficha individual do pet e do tutor.
- * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
-/* Estiliza o(s) elemento(s) ".page" desta parte da interface. */
-.page{min-height:100%;padding:30px;background:white;border-radius:12px;box-shadow:0 3px 10px #0001} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page h1" desta parte da interface. */
-.page h1{margin-bottom:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page p" desta parte da interface. */
-.page p{color:#666} /* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 900px){ /* Inicia as regras visuais deste seletor. */
-  .page{padding:20px} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".message" desta parte da interface. */
-.message{max-width:1050px;margin:0 auto 18px;padding:13px 16px;border-radius:10px;font-weight:600} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".message.success" desta parte da interface. */
-.message.success{color:#176b32;background:#eaf8ef;border:1px solid #b8e2c5} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".message.error" desta parte da interface. */
-.message.error{color:#9d1c1c;background:#fff0f0;border:1px solid #efbcbc} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-page" desta parte da interface. */
-.records-page{background:#fff9bf} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".tutor-row:hover,.pet-record-card:hover,.linked-pet-card:hover" desta parte da interface. */
-.tutor-row:hover,.pet-record-card:hover,.linked-pet-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px #00000012} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-avatar" desta parte da interface. */
-.record-avatar{width:62px;height:62px;display:grid;place-items:center;border-radius:12px;background:#ef2a20;color:white;font-size:18px;font-weight:800;flex-shrink:0} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-avatar.large" desta parte da interface. */
-.record-avatar.large{width:82px;height:82px;font-size:24px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link" desta parte da interface. */
-.back-link{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;color:#555;text-decoration:none;font-weight:600} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link:hover" desta parte da interface. */
-.back-link:hover{color:#111} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-layout" desta parte da interface. */
-.detail-layout{display:grid;grid-template-columns:minmax(0, 1fr) 220px;gap:18px;max-width:1150px;margin:0 auto 18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-card" desta parte da interface. */
-.detail-card{background:white;border:1px solid #dedede;border-radius:16px;box-shadow:0 2px 5px #0000000a} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".tutor-profile-card" desta parte da interface. */
-.tutor-profile-card{padding:24px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-profile-head,.pet-profile-identity" desta parte da interface. */
-.detail-profile-head,.pet-profile-identity{display:flex;align-items:center;gap:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-profile-head h1,.pet-profile-identity h1" desta parte da interface. */
-.detail-profile-head h1,.pet-profile-identity h1{margin:0 0 5px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-profile-head p" desta parte da interface. */
-.detail-profile-head p{color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".contact-grid" desta parte da interface. */
-.contact-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:22px 30px;margin-top:30px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".contact-grid>div,.data-grid>div" desta parte da interface. */
-.contact-grid>div,.data-grid>div{display:flex;flex-direction:column;gap:5px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".contact-grid .wide,.data-grid .wide" desta parte da interface. */
-.contact-grid .wide,.data-grid .wide{grid-column:1 / -1} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".contact-grid small,.data-grid small,.text-information small" desta parte da interface. */
-.contact-grid small,.data-grid small,.text-information small{color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".contact-grid strong" desta parte da interface. */
-.contact-grid strong{font-weight:600} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".summary-column" desta parte da interface. */
-.summary-column{display:flex;flex-direction:column;gap:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".summary-card" desta parte da interface. */
-.summary-card{min-height:78px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:14px 16px;background:#f2f2f2;border:1px solid #dedede;border-radius:12px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".summary-card small" desta parte da interface. */
-.summary-card small{color:#666;font-weight:600} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".summary-card strong" desta parte da interface. */
-.summary-card strong{font-size:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".summary-card.credit strong" desta parte da interface. */
-.summary-card.credit strong{color:#15924b} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".summary-card.debt strong" desta parte da interface. */
-.summary-card.debt strong{color:#e32620} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-card,.history-card" desta parte da interface. */
-.section-card,.history-card{max-width:1150px;margin:0 auto 18px;padding:22px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-card>h2,.history-card>h2" desta parte da interface. */
-.section-card>h2,.history-card>h2{margin-bottom:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title" desta parte da interface. */
-.section-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title h2" desta parte da interface. */
-.section-title h2{margin:0;font-size:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title a" desta parte da interface. */
-.section-title a{color:#b17e00;text-decoration:none;font-weight:700} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".section-title small" desta parte da interface. */
-.section-title small{color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".linked-pets-grid" desta parte da interface. */
-.linked-pets-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(145px, 1fr));gap:16px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".linked-pet-card" desta parte da interface. */
-.linked-pet-card{display:flex;flex-direction:column;gap:5px;padding:14px;color:#222;background:#fafafa;border:1px solid #e7e7e7;border-radius:12px;text-decoration:none;transition:.2s} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".linked-pet-card img,.pet-photo-fallback" desta parte da interface. */
-.linked-pet-card img,.pet-photo-fallback{width:64px;height:64px;object-fit:cover;border-radius:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-photo-fallback" desta parte da interface. */
-.pet-photo-fallback{display:grid;place-items:center;background:#fff3b7;color:#d5a500} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-photo-fallback.large" desta parte da interface. */
-.pet-photo-fallback.large{width:88px;height:88px;font-size:28px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".linked-pet-card span,.linked-pet-card small" desta parte da interface. */
-.linked-pet-card span,.linked-pet-card small{color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".package-label" desta parte da interface. */
-.package-label{width:fit-content;margin-top:5px;padding:5px 8px;color:#765500!important;background:#ffe474;border-radius:7px;font-weight:700} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".inline-empty" desta parte da interface. */
-.inline-empty{padding:20px;color:#777;background:#fafafa;border:1px dashed #ddd;border-radius:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".table-wrap" desta parte da interface. */
-.table-wrap{overflow-x:auto} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-table" desta parte da interface. */
-.records-table{width:100%;border-collapse:collapse} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-table th,.records-table td" desta parte da interface. */
-.records-table th,.records-table td{padding:13px 12px;border-bottom:1px solid #eee;text-align:left;vertical-align:top} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-table th" desta parte da interface. */
-.records-table th{color:#777;background:#fafafa;font-size:13px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-table td" desta parte da interface. */
-.records-table td{font-size:14px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-table td strong,.records-table td small" desta parte da interface. */
-.records-table td strong,.records-table td small{display:block} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-table td small" desta parte da interface. */
-.records-table td small{margin-top:4px;color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-table .money" desta parte da interface. */
-.records-table .money{color:#15924b;font-weight:800;white-space:nowrap} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-profile-top" desta parte da interface. */
-.pet-profile-top{max-width:1150px;margin:0 auto 18px;display:grid;grid-template-columns:minmax(250px, 1fr) minmax(500px, 1.7fr);align-items:center;gap:25px;padding:22px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-profile-identity img" desta parte da interface. */
-.pet-profile-identity img{width:88px;height:88px;object-fit:cover;border-radius:13px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-profile-identity strong" desta parte da interface. */
-.pet-profile-identity strong{display:block;margin-bottom:4px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-profile-identity a" desta parte da interface. */
-.pet-profile-identity a{color:#df3028;text-decoration:none;font-weight:700} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-summary-grid" desta parte da interface. */
-.pet-summary-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-summary-grid .summary-card" desta parte da interface. */
-.pet-summary-grid .summary-card{min-width:0} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-detail-columns" desta parte da interface. */
-.pet-detail-columns{max-width:1150px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-detail-columns .section-card" desta parte da interface. */
-.pet-detail-columns .section-card{width:100%} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".data-grid" desta parte da interface. */
-.data-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:20px 25px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".text-information" desta parte da interface. */
-.text-information{display:flex;flex-direction:column;gap:20px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".text-information>div" desta parte da interface. */
-.text-information>div{padding-bottom:16px;border-bottom:1px solid #eee} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".text-information>div:last-child" desta parte da interface. */
-.text-information>div:last-child{padding-bottom:0;border-bottom:0} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".text-information p" desta parte da interface. */
-.text-information p{margin-top:6px;color:#333;line-height:1.5} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".package-grid" desta parte da interface. */
-.package-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));gap:14px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".package-card" desta parte da interface. */
-.package-card{display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff9d2;border:1px solid #f0d66d;border-radius:11px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".package-card>div" desta parte da interface. */
-.package-card>div{display:flex;justify-content:space-between;gap:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".package-card small" desta parte da interface. */
-.package-card small{color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline" desta parte da interface. */
-.timeline{display:flex;flex-direction:column} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-item" desta parte da interface. */
-.timeline-item{display:grid;grid-template-columns:auto minmax(0, 1fr) auto;gap:14px;padding:15px 0;border-bottom:1px solid #eee} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-item:last-child" desta parte da interface. */
-.timeline-item:last-child{border-bottom:0} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-dot" desta parte da interface. */
-.timeline-dot{width:10px;height:10px;margin-top:6px;border:2px solid #f0a000;border-radius:50%} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-content" desta parte da interface. */
-.timeline-content{display:flex;flex-direction:column;gap:4px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-content p,.timeline-content small" desta parte da interface. */
-.timeline-content p,.timeline-content small{color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-value" desta parte da interface. */
-.timeline-value{display:flex;flex-direction:column;align-items:flex-end;gap:4px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-value strong" desta parte da interface. */
-.timeline-value strong{color:#15924b} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".timeline-value span" desta parte da interface. */
-.timeline-value span{color:#777;font-size:13px} /* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 1100px){ /* Inicia as regras visuais deste seletor. */
-  .pet-profile-top{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 850px){ /* Inicia as regras visuais deste seletor. */
-  .detail-layout,.pet-detail-columns{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
-  .summary-column{display:grid;grid-template-columns:repeat(2, 1fr)} /* Participa da configuração visual deste componente. */
-  .pet-summary-grid{grid-template-columns:repeat(2, 1fr)} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 650px){ /* Inicia as regras visuais deste seletor. */
-  .contact-grid,.data-grid{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
-  .contact-grid .wide,.data-grid .wide{grid-column:auto} /* Participa da configuração visual deste componente. */
-  .summary-column,.pet-summary-grid{grid-template-columns:1fr} /* Participa da configuração visual deste componente. */
-  .section-title{align-items:flex-start;flex-direction:column} /* Participa da configuração visual deste componente. */
-  .timeline-item{grid-template-columns:auto 1fr} /* Participa da configuração visual deste componente. */
-  .timeline-value{grid-column:2;align-items:flex-start} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".profile-message" desta parte da interface. */
-.profile-message{margin-top:10px;padding:10px 11px;border-radius:8px;font-size:13px;font-weight:600} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".profile-message.success" desta parte da interface. */
-.profile-message.success{color:#176b32;background:#eaf8ef;border:1px solid #b8e2c5} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".profile-message.error" desta parte da interface. */
-.profile-message.error{color:#9d1c1c;background:#fff0f0;border:1px solid #efbcbc} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link" desta parte da interface. */
-.back-link{display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;color:#555;text-decoration:none;font-weight:600} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".back-link:hover" desta parte da interface. */
-.back-link:hover{color:#111} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-page-actions" desta parte da interface. */
-.detail-page-actions{max-width:1150px;margin:-8px auto 16px;display:flex;justify-content:flex-end} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-edit-button" desta parte da interface. */
-.detail-edit-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 15px;border:1px solid #eadca5;border-radius:12px;background:#fff;color:#4c4638;text-decoration:none;font-weight:800;box-shadow:0 6px 16px #00000008;transition:.2s} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".detail-edit-button:hover" desta parte da interface. */
-.detail-edit-button:hover{transform:translateY(-1px);background:#fff9e6;border-color:#dfc965} /* Participa da configuração visual deste componente. */
+.page{min-height:100%;padding:30px;background:white;border-radius:12px;box-shadow:0 3px 10px #0001}
+.page h1{margin-bottom:10px}
+.page p{color:#666}
+@media (max-width: 900px){
+  .page{padding:20px}
+}
+.message{max-width:1050px;margin:0 auto 18px;padding:13px 16px;border-radius:10px;font-weight:600}
+.message.success{color:#176b32;background:#eaf8ef;border:1px solid #b8e2c5}
+.message.error{color:#9d1c1c;background:#fff0f0;border:1px solid #efbcbc}
+.records-page{background:#fff9bf}
+.tutor-row:hover,.pet-record-card:hover,.linked-pet-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px #00000012}
+.record-avatar{width:62px;height:62px;display:grid;place-items:center;border-radius:12px;background:#ef2a20;color:white;font-size:18px;font-weight:800;flex-shrink:0}
+.record-avatar.large{width:82px;height:82px;font-size:24px}
+.detail-layout{display:grid;grid-template-columns:minmax(0, 1fr) 220px;gap:18px;max-width:1150px;margin:0 auto 18px}
+.detail-card{background:white;border:1px solid #dedede;border-radius:16px;box-shadow:0 2px 5px #0000000a}
+.tutor-profile-card{padding:24px}
+.detail-profile-head,.pet-profile-identity{display:flex;align-items:center;gap:18px}
+.detail-profile-head h1,.pet-profile-identity h1{margin:0 0 5px}
+.detail-profile-head p{color:#777}
+.contact-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:22px 30px;margin-top:30px}
+.contact-grid>div,.data-grid>div{display:flex;flex-direction:column;gap:5px}
+.contact-grid .wide,.data-grid .wide{grid-column:1 / -1}
+.contact-grid small,.data-grid small,.text-information small{color:#777}
+.contact-grid strong{font-weight:600}
+.summary-column{display:flex;flex-direction:column;gap:10px}
+.summary-card{min-height:78px;display:flex;flex-direction:column;justify-content:center;gap:5px;padding:14px 16px;background:#f2f2f2;border:1px solid #dedede;border-radius:12px}
+.summary-card small{color:#666;font-weight:600}
+.summary-card strong{font-size:18px}
+.summary-card.credit strong{color:#15924b}
+.summary-card.debt strong{color:#e32620}
+.section-card,.history-card{max-width:1150px;margin:0 auto 18px;padding:22px}
+.section-card>h2,.history-card>h2{margin-bottom:18px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}
+.section-title h2{margin:0;font-size:18px}
+.section-title a{color:#b17e00;text-decoration:none;font-weight:700}
+.section-title small{color:#777}
+.linked-pets-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(145px, 1fr));gap:16px}
+.linked-pet-card{display:flex;flex-direction:column;gap:5px;padding:14px;color:#222;background:#fafafa;border:1px solid #e7e7e7;border-radius:12px;text-decoration:none;transition:.2s}
+.linked-pet-card img,.pet-photo-fallback{width:64px;height:64px;object-fit:cover;border-radius:10px}
+.pet-photo-fallback{display:grid;place-items:center;background:#fff3b7;color:#d5a500}
+.pet-photo-fallback.large{width:88px;height:88px;font-size:28px}
+.linked-pet-card span,.linked-pet-card small{color:#777}
+.package-label{width:fit-content;margin-top:5px;padding:5px 8px;color:#765500!important;background:#ffe474;border-radius:7px;font-weight:700}
+.inline-empty{padding:20px;color:#777;background:#fafafa;border:1px dashed #ddd;border-radius:10px}
+.table-wrap{overflow-x:auto}
+.records-table{width:100%;border-collapse:collapse}
+.records-table th,.records-table td{padding:13px 12px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
+.records-table th{color:#777;background:#fafafa;font-size:13px}
+.records-table td{font-size:14px}
+.records-table td strong,.records-table td small{display:block}
+.records-table td small{margin-top:4px;color:#777}
+.records-table .money{color:#15924b;font-weight:800;white-space:nowrap}
+.pet-profile-top{max-width:1150px;margin:0 auto 18px;display:grid;grid-template-columns:minmax(250px, 1fr) minmax(500px, 1.7fr);align-items:center;gap:25px;padding:22px}
+.pet-profile-identity img{width:88px;height:88px;object-fit:cover;border-radius:13px}
+.pet-profile-identity strong{display:block;margin-bottom:4px}
+.pet-profile-identity a{color:#df3028;text-decoration:none;font-weight:700}
+.pet-summary-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:10px}
+.pet-summary-grid .summary-card{min-width:0}
+.pet-detail-columns{max-width:1150px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.pet-detail-columns .section-card{width:100%}
+.data-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:20px 25px}
+.text-information{display:flex;flex-direction:column;gap:20px}
+.text-information>div{padding-bottom:16px;border-bottom:1px solid #eee}
+.text-information>div:last-child{padding-bottom:0;border-bottom:0}
+.text-information p{margin-top:6px;color:#333;line-height:1.5}
+.package-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));gap:14px}
+.package-card{display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff9d2;border:1px solid #f0d66d;border-radius:11px}
+.package-card>div{display:flex;justify-content:space-between;gap:10px}
+.package-card small{color:#777}
+.timeline{display:flex;flex-direction:column}
+.timeline-item{display:grid;grid-template-columns:auto minmax(0, 1fr) auto;gap:14px;padding:15px 0;border-bottom:1px solid #eee}
+.timeline-item:last-child{border-bottom:0}
+.timeline-dot{width:10px;height:10px;margin-top:6px;border:2px solid #f0a000;border-radius:50%}
+.timeline-content{display:flex;flex-direction:column;gap:4px}
+.timeline-content p,.timeline-content small{color:#777}
+.timeline-value{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.timeline-value strong{color:#15924b}
+.timeline-value span{color:#777;font-size:13px}
+@media (max-width: 1100px){
+  .pet-profile-top{grid-template-columns:1fr}
+}
+@media (max-width: 850px){
+  .detail-layout,.pet-detail-columns{grid-template-columns:1fr}
+  .summary-column{display:grid;grid-template-columns:repeat(2, 1fr)}
+  .pet-summary-grid{grid-template-columns:repeat(2, 1fr)}
+}
+@media (max-width: 650px){
+  .contact-grid,.data-grid{grid-template-columns:1fr}
+  .contact-grid .wide,.data-grid .wide{grid-column:auto}
+  .summary-column,.pet-summary-grid{grid-template-columns:1fr}
+  .section-title{align-items:flex-start;flex-direction:column}
+  .timeline-item{grid-template-columns:auto 1fr}
+  .timeline-value{grid-column:2;align-items:flex-start}
+}
+.back-link{display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;color:#555;text-decoration:none;font-weight:600}
+.back-link:hover{color:#111}
+.detail-page-actions{max-width:1150px;margin:-8px auto 16px;display:flex;justify-content:flex-end}
+.detail-edit-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 15px;border:1px solid #eadca5;border-radius:12px;background:#fff;color:#4c4638;text-decoration:none;font-weight:800;box-shadow:0 6px 16px #00000008;transition:.2s}
+.detail-edit-button:hover{transform:translateY(-1px);background:#fff9e6;border-color:#dfc965}
 /* [BP-ALTERAÇÃO #10] O botão "Cadastrar novo pet" fica dentro de .section-title, cuja regra "a" deixava o texto dourado.
    Esta regra mantém a mesma cor do botão "Editar tutor". */
 .section-title a.detail-edit-button{color:#4c4638}
-/* Estiliza o(s) elemento(s) ".detail-edit-message" desta parte da interface. */
-.detail-edit-message{max-width:1150px;margin:0 auto 14px} /* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width:650px){ /* Inicia as regras visuais deste seletor. */
+.detail-edit-message{max-width:1150px;margin:0 auto 14px}
+@media (max-width:650px){
 .detail-page-actions{justify-content:stretch}
 .detail-edit-button{width:100%}
-} /* Define um comportamento responsivo para determinadas dimensões de tela. */
+}

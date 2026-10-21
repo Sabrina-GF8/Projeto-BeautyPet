@@ -2,42 +2,28 @@
  * ARQUIVO: assets/css/fichas.css
  * USADO POR: pages/fichas-pets.php e pages/fichas-tutores.php
  * RESPONSABILIDADE: Listagens de fichas (plural) de pets e de tutores.
- * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
-/* Estiliza o(s) elemento(s) ".page" desta parte da interface. */
-.page{min-height:100%;padding:30px;background:white;border-radius:12px;box-shadow:0 3px 10px #0001} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page h1" desta parte da interface. */
-.page h1{margin-bottom:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page p" desta parte da interface. */
-.page p{color:#666} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page-heading" desta parte da interface. */
-.page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:25px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page-heading h1" desta parte da interface. */
-.page-heading h1{margin:0;font-size:27px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".page-heading small,.counter" desta parte da interface. */
-.page-heading small,.counter{color:#6d6d6d} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".counter" desta parte da interface. */
-.counter{padding-top:5px;white-space:nowrap} /* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 900px){ /* Inicia as regras visuais deste seletor. */
-  .page{padding:20px} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 650px){ /* Inicia as regras visuais deste seletor. */
-  .page-heading{flex-direction:column} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".counter strong" desta parte da interface. */
-.counter strong{color:#222} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-page" desta parte da interface. */
-.records-page{background:#fff9bf} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-search" desta parte da interface. */
-.records-search{position:relative;z-index:30;max-width:1050px;margin:0 auto 24px;display:flex;align-items:center;gap:12px;padding:13px 16px;background:#fff;border:1px solid #dedede;border-radius:16px;box-shadow:0 5px 16px #00000008;transition:border-color .18s,box-shadow .18s} /* Participa da configuração visual deste componente. */
+.page{min-height:100%;padding:30px;background:white;border-radius:12px;box-shadow:0 3px 10px #0001}
+.page h1{margin-bottom:10px}
+.page p{color:#666}
+.page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:25px}
+.page-heading h1{margin:0;font-size:27px}
+.page-heading small,.counter{color:#6d6d6d}
+.counter{padding-top:5px;white-space:nowrap}
+@media (max-width: 900px){
+  .page{padding:20px}
+}
+@media (max-width: 650px){
+  .page-heading{flex-direction:column}
+}
+.counter strong{color:#222}
+.records-page{background:#fff9bf}
+.records-search{position:relative;z-index:30;max-width:1050px;margin:0 auto 24px;display:flex;align-items:center;gap:12px;padding:13px 16px;background:#fff;border:1px solid #dedede;border-radius:16px;box-shadow:0 5px 16px #00000008;transition:border-color .18s,box-shadow .18s}
 .records-search:focus-within{border-color:#e4bf36;box-shadow:0 0 0 3px #f3c4001f,0 8px 20px #0000000a}
-/* Estiliza o(s) elemento(s) ".records-search i" desta parte da interface. */
-.records-search>i{color:#8b8f97} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".records-search input" desta parte da interface. */
-.records-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#363a42;font-size:14px} /* Participa da configuração visual deste componente. */
+.records-search>i{color:#8b8f97}
+.records-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#363a42;font-size:14px}
 .records-search input::placeholder{color:#9a9ea6}
 /* Sugestões personalizadas das páginas de fichas. A caixa é clara para não usar o autocomplete preto do navegador. */
 .records-live-results{position:absolute;z-index:3600;top:calc(100% + 8px);left:0;right:0;max-height:360px;overflow-y:auto;padding:7px;border:1px solid #e4e6ea;border-radius:16px;background:#fff;box-shadow:0 22px 58px #1118271f}
@@ -51,94 +37,58 @@
 .records-live-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#848a94;font-size:11px}
 .records-live-loading,.records-live-empty{padding:13px;color:#858b95;text-align:center;font-size:12px}
 .records-live-loading i{margin-right:6px;color:#d6a500}
-/* Estiliza o(s) elemento(s) ".clear-search" desta parte da interface. */
-.clear-search{width:30px;height:30px;display:grid;place-items:center;color:#777;border-radius:50%;text-decoration:none} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".clear-search:hover" desta parte da interface. */
-.clear-search:hover{background:#f1f1f1} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".tutor-list" desta parte da interface. */
-.tutor-list{max-width:1050px;margin:0 auto;display:flex;flex-direction:column;gap:16px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".tutor-row" desta parte da interface. */
-.tutor-row{display:grid;grid-template-columns:auto minmax(190px, 1fr) auto auto;align-items:center;gap:18px;padding:18px 20px;color:#222;text-decoration:none;background:white;border:1px solid #dedede;border-radius:16px;box-shadow:0 2px 4px #0000000a;transition:.2s} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".tutor-row:hover,.pet-record-card:hover,.linked-pet-card:hover" desta parte da interface. */
-.tutor-row:hover,.pet-record-card:hover,.linked-pet-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px #00000012} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-avatar" desta parte da interface. */
-.record-avatar{width:62px;height:62px;display:grid;place-items:center;border-radius:12px;background:#ef2a20;color:white;font-size:18px;font-weight:800;flex-shrink:0} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-main" desta parte da interface. */
-.record-main{min-width:0;display:flex;flex-direction:column;gap:4px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-main strong" desta parte da interface. */
-.record-main strong{font-size:17px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-main span,.record-main small" desta parte da interface. */
-.record-main span,.record-main small{color:#777;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-metrics" desta parte da interface. */
-.record-metrics{display:flex;align-items:stretch;justify-content:flex-end;gap:12px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".metric-box" desta parte da interface. */
-.metric-box{min-width:125px;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:10px 12px;background:#f3f3f3;border-radius:10px;text-align:center} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".metric-box small" desta parte da interface. */
-.metric-box small{color:#777;font-size:11px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".metric-box strong" desta parte da interface. */
-.metric-box strong{font-size:13px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".metric-box.yellow" desta parte da interface. */
-.metric-box.yellow{background:#ffe474} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".metric-box.green" desta parte da interface. */
-.metric-box.green{color:#13753b;background:#dff8e8} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".metric-box.red" desta parte da interface. */
-.metric-box.red{color:#c22323;background:#fff0f0} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".record-arrow" desta parte da interface. */
-.record-arrow{color:#aaa} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".empty-state" desta parte da interface. */
-.empty-state{max-width:1050px;margin:0 auto;padding:55px 20px;text-align:center;background:white;border:1px solid #dedede;border-radius:16px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".empty-state>i" desta parte da interface. */
-.empty-state>i{margin-bottom:15px;color:#e3b400;font-size:42px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".empty-state h2" desta parte da interface. */
-.empty-state h2{margin-bottom:7px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".empty-state p" desta parte da interface. */
-.empty-state p{margin-bottom:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".linked-pet-card img,.pet-photo-fallback" desta parte da interface. */
-.linked-pet-card img,.pet-photo-fallback{width:64px;height:64px;object-fit:cover;border-radius:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-photo-fallback" desta parte da interface. */
-.pet-photo-fallback{display:grid;place-items:center;background:#fff3b7;color:#d5a500} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-cards-grid" desta parte da interface. */
-.pet-cards-grid{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(245px, 1fr));gap:20px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-record-card" desta parte da interface. */
-.pet-record-card{display:flex;flex-direction:column;gap:15px;padding:16px;color:#222;background:white;border:1px solid #dedede;border-radius:16px;text-decoration:none;transition:.2s} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-head" desta parte da interface. */
-.pet-card-head{display:flex;gap:12px;align-items:center} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-head img,.pet-card-head .pet-photo-fallback" desta parte da interface. */
-.pet-card-head img,.pet-card-head .pet-photo-fallback{width:72px;height:72px;object-fit:cover;border-radius:12px;flex-shrink:0} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-head h2" desta parte da interface. */
-.pet-card-head h2{margin:0 0 3px;font-size:18px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-head span,.pet-card-head small" desta parte da interface. */
-.pet-card-head span,.pet-card-head small{display:block;color:#777} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-head small" desta parte da interface. */
-.pet-card-head small{margin-top:5px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-data" desta parte da interface. */
-.pet-card-data{display:grid;grid-template-columns:1fr 1fr;gap:10px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-data>div,.pet-card-status" desta parte da interface. */
-.pet-card-data>div,.pet-card-status{display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:#f4f4f4;border-radius:9px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-data small,.pet-card-status small" desta parte da interface. */
-.pet-card-data small,.pet-card-status small{color:#777;font-size:11px} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-status.package" desta parte da interface. */
-.pet-card-status.package{background:#ffe474} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-status.total" desta parte da interface. */
-.pet-card-status.total{background:#e3f8e9} /* Participa da configuração visual deste componente. */
-/* Estiliza o(s) elemento(s) ".pet-card-status.total strong" desta parte da interface. */
-.pet-card-status.total strong{color:#168044} /* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 1100px){ /* Inicia as regras visuais deste seletor. */
-  .tutor-row{grid-template-columns:auto 1fr auto} /* Participa da configuração visual deste componente. */
-  .record-metrics{grid-column:1 / -1;justify-content:stretch} /* Participa da configuração visual deste componente. */
-  .metric-box{flex:1} /* Participa da configuração visual deste componente. */
-  .record-arrow{grid-column:3;grid-row:1} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width: 650px){ /* Inicia as regras visuais deste seletor. */
-  .tutor-row{grid-template-columns:auto minmax(0, 1fr)} /* Participa da configuração visual deste componente. */
-  .record-arrow{display:none} /* Participa da configuração visual deste componente. */
-  .record-metrics{flex-direction:column} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
-/* Estiliza o(s) elemento(s) ".records-search-note" desta parte da interface. */
-.records-search-note{display:block;max-width:1050px;margin:-14px auto 20px;color:#8b929e;font-size:11px;text-align:right} /* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width:650px){ /* Inicia as regras visuais deste seletor. */
+.clear-search{width:30px;height:30px;display:grid;place-items:center;color:#777;border-radius:50%;text-decoration:none}
+.clear-search:hover{background:#f1f1f1}
+.tutor-list{max-width:1050px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.tutor-row{display:grid;grid-template-columns:auto minmax(190px, 1fr) auto auto;align-items:center;gap:18px;padding:18px 20px;color:#222;text-decoration:none;background:white;border:1px solid #dedede;border-radius:16px;box-shadow:0 2px 4px #0000000a;transition:.2s}
+.tutor-row:hover,.pet-record-card:hover,.linked-pet-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px #00000012}
+.record-avatar{width:62px;height:62px;display:grid;place-items:center;border-radius:12px;background:#ef2a20;color:white;font-size:18px;font-weight:800;flex-shrink:0}
+.record-main{min-width:0;display:flex;flex-direction:column;gap:4px}
+.record-main strong{font-size:17px}
+.record-main span,.record-main small{color:#777;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.record-metrics{display:flex;align-items:stretch;justify-content:flex-end;gap:12px}
+.metric-box{min-width:125px;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:10px 12px;background:#f3f3f3;border-radius:10px;text-align:center}
+.metric-box small{color:#777;font-size:11px}
+.metric-box strong{font-size:13px}
+.metric-box.yellow{background:#ffe474}
+.metric-box.green{color:#13753b;background:#dff8e8}
+.metric-box.red{color:#c22323;background:#fff0f0}
+.record-arrow{color:#aaa}
+.empty-state{max-width:1050px;margin:0 auto;padding:55px 20px;text-align:center;background:white;border:1px solid #dedede;border-radius:16px}
+.empty-state>i{margin-bottom:15px;color:#e3b400;font-size:42px}
+.empty-state h2{margin-bottom:7px}
+.empty-state p{margin-bottom:18px}
+.linked-pet-card img,.pet-photo-fallback{width:64px;height:64px;object-fit:cover;border-radius:10px}
+.pet-photo-fallback{display:grid;place-items:center;background:#fff3b7;color:#d5a500}
+.pet-cards-grid{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(245px, 1fr));gap:20px}
+.pet-record-card{display:flex;flex-direction:column;gap:15px;padding:16px;color:#222;background:white;border:1px solid #dedede;border-radius:16px;text-decoration:none;transition:.2s}
+.pet-card-head{display:flex;gap:12px;align-items:center}
+.pet-card-head img,.pet-card-head .pet-photo-fallback{width:72px;height:72px;object-fit:cover;border-radius:12px;flex-shrink:0}
+.pet-card-head h2{margin:0 0 3px;font-size:18px}
+.pet-card-head span,.pet-card-head small{display:block;color:#777}
+.pet-card-head small{margin-top:5px}
+.pet-card-data{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pet-card-data>div,.pet-card-status{display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:#f4f4f4;border-radius:9px}
+.pet-card-data small,.pet-card-status small{color:#777;font-size:11px}
+.pet-card-status.package{background:#ffe474}
+.pet-card-status.total{background:#e3f8e9}
+.pet-card-status.total strong{color:#168044}
+@media (max-width: 1100px){
+  .tutor-row{grid-template-columns:auto 1fr auto}
+  .record-metrics{grid-column:1 / -1;justify-content:stretch}
+  .metric-box{flex:1}
+  .record-arrow{grid-column:3;grid-row:1}
+}
+@media (max-width: 650px){
+  .tutor-row{grid-template-columns:auto minmax(0, 1fr)}
+  .record-arrow{display:none}
+  .record-metrics{flex-direction:column}
+}
+.records-search-note{display:block;max-width:1050px;margin:-14px auto 20px;color:#8b929e;font-size:11px;text-align:right}
+@media (max-width:650px){
 .records-search-note{text-align:left}
-} /* Define um comportamento responsivo para determinadas dimensões de tela. */
+}
+
+/* HEURÍSTICA 9: aviso exibido quando a ficha procurada não existe mais. */
+.message{margin:0 0 18px;padding:13px 16px;border-radius:10px;font-weight:600}
+.message.error{color:#9d1c1c;background:#fff0f0;border:1px solid #efbcbc}

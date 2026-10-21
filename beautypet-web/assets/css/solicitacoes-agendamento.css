@@ -220,8 +220,7 @@
   text-align: center;
 }
 
-.agenda-pet,
-.agenda-table-pet {
+.agenda-pet {
   display: flex;
   align-items: center;
   gap: 11px;
@@ -229,7 +228,6 @@
 }
 
 .agenda-pet img,
-.agenda-table-pet img,
 .agenda-pet-fallback {
   width: 46px;
   height: 46px;

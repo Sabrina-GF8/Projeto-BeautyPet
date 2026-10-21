@@ -2,81 +2,80 @@
  * ARQUIVO: assets/css/ia.css
  * USADO POR: pages/ia-assistente.php e pages/ia-insights.php (consumidos pelo index.php)
  * RESPONSABILIDADE: Painel de insights de IA e assistente conversacional exibidos no dashboard.
- * Origem: separado do antigo assets/style.css. Propriedades e comentários originais foram preservados.
+ * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
 /* Analise inteligente */
-.dashboard .painel-ia-topo{ /* Inicia as regras visuais deste seletor. */
-    height:auto; /* Define a propriedade visual height. */
-    min-height:0; /* Define a propriedade visual min-height. */
-    background:transparent; /* Define a propriedade visual background. */
-    border:0; /* Define a propriedade visual border. */
-    padding:0 0 18px; /* Define a propriedade visual padding. */
-    display:flex; /* Define a propriedade visual display. */
-    align-items:center; /* Define a propriedade visual align-items. */
-    justify-content:space-between; /* Define a propriedade visual justify-content. */
-    gap:16px; /* Define a propriedade visual gap. */
-} /* Encerra as regras visuais do seletor anterior. */
-.painel-ia-identidade{display:flex;align-items:center;gap:12px} /* Participa da configuração visual deste componente. */
-.painel-ia-selo{ /* Inicia as regras visuais deste seletor. */
-    width:42px;height:42px;border-radius:13px;display:grid;place-items:center; /* Define a propriedade visual width. */
-    background:#fff2b0;color:#c88600;font-size:17px;flex:0 0 auto; /* Define a propriedade visual background. */
-} /* Encerra as regras visuais do seletor anterior. */
-.painel-ia-identidade small{display:block;color:#83868d;margin-top:4px} /* Participa da configuração visual deste componente. */
-.painel-ia-botao{ /* Inicia as regras visuais deste seletor. */
-    border:1px solid #e1e1e5;background:#fff;color:#555;border-radius:10px; /* Define a propriedade visual border. */
-    padding:9px 12px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;font:inherit;font-size:12px; /* Define a propriedade visual padding. */
-} /* Encerra as regras visuais do seletor anterior. */
-.painel-ia-botao:hover{border-color:#f0bd31;background:#fffaf0} /* Participa da configuração visual deste componente. */
-.painel-ia-botao:disabled{opacity:.55;cursor:not-allowed} /* Participa da configuração visual deste componente. */
-.painel-ia-resumo{ /* Inicia as regras visuais deste seletor. */
-    margin:0 0 18px;padding:15px 17px;border-radius:14px;background:#faf7eb; /* Define a propriedade visual margin. */
-    border-left:4px solid var(--dash-amarelo);color:#575a61;line-height:1.55; /* Define a propriedade visual border-left. */
-} /* Encerra as regras visuais do seletor anterior. */
-.painel-ia-bloco h3{font-size:14px;margin:0 0 12px;color:#404248} /* Participa da configuração visual deste componente. */
-.ia-lista{display:grid;gap:11px} /* Participa da configuração visual deste componente. */
-.ia-carregando{padding:20px;text-align:center;color:#92959b} /* Participa da configuração visual deste componente. */
-.ia-item{padding:14px 15px;border-radius:13px;border:1px solid #e9e9ed;background:#fbfbfc} /* Participa da configuração visual deste componente. */
-.ia-item strong{display:block;margin-bottom:5px;font-size:13px} /* Participa da configuração visual deste componente. */
-.ia-item p{margin:0;color:#6a6d73;line-height:1.45;font-size:12px} /* Participa da configuração visual deste componente. */
-.ia-item-positivo{border-left:4px solid #49a872;background:#f6fcf8} /* Participa da configuração visual deste componente. */
-.ia-item-atencao,.ia-item-alerta{border-left:4px solid #f0b43d;background:#fffaf0} /* Participa da configuração visual deste componente. */
-.ia-item-negativo{border-left:4px solid #e45a53;background:#fff8f7} /* Participa da configuração visual deste componente. */
-.ia-item-neutro{border-left:4px solid #7f8c9b} /* Participa da configuração visual deste componente. */
+.dashboard .painel-ia-topo{
+    height:auto;
+    min-height:0;
+    background:transparent;
+    border:0;
+    padding:0 0 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+}
+.painel-ia-identidade{display:flex;align-items:center;gap:12px}
+.painel-ia-selo{
+    width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
+    background:#fff2b0;color:#c88600;font-size:17px;flex:0 0 auto;
+}
+.painel-ia-identidade small{display:block;color:#83868d;margin-top:4px}
+.painel-ia-botao{
+    border:1px solid #e1e1e5;background:#fff;color:#555;border-radius:10px;
+    padding:9px 12px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;font:inherit;font-size:12px;
+}
+.painel-ia-botao:hover{border-color:#f0bd31;background:#fffaf0}
+.painel-ia-botao:disabled{opacity:.55;cursor:not-allowed}
+.painel-ia-resumo{
+    margin:0 0 18px;padding:15px 17px;border-radius:14px;background:#faf7eb;
+    border-left:4px solid var(--dash-amarelo);color:#575a61;line-height:1.55;
+}
+.painel-ia-bloco h3{font-size:14px;margin:0 0 12px;color:#404248}
+.ia-lista{display:grid;gap:11px}
+.ia-carregando{padding:20px;text-align:center;color:#92959b}
+.ia-item{padding:14px 15px;border-radius:13px;border:1px solid #e9e9ed;background:#fbfbfc}
+.ia-item strong{display:block;margin-bottom:5px;font-size:13px}
+.ia-item p{margin:0;color:#6a6d73;line-height:1.45;font-size:12px}
+.ia-item-positivo{border-left:4px solid #49a872;background:#f6fcf8}
+.ia-item-atencao,.ia-item-alerta{border-left:4px solid #f0b43d;background:#fffaf0}
+.ia-item-negativo{border-left:4px solid #e45a53;background:#fff8f7}
+.ia-item-neutro{border-left:4px solid #7f8c9b}
 /* Assistente */
-.assistente{min-height:520px;display:flex;flex-direction:column} /* Participa da configuração visual deste componente. */
-.assistente-conversa{ /* Inicia as regras visuais deste seletor. */
-    min-height:290px;max-height:430px;overflow-y:auto;padding:17px; /* Define a propriedade visual min-height. */
-    border:1px solid #ececf0;border-radius:15px;background:#fafafa; /* Define a propriedade visual border. */
-    display:flex;flex-direction:column;gap:10px; /* Define a propriedade visual display. */
-} /* Encerra as regras visuais do seletor anterior. */
-.assistente-balao{max-width:min(680px,86%);padding:11px 14px;border-radius:14px;line-height:1.45;font-size:13px} /* Participa da configuração visual deste componente. */
-.assistente-balao-pergunta{align-self:flex-end;background:#f3b000;color:#2c250d;border-bottom-right-radius:4px} /* Participa da configuração visual deste componente. */
-.assistente-balao-resposta{align-self:flex-start;background:#fff;border:1px solid #e6e6ea;color:#4f5258;border-bottom-left-radius:4px} /* Participa da configuração visual deste componente. */
-.assistente-balao-erro{border-color:#ffd0cc;background:#fff7f6;color:#b23a34} /* Participa da configuração visual deste componente. */
-.assistente-titulo{display:block;color:#2d2f33;margin-bottom:5px} /* Participa da configuração visual deste componente. */
-.assistente-texto{margin:0!important;color:#5f6268!important} /* Participa da configuração visual deste componente. */
-.assistente-itens{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid #eee} /* Participa da configuração visual deste componente. */
-.assistente-itens li{display:flex;justify-content:space-between;gap:15px;padding:8px 0;border-bottom:1px solid #f1f1f1} /* Participa da configuração visual deste componente. */
-.assistente-sugestoes{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0} /* Participa da configuração visual deste componente. */
-.assistente-atalho{ /* Inicia as regras visuais deste seletor. */
-    border:1px solid #e5e5e9;background:#fff;border-radius:999px;padding:7px 11px; /* Define a propriedade visual border. */
-    font:inherit;font-size:11px;color:#63666d;cursor:pointer; /* Define a propriedade visual font. */
-} /* Encerra as regras visuais do seletor anterior. */
-.assistente-atalho:hover{border-color:#e4ad16;background:#fff9dd;color:#3f3f42} /* Participa da configuração visual deste componente. */
-.assistente-form{display:flex;align-items:center;gap:9px;margin-top:auto} /* Participa da configuração visual deste componente. */
-.assistente-campo{ /* Inicia as regras visuais deste seletor. */
-    flex:1;min-width:0;border:1px solid #dddfe3;border-radius:12px;padding:12px 14px; /* Define a propriedade visual flex. */
-    outline:none;font:inherit;background:#fff; /* Define a propriedade visual outline. */
-} /* Encerra as regras visuais do seletor anterior. */
-.assistente-campo:focus{border-color:#e7b225;box-shadow:0 0 0 3px rgba(243,176,0,.12)} /* Participa da configuração visual deste componente. */
-.assistente-enviar{ /* Inicia as regras visuais deste seletor. */
-    width:44px;height:44px;border:0;border-radius:12px;background:#ef3028;color:#fff; /* Define a propriedade visual width. */
-    display:grid;place-items:center;cursor:pointer; /* Define a propriedade visual display. */
-} /* Encerra as regras visuais do seletor anterior. */
-.assistente-enviar:disabled{opacity:.55;cursor:not-allowed} /* Participa da configuração visual deste componente. */
-/* Regras responsivas aplicadas somente quando a largura/tela atende a esta condição. */
-@media (max-width:680px){ /* Inicia as regras visuais deste seletor. */
-    .dashboard .painel-ia-topo{align-items:flex-start;flex-direction:column} /* Participa da configuração visual deste componente. */
-    .assistente-balao{max-width:94%} /* Participa da configuração visual deste componente. */
-} /* Encerra as regras visuais do seletor anterior. */
+.assistente{min-height:520px;display:flex;flex-direction:column}
+.assistente-conversa{
+    min-height:290px;max-height:430px;overflow-y:auto;padding:17px;
+    border:1px solid #ececf0;border-radius:15px;background:#fafafa;
+    display:flex;flex-direction:column;gap:10px;
+}
+.assistente-balao{max-width:min(680px,86%);padding:11px 14px;border-radius:14px;line-height:1.45;font-size:13px}
+.assistente-balao-pergunta{align-self:flex-end;background:#f3b000;color:#2c250d;border-bottom-right-radius:4px}
+.assistente-balao-resposta{align-self:flex-start;background:#fff;border:1px solid #e6e6ea;color:#4f5258;border-bottom-left-radius:4px}
+.assistente-balao-erro{border-color:#ffd0cc;background:#fff7f6;color:#b23a34}
+.assistente-titulo{display:block;color:#2d2f33;margin-bottom:5px}
+.assistente-texto{margin:0!important;color:#5f6268!important}
+.assistente-itens{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid #eee}
+.assistente-itens li{display:flex;justify-content:space-between;gap:15px;padding:8px 0;border-bottom:1px solid #f1f1f1}
+.assistente-sugestoes{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}
+.assistente-atalho{
+    border:1px solid #e5e5e9;background:#fff;border-radius:999px;padding:7px 11px;
+    font:inherit;font-size:11px;color:#63666d;cursor:pointer;
+}
+.assistente-atalho:hover{border-color:#e4ad16;background:#fff9dd;color:#3f3f42}
+.assistente-form{display:flex;align-items:center;gap:9px;margin-top:auto}
+.assistente-campo{
+    flex:1;min-width:0;border:1px solid #dddfe3;border-radius:12px;padding:12px 14px;
+    outline:none;font:inherit;background:#fff;
+}
+.assistente-campo:focus{border-color:#e7b225;box-shadow:0 0 0 3px rgba(243,176,0,.12)}
+.assistente-enviar{
+    width:44px;height:44px;border:0;border-radius:12px;background:#ef3028;color:#fff;
+    display:grid;place-items:center;cursor:pointer;
+}
+.assistente-enviar:disabled{opacity:.55;cursor:not-allowed}
+@media (max-width:680px){
+    .dashboard .painel-ia-topo{align-items:flex-start;flex-direction:column}
+    .assistente-balao{max-width:94%}
+}
