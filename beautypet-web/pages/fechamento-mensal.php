@@ -475,7 +475,7 @@ require __DIR__ . '/../includes/topo.php';
 ?>
 
 <div class="page monthly-close-page">
-    <div class="monthly-close-heading">
+   <div class="monthly-close-heading">
         <div>
             <span class="monthly-eyebrow">Financeiro</span>
             <h1>Fechamento mensal</h1>
@@ -483,16 +483,16 @@ require __DIR__ . '/../includes/topo.php';
         </div>
 
         <div class="monthly-heading-actions">
-            <span class="monthly-status <?= escapar(classeStatusMensal($fechamentoMensal['status'] ?? 'ABERTO')) ?>">
+            <span class="monthly-status general-status">
                 <i class="fa-solid fa-circle"></i>
                 <?= escapar(nomeStatusMensal($fechamentoMensal['status'] ?? 'ABERTO')) ?>
             </span>
 
-            <?php if (!$mensalFechado): ?>
+       <?php if (!$mensalFechado): ?>
                 <button class="monthly-primary-action" type="button" data-open-monthly-finish>
-                    <i class="fa-solid fa-lock"></i>
                     Fechar mês
                 </button>
+
             <?php elseif ($administrador): ?>
                 <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
                 <form method="post" action="fechamento-mensal.php?mes=<?= escapar($competencia) ?>" onsubmit="return confirm('Reabrir este fechamento mensal?');">
@@ -724,7 +724,7 @@ require __DIR__ . '/../includes/topo.php';
                 </div>
             </div>
 
-            <div class="monthly-payment-list">
+        <div class="monthly-payment-list">
                 <article>
                     <span class="monthly-payment-icon"><i class="fa-solid fa-money-bill-wave"></i></span>
                     <div><small>Dinheiro</small><strong><?= formatarMoeda($totais['dinheiro']) ?></strong></div>
@@ -738,11 +738,10 @@ require __DIR__ . '/../includes/topo.php';
                     <div><small>Cartão</small><strong><?= formatarMoeda($totais['cartao']) ?></strong></div>
                 </article>
             </div>
-
-            <div class="monthly-payment-total">
-                <span>Total recebido</span>
-                <strong><?= formatarMoeda($totais['recebido']) ?></strong>
-            </div>
+                <div class="monthly-payment-total">
+                    <span>Total recebido:</span>
+                    <strong><?= formatarMoeda($totais['recebido']) ?></strong>
+                </div>
         </section>
     </div>
 </div>

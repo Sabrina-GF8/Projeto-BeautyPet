@@ -2434,7 +2434,7 @@ require __DIR__ . '/../includes/topo.php';
         </div>
 
         <div class="daily-close-status-area">
-            <span class="daily-close-status status-<?= strtolower(escapar((string) $fechamento['status'])) ?>">
+            <span class="daily-close-status general-status">
                 <i class="fa-solid fa-circle"></i>
                 <?= escapar((string) $fechamento['status']) ?>
             </span>
@@ -2491,9 +2491,9 @@ require __DIR__ . '/../includes/topo.php';
             </div>
 
             <div class="daily-sheet-actions">
-                <button class="daily-primary-button" type="button" data-open-daily-modal="launch" <?= $fechamentoFechado ? 'disabled' : '' ?>>
+                <button class="daily-dashed-add-button" type="button" data-open-daily-modal="launch" <?= $fechamentoFechado ? 'disabled' : '' ?>>
                     <i class="fa-solid fa-plus"></i>
-                    Novo lançamento
+                    Adicionar novo lançamento
                 </button>
             </div>
         </div>
@@ -2796,11 +2796,11 @@ require __DIR__ . '/../includes/topo.php';
             </div>
         </div>
 
-        <?php if (!$fechamentoFechado): ?>
+      <?php if (!$fechamentoFechado): ?>
             <button class="daily-finish-button" type="button" data-open-daily-modal="finish">
-                <i class="fa-solid fa-check"></i>
-                Finalizar dia
+                Fechar dia
             </button>
+
         <?php else: ?>
             <div class="daily-closed-label">
                 <i class="fa-solid fa-lock"></i>

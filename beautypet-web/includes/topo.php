@@ -4,6 +4,7 @@
  * RESPONSABILIDADE: Cabeçalho e menu lateral compartilhados.
  * Monta a estrutura visual comum das páginas, identifica o item ativo, mostra o usuário logado e disponibiliza busca e ações de conta.
  */
+
 $tituloPagina = $tituloPagina ?? 'Beauty Pet';
 // Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = $paginaAtiva ?? '';

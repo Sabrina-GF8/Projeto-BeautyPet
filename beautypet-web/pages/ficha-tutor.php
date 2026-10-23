@@ -328,8 +328,7 @@ require __DIR__ . '/../includes/topo.php';
 
             <!-- [BP-ALTERAÇÃO #10] Antes era um texto-link solto e o tutor precisava ser buscado de novo.
                  Agora usa o mesmo botão do "Editar tutor" (.detail-edit-button) e já envia o tutor (?tutor=ID). -->
-            <a class="detail-edit-button" href="cadastro-pet.php?tutor=<?= (int) $id ?>">
-                <i class="fa-solid fa-paw"></i>
+           <a class="detail-edit-button dashed-add-button" href="cadastro-pet.php?tutor=<?= (int) $id ?>">
                 Cadastrar novo pet
             </a>
 
