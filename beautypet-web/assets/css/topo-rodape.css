@@ -5,318 +5,769 @@
  * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI", sans-serif}
-body{background:#f5f7fa;color:#222}
-button,input,select,textarea{font:inherit}
-.container{display:flex;min-height:100vh}
-.sidebar{width:75px;height:100vh;background:white;border-right:1px solid #e5e5e5;overflow-x:hidden;overflow-y:auto;transition:width .3s;flex-shrink:0}
-.sidebar:hover{width:260px}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif
+}
+
+body {
+  background: #f5f7fa;
+  color: #222
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit
+}
+
+.container {
+  display: flex;
+  min-height: 100vh
+}
+
+.sidebar {
+  width: 75px;
+  height: 100vh;
+  background: white;
+  border-right: 1px solid #e5e5e5;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: width .3s;
+  flex-shrink: 0
+}
+
+.sidebar:hover {
+  width: 260px
+}
+
 /* [BP-ALTERAÇÃO #11] Altura fixa de 75px (já contando a borda, box-sizing:border-box), igual ao header, para a linha do logo encontrar a linha do topo.
    Antes: padding:20px 16px deixava a linha uns 8px abaixo da linha do header. Cor da borda igual à do header (#e5e5e5). */
-.logo{display:flex;align-items:center;gap:15px;height:75px;padding:0 16px;border-bottom:1px solid #e5e5e5}
-.logo img{width:42px;height:42px;object-fit:contain;flex-shrink:0}
-.logo-text,.menu-item span,.submenu span,.arrow{opacity:0;visibility:hidden;white-space:nowrap;transition:.2s}
-.sidebar:hover .logo-text,.sidebar:hover .menu-item span,.sidebar:hover .submenu span,.sidebar:hover .arrow{opacity:1;visibility:visible}
-.logo-text h2{font-size:18px}
-.logo-text small{color:#888}
-nav{margin-top:15px}
-.menu-item,.submenu{display:flex;align-items:center;color:#444;text-decoration:none;cursor:pointer;transition:.2s}
-.menu-item{justify-content:space-between;padding:14px 25px}
-nav>a.menu-item{justify-content:flex-start;gap:20px}
-.menu-left,.submenu{gap:20px}
-.menu-left{display:flex;align-items:center}
-.menu-item:hover,.submenu:hover{background:#f4f4f4}
-.menu-item.active,.submenu.active{background:#ffe07a;color:#222;font-weight:700}
-.menu-item.active{border-left:5px solid #f3b000;padding-left:20px}
-.submenu.active{border-left:5px solid #f3b000;padding-left:57px}
-.menu-item i,.submenu i{width:20px;text-align:center;flex-shrink:0}
-summary{list-style:none}
-summary::-webkit-details-marker{display:none}
-.arrow{font-size:12px}
-details[open] .arrow{transform:rotate(180deg)}
-.submenu{padding:12px 25px 12px 62px;color:#666}
-.content{flex:1;min-width:0}
-header{height:75px;background:white;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;padding:0 35px}
-.search{width:min(420px, 45vw);display:flex;align-items:center;gap:12px;background:#f4f4f4;padding:12px 18px;border-radius:30px}
-.search input{width:100%;border:none;outline:none;background:transparent}
-.header-right,.profile{display:flex;align-items:center}
-.header-right{gap:25px}
-.notification{font-size:20px;color:#555}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  height: 75px;
+  padding: 0 16px;
+  border-bottom: 1px solid #e5e5e5
+}
+
+.logo img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex-shrink: 0
+}
+
+.logo-text,
+.menu-item span,
+.submenu span,
+.arrow {
+  opacity: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  transition: .2s
+}
+
+.sidebar:hover .logo-text,
+.sidebar:hover .menu-item span,
+.sidebar:hover .submenu span,
+.sidebar:hover .arrow {
+  opacity: 1;
+  visibility: visible
+}
+
+.logo-text h2 {
+  font-size: 18px
+}
+
+.logo-text small {
+  color: #888
+}
+
+nav {
+  margin-top: 15px
+}
+
+.menu-item,
+.submenu {
+  display: flex;
+  align-items: center;
+  color: #444;
+  text-decoration: none;
+  cursor: pointer;
+  transition: .2s
+}
+
+.menu-item {
+  justify-content: space-between;
+  padding: 14px 25px
+}
+
+nav>a.menu-item {
+  justify-content: flex-start;
+  gap: 20px
+}
+
+.menu-left,
+.submenu {
+  gap: 20px
+}
+
+.menu-left {
+  display: flex;
+  align-items: center
+}
+
+.menu-item:hover,
+.submenu:hover {
+  background: #f4f4f4
+}
+
+.menu-item.active,
+.submenu.active {
+  background: #ffe07a;
+  color: #222;
+  font-weight: 700
+}
+
+.menu-item.active {
+  border-left: 5px solid #f3b000;
+  padding-left: 20px
+}
+
+.submenu.active {
+  border-left: 5px solid #f3b000;
+  padding-left: 57px
+}
+
+.menu-item i,
+.submenu i {
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0
+}
+
+summary {
+  list-style: none
+}
+
+summary::-webkit-details-marker {
+  display: none
+}
+
+.arrow {
+  font-size: 12px
+}
+
+details[open] .arrow {
+  transform: rotate(180deg)
+}
+
+.submenu {
+  padding: 12px 25px 12px 62px;
+  color: #666
+}
+
+.content {
+  flex: 1;
+  min-width: 0
+}
+
+header {
+  height: 75px;
+  background: white;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 35px
+}
+
+.search {
+  width: min(420px, 45vw);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f4f4f4;
+  padding: 12px 18px;
+  border-radius: 30px
+}
+
+.search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent
+}
+
+.header-right,
+.profile {
+  display: flex;
+  align-items: center
+}
+
+.header-right {
+  gap: 25px
+}
+
+.notification {
+  font-size: 20px;
+  color: #555
+}
+
 /* Sino de solicitações vindas do aplicativo mobile. */
-.notification-link{
-    position:relative;
-    width:42px;
-    height:42px;
-    display:grid;
-    place-items:center;
-    border-radius:50%;
-    text-decoration:none;
-    transition:background .2s,color .2s,transform .2s;
+.notification-link {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: background .2s, color .2s, transform .2s;
 }
-.notification-link:hover{
-    background:#fff1f1;
-    color:#ef3038;
+
+.notification-link:hover {
+  background: #fff1f1;
+  color: #ef3038;
 }
-.notification-link.has-notifications{
-    color:#ef3038;
-    background:#fff1f1;
+
+.notification-link.has-notifications {
+  color: #ef3038;
+  background: #fff1f1;
 }
-.notification-link.has-notifications > i{
-    animation:notificationBellRing 1.05s ease-in-out infinite;
-    transform-origin:50% 10%;
+
+.notification-link.has-notifications>i {
+  animation: notificationBellRing 1.05s ease-in-out infinite;
+  transform-origin: 50% 10%;
 }
-.notification-badge{
-    position:absolute;
-    top:1px;
-    right:0;
-    min-width:19px;
-    height:19px;
-    padding:0 5px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:999px;
-    background:#ef3038;
-    color:#fff;
-    border:2px solid #fff;
-    font-size:10px;
-    line-height:1;
-    font-weight:700;
-    box-sizing:border-box;
+
+.notification-badge {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ef3038;
+  color: #fff;
+  border: 2px solid #fff;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 700;
+  box-sizing: border-box;
 }
-.notification-badge[hidden]{display:none}
-.notification-link.notification-arrived{
-    animation:notificationArrival .65s ease-out 1;
+
+.notification-badge[hidden] {
+  display: none
 }
-@keyframes notificationBellRing{
-    0%,100%{transform:rotate(0)}
-    20%{transform:rotate(12deg)}
-    40%{transform:rotate(-10deg)}
-    60%{transform:rotate(8deg)}
-    80%{transform:rotate(-5deg)}
+
+.notification-link.notification-arrived {
+  animation: notificationArrival .65s ease-out 1;
 }
-@keyframes notificationArrival{
-    0%{transform:scale(1)}
-    45%{transform:scale(1.18)}
-    100%{transform:scale(1)}
+
+@keyframes notificationBellRing {
+
+  0%,
+  100% {
+    transform: rotate(0)
+  }
+
+  20% {
+    transform: rotate(12deg)
+  }
+
+  40% {
+    transform: rotate(-10deg)
+  }
+
+  60% {
+    transform: rotate(8deg)
+  }
+
+  80% {
+    transform: rotate(-5deg)
+  }
 }
-.profile-container{position:relative}
-.profile{gap:12px;padding:7px 10px;border-radius:10px;cursor:pointer}
-.profile:hover{background:#f4f4f4}
-.avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#f05b5b;color:white;font-weight:bold}
-.user{display:flex;flex-direction:column}
-.user small{color:#777}
-.profile-arrow{font-size:12px;transition:.2s}
-.profile-container.open .profile-arrow{transform:rotate(180deg)}
-main{height:calc(100vh - 75px);padding:25px;overflow-y:auto}
-@media (max-width: 900px){
-  header{padding:0 18px}
-  .user{display:none}
-  main{padding:15px}
+
+@keyframes notificationArrival {
+  0% {
+    transform: scale(1)
+  }
+
+  45% {
+    transform: scale(1.18)
+  }
+
+  100% {
+    transform: scale(1)
+  }
 }
-@media (max-width: 650px){
-  .sidebar,.sidebar:hover{width:64px}
-  .search{width:auto;flex:1}
-  .notification{display:none}
+
+.profile-container {
+  position: relative
 }
-.primary-link{display:inline-flex;padding:11px 18px;color:white;background:#ef241b;border-radius:9px;text-decoration:none;font-weight:700}
-button.profile{border:0;background:transparent;font:inherit;text-align:left}
-.password-field{position:relative}
-.password-field input{padding-right:42px}
-.toggle-password{position:absolute;top:50%;right:6px;width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:#777;cursor:pointer}
-.toggle-password:hover{background:#f2f2f2;color:#333}
-.password-field input{width:100%}
-[hidden]{display:none!important}
-.calendar-count{font-weight:700;white-space:nowrap}
-@media (max-width:620px){
-  .calendar-event{align-items:flex-start;flex-wrap:wrap}
+
+.profile {
+  gap: 12px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  cursor: pointer
 }
-.calendar-count{padding:7px 12px;border-radius:999px;background:#f6f7fb;color:#6e7381;font-size:12px}
-.calendar-event{display:flex;align-items:center;gap:12px;min-width:0;padding:12px 13px;border:1px solid #eceff4;border-radius:16px;background:#fbfcfe;transition:.2s}
+
+.profile:hover {
+  background: #f4f4f4
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f05b5b;
+  color: white;
+  font-weight: bold
+}
+
+.user {
+  display: flex;
+  flex-direction: column
+}
+
+.user small {
+  color: #777
+}
+
+.profile-arrow {
+  font-size: 12px;
+  transition: .2s
+}
+
+.profile-container.open .profile-arrow {
+  transform: rotate(180deg)
+}
+
+main {
+  height: calc(100vh - 75px);
+  padding: 25px;
+  overflow-y: auto
+}
+
+@media (max-width: 900px) {
+  header {
+    padding: 0 18px
+  }
+
+  .user {
+    display: none
+  }
+
+  main {
+    padding: 15px
+  }
+}
+
+@media (max-width: 650px) {
+
+  .sidebar,
+  .sidebar:hover {
+    width: 64px
+  }
+
+  .search {
+    width: auto;
+    flex: 1
+  }
+
+  .notification {
+    display: none
+  }
+}
+
+.primary-link {
+  display: inline-flex;
+  padding: 11px 18px;
+  color: white;
+  background: #ef241b;
+  border-radius: 9px;
+  text-decoration: none;
+  font-weight: 700
+}
+
+button.profile {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left
+}
+
+.password-field {
+  position: relative
+}
+
+.password-field input {
+  padding-right: 42px
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #777;
+  cursor: pointer
+}
+
+.toggle-password:hover {
+  background: #f2f2f2;
+  color: #333
+}
+
+.password-field input {
+  width: 100%
+}
+
+[hidden] {
+  display: none !important
+}
+
+.calendar-count {
+  font-weight: 700;
+  white-space: nowrap
+}
+
+@media (max-width:620px) {
+  .calendar-event {
+    align-items: flex-start;
+    flex-wrap: wrap
+  }
+}
+
+.calendar-count {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #f6f7fb;
+  color: #6e7381;
+  font-size: 12px
+}
+
+.calendar-event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #eceff4;
+  border-radius: 16px;
+  background: #fbfcfe;
+  transition: .2s
+}
+
 /* [BP-ALTERAÇÃO #8] Removido o hover de .calendar-event: o card da agenda não é clicável (só os botões de ação dentro dele).
    Regra antiga: .calendar-event:hover{transform:translateY(-1px);box-shadow:0 10px 22px #0000000d} */
 /* ===== Acesso de usuários em modal ===== */
 .account-modal,
-.account-page-modal{
-  position:fixed;
-  inset:0;
-  z-index:3000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  background:rgba(24,27,35,.38);
-  backdrop-filter:blur(7px);
-  -webkit-backdrop-filter:blur(7px)
+.account-page-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(24, 27, 35, .38);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px)
 }
+
 .account-modal.is-open,
-.account-page-modal.is-open{display:flex}
-body.account-modal-open{overflow:hidden}
-.account-dialog{
-  position:relative;
-  width:min(430px,100%);
-  max-height:calc(100vh - 48px);
-  overflow:auto;
-  padding:30px;
-  border:1px solid rgba(255,255,255,.75);
-  border-radius:26px;
-  background:#fff;
-  box-shadow:0 28px 85px rgba(0,0,0,.22)
+.account-page-modal.is-open {
+  display: flex
 }
-.account-modal-close{
-  position:absolute;
-  top:16px;
-  right:16px;
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  border:0;
-  border-radius:50%;
-  background:#f4f5f7;
-  color:#666;
-  text-decoration:none;
-  cursor:pointer;
-  transition:.2s
+
+body.account-modal-open {
+  overflow: hidden
 }
-.account-modal-close:hover{background:#eceef2;color:#222}
-.account-dialog-icon{
-  width:58px;
-  height:58px;
-  display:grid;
-  place-items:center;
-  margin:0 auto 16px;
-  border-radius:18px;
-  background:#fff1b8;
-  color:#9a6b00;
-  font-size:22px
+
+.account-dialog {
+  position: relative;
+  width: min(430px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, .75);
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 28px 85px rgba(0, 0, 0, .22)
 }
-.account-dialog h2{
-  margin:0;
-  text-align:center;
-  font-size:25px;
-  font-weight:800;
-  letter-spacing:-.02em
+
+.account-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #f4f5f7;
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+  transition: .2s
 }
-.account-dialog-subtitle{
-  max-width:420px;
-  margin:8px auto 22px;
-  color:#777e89;
-  text-align:center;
-  line-height:1.45
+
+.account-modal-close:hover {
+  background: #eceef2;
+  color: #222
 }
+
+.account-dialog-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  background: #fff1b8;
+  color: #9a6b00;
+  font-size: 22px
+}
+
+.account-dialog h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -.02em
+}
+
+.account-dialog-subtitle {
+  max-width: 420px;
+  margin: 8px auto 22px;
+  color: #777e89;
+  text-align: center;
+  line-height: 1.45
+}
+
 .account-login-form,
-.account-create-form{display:flex;flex-direction:column;gap:15px}
-.account-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.account-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0
+}
+
 .account-field label,
-.account-label{color:#454a54;font-size:13px;font-weight:700}
+.account-label {
+  color: #454a54;
+  font-size: 13px;
+  font-weight: 700
+}
+
 .account-field>input,
 .account-field>select,
 .account-input-icon input,
-.account-password-field input{
-  width:100%;
-  height:48px;
-  border:1px solid #dfe2e8;
-  border-radius:13px;
-  outline:none;
-  background:#fff;
-  color:#24272e;
-  transition:.2s
+.account-password-field input {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #dfe2e8;
+  border-radius: 13px;
+  outline: none;
+  background: #fff;
+  color: #24272e;
+  transition: .2s
 }
+
 .account-field>input,
-.account-field>select{padding:0 13px}
-.account-field>select{cursor:pointer}
-.account-input-icon{position:relative}
-.account-input-icon>i{
-  position:absolute;
-  top:50%;
-  left:15px;
-  z-index:1;
-  transform:translateY(-50%);
-  color:#9aa0ab;
-  pointer-events:none
+.account-field>select {
+  padding: 0 13px
 }
-.account-input-icon input{padding:0 14px 0 43px}
-.account-password-field{position:relative}
-.account-password-field input{padding:0 48px 0 14px}
+
+.account-field>select {
+  cursor: pointer
+}
+
+.account-input-icon {
+  position: relative
+}
+
+.account-input-icon>i {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  z-index: 1;
+  transform: translateY(-50%);
+  color: #9aa0ab;
+  pointer-events: none
+}
+
+.account-input-icon input {
+  padding: 0 14px 0 43px
+}
+
+.account-password-field {
+  position: relative
+}
+
+.account-password-field input {
+  padding: 0 48px 0 14px
+}
+
 .account-field>input:focus,
 .account-field>select:focus,
 .account-input-icon input:focus,
-.account-password-field input:focus{
-  border-color:#e3b31c;
-  box-shadow:0 0 0 3px rgba(243,176,0,.13)
+.account-password-field input:focus {
+  border-color: #e3b31c;
+  box-shadow: 0 0 0 3px rgba(243, 176, 0, .13)
 }
-.account-input-icon.has-error input{border-color:#e05a54}
-.account-primary-button{
-  width:100%;
-  min-height:48px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:9px;
-  margin-top:3px;
-  padding:0 18px;
-  border:0;
-  border-radius:13px;
-  background:#ef2c23;
-  color:#fff;
-  font-weight:800;
-  text-decoration:none;
-  cursor:pointer;
-  transition:.2s
+
+.account-input-icon.has-error input {
+  border-color: #e05a54
 }
-.account-primary-button:hover{background:#d9241c;transform:translateY(-1px)}
-.account-secondary-link{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  margin-top:18px;
-  padding-top:18px;
-  border-top:1px solid #eceef2;
-  color:#555d69;
-  text-decoration:none;
-  font-size:13px;
-  font-weight:700
+
+.account-primary-button {
+  width: 100%;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 3px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 13px;
+  background: #ef2c23;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  transition: .2s
 }
-.account-secondary-link:hover{color:#d62a22}
-.account-message{
-  margin:0 0 16px;
-  padding:12px 14px;
-  border-radius:12px;
-  font-size:13px;
-  font-weight:600;
-  line-height:1.4
+
+.account-primary-button:hover {
+  background: #d9241c;
+  transform: translateY(-1px)
 }
-.account-message.error{color:#9d2520;background:#fff0ef;border:1px solid #f3c9c6}
-.account-message.success{color:#176a3b;background:#eaf8ef;border:1px solid #c2e7ce}
-.account-message.info{color:#5f6570;background:#f4f5f7;border:1px solid #e2e4e8}
+
+.account-secondary-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #eceef2;
+  color: #555d69;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700
+}
+
+.account-secondary-link:hover {
+  color: #d62a22
+}
+
+.account-message {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4
+}
+
+.account-message.error {
+  color: #9d2520;
+  background: #fff0ef;
+  border: 1px solid #f3c9c6
+}
+
+.account-message.success {
+  color: #176a3b;
+  background: #eaf8ef;
+  border: 1px solid #c2e7ce
+}
+
+.account-message.info {
+  color: #5f6570;
+  background: #f4f5f7;
+  border: 1px solid #e2e4e8
+}
+
 /* Centraliza verticalmente os ícones de mostrar/ocultar senha. */
 .password-field .toggle-password,
-.account-password-field .toggle-password{
-  top:50%;
-  right:8px;
-  transform:translateY(-50%);
-  margin:0
+.account-password-field .toggle-password {
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  margin: 0
 }
-.toggle-password i{line-height:1}
-.profile{border:0;background:transparent}
-.profile .profile-arrow{color:#8b9099;font-size:13px}
-@media (max-width:700px){
-  .account-modal,.account-page-modal{padding:14px}
-  .account-dialog{padding:26px 20px 22px;border-radius:22px;max-height:calc(100vh - 28px)}
+
+.toggle-password i {
+  line-height: 1
 }
-.sidebar nav details > .submenu{
-    display:none;
+
+.profile {
+  border: 0;
+  background: transparent
 }
-.sidebar nav details:hover > .submenu,
-.sidebar nav details:focus-within > .submenu{
-    display:flex;
+
+.profile .profile-arrow {
+  color: #8b9099;
+  font-size: 13px
 }
-.sidebar nav details:hover > summary .arrow,
-.sidebar nav details:focus-within > summary .arrow{
-    transform:rotate(180deg);
+
+@media (max-width:700px) {
+
+  .account-modal,
+  .account-page-modal {
+    padding: 14px
+  }
+
+  .account-dialog {
+    padding: 26px 20px 22px;
+    border-radius: 22px;
+    max-height: calc(100vh - 28px)
+  }
 }
+
+.sidebar nav details>.submenu {
+  display: none;
+}
+
+.sidebar nav details:hover>.submenu,
+.sidebar nav details:focus-within>.submenu {
+  display: flex;
+}
+
+.sidebar nav details:hover>summary .arrow,
+.sidebar nav details:focus-within>summary .arrow {
+  transform: rotate(180deg);
+}
+
 /* ============================================================================
    DASHBOARD BEAUTY PET
    --------------------------------------------------------------------------
@@ -325,73 +776,94 @@ body.account-modal-open{overflow:hidden}
    Esta seção mantém a identidade visual do restante do sistema.
    ========================================================================== */
 
-.dashboard{
-    --dash-amarelo:#fff7c9;;
-    --dash-amarelo-claro:#fff4ab;
-    --dash-vermelho:#ef3028;
-    --dash-texto:#262626;
-    --dash-cinza:#6f737a;
-    --dash-borda:#ececf0;
-    --dash-fundo:#f7f7f9;
-    --dash-branco:#fff;
-    --dash-sombra:0 10px 30px rgba(34,34,34,.08);
-    display:flex;
-    flex-direction:column;
-    gap:22px;
-    width:100%;
-    color:var(--dash-texto);
+.dashboard {
+  --dash-amarelo: #fff7c9;
+  ;
+  --dash-amarelo-claro: #fff4ab;
+  --dash-vermelho: #ef3028;
+  --dash-texto: #262626;
+  --dash-cinza: #6f737a;
+  --dash-borda: #ececf0;
+  --dash-fundo: #f7f7f9;
+  --dash-branco: #fff;
+  --dash-sombra: 0 10px 30px rgba(34, 34, 34, .08);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  color: var(--dash-texto);
 }
+
 .dashboard *,
 .dashboard *::before,
-.dashboard *::after{box-sizing:border-box}
-.dashboard-aba{
-    appearance:none;
-    border:0;
-    background:transparent;
-    color:#666;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:13px 14px;
-    border-radius:12px 12px 0 0;
-    font:inherit;
-    font-weight:600;
-    white-space:nowrap;
-    cursor:pointer;
-    transition:.2s ease;
+.dashboard *::after {
+  box-sizing: border-box
 }
-.dashboard-aba:hover{background:rgba(255,255,255,.55);color:#262626}
-@media (max-width:680px){
-    .dashboard-aba{padding:11px 10px;font-size:12px}
+
+.dashboard-aba {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #666;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 14px;
+  border-radius: 12px 12px 0 0;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: .2s ease;
 }
+
+.dashboard-aba:hover {
+  background: rgba(255, 255, 255, .55);
+  color: #262626
+}
+
+@media (max-width:680px) {
+  .dashboard-aba {
+    padding: 11px 10px;
+    font-size: 12px
+  }
+}
+
 /* Container do componente de busca */
 [data-search-picker="pet"] {
-    position: relative;
+  position: relative;
 }
+
 /* Container da lista */
 [data-search-results] {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    max-height: 220px;
-    overflow-y: auto;
-    z-index: 1050;
-    padding: 4px 0;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 1050;
+  padding: 4px 0;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
 }
+
 [data-search-results][hidden] {
-    display: none !important;
+  display: none !important;
 }
 
 /* [BP-ALTERAÇÃO #6] Máscaras (assets/js/mascaras.js).
    O campo numérico original fica escondido (continua enviando "12.34" para o PHP);
    a pessoa digita no campo "gêmeo" que mostra "12,34". */
-.bp-mascara-original{display:none!important}
-.bp-mascara-gemeo{text-align:left}
+.bp-mascara-original {
+  display: none !important
+}
+
+.bp-mascara-gemeo {
+  text-align: left
+}

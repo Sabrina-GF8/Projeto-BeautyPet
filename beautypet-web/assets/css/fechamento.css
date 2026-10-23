@@ -443,7 +443,7 @@
 
 .daily-summary-card.emphasis {
   border-color: #f1d168;
-  background: linear-gradient(180deg, #fff9df, #fff)
+  background: #fff9df
 }
 
 .daily-summary-card.emphasis strong {
