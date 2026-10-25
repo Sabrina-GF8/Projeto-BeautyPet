@@ -2340,11 +2340,8 @@ body.daily-modal-open {
   padding: 0 20px;
   border: 0;
   border-radius: 999px;
-  /* Mais redondo, estilo pílula */
   background: #1F9B58;
-  /* Fundo verde */
   color: #ffffff;
-  /* Fonte branca */
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 8px 18px #1F9B5822;
