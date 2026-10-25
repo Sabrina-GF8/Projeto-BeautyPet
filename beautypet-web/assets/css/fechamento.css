@@ -108,12 +108,12 @@
   }
 
   .field,
-.field.span-2,
-.field.span-3,
-.field.span-4,
-.field.span-6,
-.field.span-8,
-.field.span-9 {
+  .field.span-2,
+  .field.span-3,
+  .field.span-4,
+  .field.span-6,
+  .field.span-8,
+  .field.span-9 {
     grid-column: span 6
   }
 
@@ -126,13 +126,13 @@
 @media (max-width: 650px) {
 
   .field,
-.field.span-2,
-.field.span-3,
-.field.span-4,
-.field.span-6,
-.field.span-8,
-.field.span-9,
-.field.span-12 {
+  .field.span-2,
+  .field.span-3,
+  .field.span-4,
+  .field.span-6,
+  .field.span-8,
+  .field.span-9,
+  .field.span-12 {
     grid-column: span 12
   }
 
@@ -255,7 +255,7 @@
 /* ===== Fechamento Diário — Cabeçalho e Status ===== */
 .daily-close-heading {
   display: flex;
-  align-items: center; 
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 20px;
@@ -275,7 +275,7 @@
   border: 1px solid #c0c0c0 !important;
   background: #fff !important;
   box-shadow: none !important;
-  pointer-events: none; 
+  pointer-events: none;
   transition: none !important;
 }
 
@@ -346,9 +346,8 @@
   gap: 8px;
   border: 0;
   font: inherit;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
-  transition: .2s
 }
 
 .daily-ghost-button {
@@ -407,7 +406,7 @@
 .daily-summary-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
+}
 
 .daily-summary-card {
   min-width: 0;
@@ -468,7 +467,7 @@
 
 .daily-payment-strip {
   display: grid;
-  }
+}
 
 .daily-payment-item,
 .daily-opening-box {
@@ -521,11 +520,11 @@
 .daily-cash-card {
   border: 1px solid #e9ebef;
   background: #fff;
-  }
+}
 
 .daily-sheet-card {
   overflow: hidden;
-  }
+}
 
 .daily-sheet-header {
   display: flex;
@@ -567,19 +566,23 @@
   gap: 8px;
   min-height: 42px;
   padding: 0 16px;
-  border: 1px dashed #D9DDE6; /* Borda tracejada solicitada */
+  border: 1px dashed #D9DDE6;
+  /* Borda tracejada solicitada */
   border-radius: 14px;
   background: #FBFBFD;
-  color: #646B79; 
+  color: #646B79;
   font-weight: 800;
   cursor: pointer;
   transition: .18s;
 }
 
 .daily-dashed-add-button:hover:not(:disabled) {
-  background: #FFF7F5; /* Hover fundo */
-  border-color: #EF3A2F; /* Hover borda */
-  color: #B2231C; /* Hover fonte */
+  background: #FFF7F5;
+  /* Hover fundo */
+  border-color: #EF3A2F;
+  /* Hover borda */
+  color: #B2231C;
+  /* Hover fonte */
   transform: translateY(-1px);
 }
 
@@ -592,17 +595,14 @@
 .daily-primary-button {
   min-height: 42px;
   padding: 0 14px;
-  }
-
-.daily-primary-button {
-  background: #ef2e25;
-  color: #fff;
+  border-radius: 15px;
+  background: #EF241B;
+  color: white;
   box-shadow: 0 8px 18px #ef2e2522
 }
 
 .daily-primary-button:hover:not(:disabled) {
-  background: #d7251e;
-  transform: translateY(-1px)
+  background: #cf1c15;
 }
 
 .daily-primary-button:disabled {
@@ -620,7 +620,7 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  }
+}
 
 .daily-sheet-table th,
 .daily-sheet-table td {
@@ -833,7 +833,7 @@
   grid-template-columns: minmax(260px, 1fr) auto auto;
   align-items: center;
   gap: 22px;
-  }
+}
 
 .daily-cash-copy {
   display: flex;
@@ -884,16 +884,16 @@
   padding: 0 20px;
   border: 0;
   border-radius: 999px;
-  background: #1F9B58; 
-  color: #fff; 
+  background: #1F9B58;
+  color: #fff;
   font-weight: 850;
   cursor: pointer;
-  box-shadow: 0 8px 18px #1F9B5822; 
+  box-shadow: 0 8px 18px #1F9B5822;
   transition: .18s;
 }
 
 .daily-finish-button:hover {
-  background: #18844A; 
+  background: #18844A;
   transform: translateY(-1px);
 }
 
@@ -922,7 +922,7 @@ body.daily-modal-open {
   align-items: center;
   justify-content: center;
   padding: 22px;
-  }
+}
 
 .daily-modal.is-open {
   display: flex
@@ -1368,46 +1368,46 @@ body.daily-modal-open {
 }
 
 .daily-date-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 14px 16px;
-    border: 1px solid #eee2b9;
-    border-radius: 20px;
-    background: #fff;
-    box-shadow: 0 16px 32px #00000008;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid #eee2b9;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 32px #00000008;
 }
 
 /* Estilo para as setas e para o botão Hoje */
 .daily-date-arrow,
 .daily-today-button {
-    height: 42px;
-    display: grid;
-    place-items: center;
-    padding: 0 16px;
-    border: 1px solid #e7e7e7;
-    border-radius: 12px;
-    background: #fff;
-    color: #45413a;
-    text-decoration: none;
-    font-weight: 800;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  border: 1px solid #e7e7e7;
+  border-radius: 12px;
+  background: #fff;
+  color: #45413a;
+  text-decoration: none;
+  font-weight: 800;
 }
 
 .daily-date-arrow {
-    width: 42px;
-    padding: 0;
+  width: 42px;
+  padding: 0;
 }
 
 .daily-date-arrow:hover,
 .daily-today-button:hover {
-    background: #fff8df;
-    border-color: #e8d58a;
+  background: #fff8df;
+  border-color: #e8d58a;
 }
 
 /* Título com a data formatada empurrado para o canto direito */
 .daily-date-title {
-    margin-left: auto;
+  margin-left: auto;
 }
 
 .daily-date-form input {
@@ -1829,14 +1829,15 @@ body.daily-modal-open {
 }
 
 .daily-full-edit {
-  color: #7a5f00 !important;
-  background: #fff9df !important;
-  border-color: #eadb9c !important
+  color: #555555 !important;
+  background: #e6e6e6 !important;
+  border-color: dashed 5px #ffe366 !important;
 }
 
 .daily-full-edit:hover {
-  background: #fff2b9 !important;
-  color: #5d4700 !important
+  background: #d1d1d1 !important;
+  color: #555555 !important;
+  border-color: dashed 2px #eed45f !important;
 }
 
 .daily-record-dialog.daily-modal-wide {
@@ -1887,17 +1888,17 @@ body.daily-modal-open {
   height: 36px;
   display: grid;
   place-items: center;
-  border: 1px solid #eceff3;
+  border: 1px solid #f0cbc8;
   border-radius: 12px;
-  background: #fff;
-  color: #a23a34;
+  background: #ffe4ef;
+  color: #b21f1f;
   cursor: pointer;
-  transition: .2s
+  transition: .2s;
 }
 
 .daily-remove-service:hover:not(:disabled) {
-  background: #fff0ee;
-  border-color: #f0cbc7
+  background: #f5f7fb;
+  border-color: #f0e3e2
 }
 
 .daily-remove-service:disabled {
@@ -1906,21 +1907,23 @@ body.daily-modal-open {
 }
 
 .daily-add-service-button {
+  border: dashed 1px #D9DDE6;
+  background: #FBFBFD;
+  color: #646B79;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-height: 40px;
   padding: 0 13px;
-  border: 1px solid #eadb9d;
   border-radius: 12px;
-  background: #fff8d9;
-  color: #6f5700;
-  font-weight: 850;
+  font-weight: 700;
   cursor: pointer
 }
 
 .daily-add-service-button:hover {
-  background: #fff1b8
+  background: #FFF7F5;
+  border: dashed 1px #EF3A2F;
+  color: #B2231C;
 }
 
 .daily-service-extras {
@@ -1959,16 +1962,19 @@ body.daily-modal-open {
   gap: 6px;
   min-height: 34px;
   padding: 0 11px;
-  border: 1px solid #e3e7ee;
+  border: dashed 1px #D9DDE6;
+  background: #FBFBFD;
+  color: #646B79;
   border-radius: 10px;
   background: #fff;
-  color: #5f6673;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer
 }
 
 .daily-service-extras-head button:hover {
-  background: #f7f8fa
+  background: #FFF7F5;
+  border: dashed 1px #EF3A2F;
+  color: #B2231C;
 }
 
 .daily-service-extras-list {
@@ -2307,7 +2313,8 @@ body.daily-modal-open {
 }
 
 .monthly-status.general-status i {
-  color: #16a34a; /* Mantém a bolinha verde indicando aberto */
+  color: #16a34a;
+  /* Mantém a bolinha verde indicando aberto */
 }
 
 .monthly-secondary-action {
@@ -2332,17 +2339,21 @@ body.daily-modal-open {
   min-height: 44px;
   padding: 0 20px;
   border: 0;
-  border-radius: 999px; /* Mais redondo, estilo pílula */
-  background: #1F9B58; /* Fundo verde */
-  color: #ffffff; /* Fonte branca */
-  font-weight: 850;
+  border-radius: 999px;
+  /* Mais redondo, estilo pílula */
+  background: #1F9B58;
+  /* Fundo verde */
+  color: #ffffff;
+  /* Fonte branca */
+  font-weight: 700;
   cursor: pointer;
   box-shadow: 0 8px 18px #1F9B5822;
   transition: .18s;
 }
 
 .monthly-primary-action:hover {
-  background: #18844A; /* Hover fundo */
+  background: #18844A;
+  /* Hover fundo */
   transform: translateY(-1px);
 }
 
@@ -2363,7 +2374,7 @@ body.daily-modal-open {
 
 .monthly-period-bar {
   grid-template-columns: 44px minmax(240px, auto) 44px minmax(260px, 1fr);
-  }
+}
 
 /* ===== Barra de Navegação do Fechamento Mensal ===== */
 .monthly-period-bar {
@@ -3078,7 +3089,7 @@ body.monthly-modal-open {
   gap: 8px;
   min-height: 42px;
   padding: 0 16px;
-  border-radius: 999px; 
+  border-radius: 999px;
   background: #f1f3f6;
   color: #6a717d;
   font-size: 12px;
@@ -3088,7 +3099,7 @@ body.monthly-modal-open {
 /* ===== Reorganização da Grade Inferior (Classificação vs Recebimentos) ===== */
 .monthly-lower-grid {
   display: grid;
-  grid-template-columns: 1fr 1.2fr; 
+  grid-template-columns: 1fr 1.2fr;
   gap: 20px;
   margin-top: 20px;
 }
@@ -3130,6 +3141,7 @@ body.monthly-modal-open {
     justify-content: space-between;
   }
 
-    .monthly-lower-grid {
-    grid-template-columns: 1fr; 
-}}
+  .monthly-lower-grid {
+    grid-template-columns: 1fr;
+  }
+}

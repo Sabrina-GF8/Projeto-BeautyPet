@@ -2724,7 +2724,7 @@ require __DIR__ . '/../includes/topo.php';
             <strong><?= formatarMoeda($resumoPagamentos['cartao'] ?? 0) ?></strong>
         </div>
         <button class="daily-opening-box" type="button" data-open-daily-modal="opening" <?= $fechamentoFechado ? 'disabled' : '' ?>>
-            <span>Abertura do caixa <i class="fa-solid fa-pen"></i></span>
+            <span>Abertura do caixa</span>
             <strong><?= formatarMoeda($fechamento['valor_abertura_caixa'] ?? 0) ?></strong>
         </button>
     </section>
@@ -2929,8 +2929,7 @@ require __DIR__ . '/../includes/topo.php';
             <div class="daily-modal-footer">
                 <button type="button" class="daily-cancel-button" data-close-daily-modal>Cancelar</button>
                 <button type="submit" class="daily-primary-button">
-                    <i class="fa-solid fa-check"></i>
-                    <span id="dailySaveRecordText">Salvar registro</span>
+                    <span id="dailySaveRecordText">Salvar</span>
                 </button>
             </div>
         </form>
@@ -3005,7 +3004,7 @@ require __DIR__ . '/../includes/topo.php';
             <!-- Bloco visual "daily-modal-footer" que organiza esta parte da interface. -->
             <div class="daily-modal-footer">
                 <button type="button" class="daily-cancel-button" data-close-daily-modal>Cancelar</button>
-                <button type="submit" class="daily-primary-button"><i class="fa-solid fa-check"></i> Salvar pagamento</button>
+                <button type="submit" class="daily-primary-button"> Salvar</button>
             </div>
         </form>
     </div>
@@ -3089,7 +3088,7 @@ require __DIR__ . '/../includes/topo.php';
                 <div class="daily-final-warning"><i class="fa-solid fa-lock"></i><span>Depois de finalizar, as linhas ficam bloqueadas. Qualquer valor ainda não pago será lançado automaticamente como débito na ficha do tutor. Administradores podem reabrir o dia.</span></div>
             </div>
             <!-- Bloco visual "daily-modal-footer" que organiza esta parte da interface. -->
-            <div class="daily-modal-footer"><button type="button" class="daily-cancel-button" data-close-daily-modal>Cancelar</button><button type="submit" class="daily-finish-button"><i class="fa-solid fa-check"></i> Finalizar fechamento</button></div>
+            <div class="daily-modal-footer"><button type="button" class="daily-cancel-button" data-close-daily-modal>Cancelar</button><button type="submit" class="daily-finish-button">Finalizar fechamento</button></div>
         </form>
     </div>
 </div>
@@ -3791,7 +3790,7 @@ require __DIR__ . '/../includes/topo.php';
         recordKey.value = '';
         launchKicker.textContent = 'Novo registro';
         launchTitle.textContent = 'Adicionar linha ao fechamento';
-        saveRecordText.textContent = 'Salvar registro';
+        saveRecordText.textContent = 'Salvar';
         setPet('', '');
         servicesList.innerHTML = '';
         document.querySelector('#dailyPaymentCash').value = '0.00';
@@ -3834,7 +3833,7 @@ require __DIR__ . '/../includes/topo.php';
                 recordKey.value = key;
                 launchKicker.textContent = 'Editar linha completa';
                 launchTitle.textContent = `Editar ${data.pet_label || 'registro'}`;
-                saveRecordText.textContent = 'Salvar alterações';
+                saveRecordText.textContent = 'Salvar';
                 setPet(data.pet_id, data.pet_label);
                 servicesList.innerHTML = '';
 

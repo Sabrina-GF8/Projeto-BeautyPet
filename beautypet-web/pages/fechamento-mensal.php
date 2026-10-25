@@ -778,7 +778,6 @@ require __DIR__ . '/../includes/topo.php';
             <div class="monthly-finish-actions">
                 <button class="monthly-secondary-action" type="button" data-close-monthly-finish>Cancelar</button>
                 <button class="monthly-primary-action" type="submit">
-                    <i class="fa-solid fa-lock"></i>
                     Confirmar fechamento
                 </button>
             </div>
