@@ -569,8 +569,8 @@
   padding: 0 16px;
   border: 1px dashed #D9DDE6; /* Borda tracejada solicitada */
   border-radius: 14px;
-  background: #FBFBFD; /* Fundo padrão */
-  color: #646B79; /* Cor da fonte */
+  background: #FBFBFD;
+  color: #646B79; 
   font-weight: 800;
   cursor: pointer;
   transition: .18s;

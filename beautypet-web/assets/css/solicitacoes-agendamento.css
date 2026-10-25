@@ -200,7 +200,7 @@
 }
 
 .secondary-action-button:hover {
-  border-color: #acacac;
+  border-color: #bdbdbd;
   background: #fffdf0;
 }
 
@@ -313,21 +313,50 @@
 
 .icon-action-button,
 .request-button {
+  width: 100px;
+  height: 35px;
   min-height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 12px;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
 }
 
+.request-button {
+  padding: 8px 60px;
+  font-size: 14px;
+}
+
+.request-button.confirm {
+  background: #1b9d50;
+  color: white;
+}
+
+.request-button.confirm:hover {
+  background: #178844;
+  color: white;
+}
+
+.request-button.reschedule {
+  background: #e6e6e6; 
+  color: #555555; 
+  border: 1px dashed #ffe366;
+}
+
+.request-button.reschedule:hover {
+  background: #d1d1d1;
+  color: #555555;
+  border: 1px dashed #eed45f;
+}
+
 .icon-action-button {
-  width: 36px;
-  height: 36px;
+  width: 35px;
+  height: 35px;
   display: grid;
   place-items: center;
   border: 1px solid #e4e8f0;
@@ -424,20 +453,6 @@
 .request-info small {
   margin-bottom: 4px;
   color: #777;
-}
-
-.request-button {
-  padding: 8px 11px;
-  color: white;
-  font-size: 12px;
-}
-
-.request-button.confirm {
-  background: #1b9d50;
-}
-
-.request-button.reschedule {
-  background: #ef3b32;
 }
 
 @media (max-width: 1050px) {

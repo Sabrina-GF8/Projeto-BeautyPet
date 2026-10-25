@@ -139,8 +139,8 @@
   min-width: 150px;
   padding: 12px 24px;
   border: none;
-  border-radius: 10px;
-  background: #ef241b;
+  border-radius: 15px;
+  background: #EF241B;
   color: white;
   font-weight: 700;
   cursor: pointer;
@@ -332,12 +332,17 @@
 }
 
 .secondary-action-button {
-  border-color: #dedede
+   background: white;
+  color: #333;
+  border-color: #dedede;
+  box-shadow: 0 8px 20px #00000008;
+  transition: .2s
 }
 
 .secondary-action-button:hover {
-  border-color: #f3b000;
-  }
+ border-color: #bdbdbd;
+  background: #fffdf0;
+}
 
 .agenda-form-card,
 .reschedule-card {

@@ -1112,7 +1112,7 @@ require __DIR__ . '/../includes/topo.php';
                                 <?= $restantesSlot <= 0 ? 'disabled' : '' ?>>
                                 <?php if ($restantesSlot > 0): ?>
                                     <i class="fa-solid fa-plus"></i>
-                                    <span>Adicionar</span>
+                                    <span>Salvar</span>
                                     <small><?= $restantesSlot ?> vaga(s) livre(s)</small>
                                 <?php else: ?>
                                     <span>Lotado</span>
@@ -1393,8 +1393,7 @@ require __DIR__ . '/../includes/topo.php';
             <div class="agenda-modal-actions">
                 <button class="secondary-action-button" id="agendaModalCancel" type="button">Cancelar</button>
                 <button class="save-button" type="submit">
-                    <i class="fa-solid fa-check"></i>
-                    <?= $editarId !== null ? 'Salvar alterações' : 'Adicionar' ?>
+                    <?= $editarId !== null ? 'Salvar alterações' : 'Salvar' ?>
                 </button>
             </div>
         </form>

@@ -448,7 +448,6 @@ require __DIR__ . '/../includes/topo.php';
                                     <input type="hidden" name="agendamento_id"
                                         value="<?= (int) $item['id'] ?>">
                                     <button class="request-button confirm" type="submit">
-                                        <i class="fa-solid fa-check"></i>
                                         Confirmar
                                     </button>
                                 </form>
@@ -475,12 +474,10 @@ require __DIR__ . '/../includes/topo.php';
                             </div>
                         <?php else: ?>
                             <div class="request-actions">
-                                <span class="status-badge success">Confirmado</span>
-
                                 <a class="request-button reschedule"
                                     href="solicitacoes-agendamento.php?aba=confirmadas&editar=<?= (int) $item['id'] ?>">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
+                                    <i class="fa-regular fa-calendar"></i>
+                                    Reagendar
                                 </a>
 
                                 <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
