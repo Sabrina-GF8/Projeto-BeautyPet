@@ -332,16 +332,23 @@
 }
 
 .secondary-action-button {
-  background: white;
-  color: #333;
-  border-color: #dedede;
+  background: #fff;
+  color: #5d6572;
+  border: 1px solid #e2e5e9;
   box-shadow: 0 8px 20px #00000008;
-  transition: .2s
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer
 }
 
 .secondary-action-button:hover {
-  border-color: #bdbdbd;
-  background: #fffdf0;
+  background: #f7f8fa
 }
 
 .agenda-form-card,
@@ -512,13 +519,13 @@
 .icon-action-button.edit {
   background: #e6e6e6;
   color: #555555;
-  border: 1px dashed #ffe366; 
+  border: 1px dashed #ffe366;
 }
 
 .icon-action-button.edit:hover {
   background: #d1d1d1;
   color: #555555;
-  border: 1px dashed #eed45f; 
+  border: 1px dashed #eed45f;
 }
 
 .back-link {
@@ -1600,8 +1607,8 @@ body.agenda-modal-open {
 }
 
 .small-action-button.start {
-  background: #e6e6e6; 
-  color: #555555; 
+  background: #e6e6e6;
+  color: #555555;
   border: 1px dashed #cfcece;
 }
 
@@ -1611,8 +1618,8 @@ body.agenda-modal-open {
 }
 
 .small-action-button.finish {
-  background: #e6e6e6; 
-  color: #555555; 
+  background: #e6e6e6;
+  color: #555555;
   border: 1px dashed #cfcece;
 }
 

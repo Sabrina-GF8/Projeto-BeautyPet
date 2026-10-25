@@ -2445,7 +2445,6 @@ require __DIR__ . '/../includes/topo.php';
                     <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
                     <input type="hidden" name="acao" value="reabrir_fechamento">
                     <button class="daily-ghost-button" type="submit">
-                        <i class="fa-solid fa-lock-open"></i>
                         Reabrir dia
                     </button>
                 </form>
