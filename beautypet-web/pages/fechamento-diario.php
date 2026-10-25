@@ -2439,19 +2439,8 @@ require __DIR__ . '/../includes/topo.php';
                 <?= escapar((string) $fechamento['status']) ?>
             </span>
 
-            <?php if ($fechamentoFechado && $administrador): ?>
-                <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
-                <form method="post" action="fechamento-diario.php?data=<?= escapar($dataSelecionada) ?>">
-                    <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
-                    <input type="hidden" name="acao" value="reabrir_fechamento">
-                    <button class="daily-ghost-button" type="submit">
-                        Reabrir dia
-                    </button>
-                </form>
-            <?php endif; ?>
         </div>
     </div>
-
     <?php if ($mensagem !== ''): ?>
         <div class="message <?= escapar($tipoMensagem) ?> daily-close-message" role="<?= $tipoMensagem === 'error' ? 'alert' : 'status' ?>">
             <?= escapar($mensagem) ?>
@@ -2795,17 +2784,27 @@ require __DIR__ . '/../includes/topo.php';
             </div>
         </div>
 
-      <?php if (!$fechamentoFechado): ?>
-            <button class="daily-finish-button" type="button" data-open-daily-modal="finish">
-                Fechar dia
-            </button>
+<div class="daily-cash-actions-area">
+            <?php if (!$fechamentoFechado): ?>
+                <button class="daily-finish-button" type="button" data-open-daily-modal="finish">
+                    Finalizar dia
+                </button>
+            <?php else: ?>
+                <div class="daily-closed-label">
+                    <i class="fa-solid fa-lock"></i>
+                    Fechado em <?= escapar(formatarDataHoraAgenda($fechamento['fechado_em'])) ?>
+                </div>
 
-        <?php else: ?>
-            <div class="daily-closed-label">
-                <i class="fa-solid fa-lock"></i>
-                Fechado em <?= escapar(formatarDataHoraAgenda($fechamento['fechado_em'])) ?>
-            </div>
-        <?php endif; ?>
+                <?php if ($administrador): ?>
+                    <form method="post" action="fechamento-diario.php?data=<?= escapar($dataSelecionada) ?>">
+                        <input type="hidden" name="acao" value="reabrir_fechamento">
+                        <button class="daily-ghost-button daily-reopen-button" type="submit">
+                            Reabrir dia
+                        </button>
+                    </form>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
     </section>
 </div>
 
