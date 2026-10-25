@@ -80,20 +80,24 @@ function renderizarAcoesAgenda(array $item, string $dataSelecionada): void
             class="icon-action-button edit"
             href="agenda.php?data=<?= escapar($dataSelecionada) ?>&editar=<?= (int) $item['id'] ?>"
             title="Editar agendamento">
-            <i class="fa-solid fa-pen"></i>
+            <i class="fa-solid fa-pen edit"></i>
         </a>
 
         <?php if ($item['status'] === 'CONFIRMADO'): ?>
             <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
             <form method="post" action="agenda.php?data=<?= escapar($dataSelecionada) ?>">
+
                 <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="acao" value="alterar_status">
+
                 <!-- Campo "agendamento_id" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="agendamento_id" value="<?= (int) $item['id'] ?>">
+
                 <!-- Campo "status" utilizado para enviar esta informação no formulário. -->
                 <input type="hidden" name="status" value="EM_ATENDIMENTO">
                 <button class="small-action-button start" type="submit">Iniciar</button>
             </form>
+
         <?php elseif ($item['status'] === 'EM_ATENDIMENTO'): ?>
             <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
             <form method="post" action="agenda.php?data=<?= escapar($dataSelecionada) ?>">
@@ -1112,7 +1116,7 @@ require __DIR__ . '/../includes/topo.php';
                                 <?= $restantesSlot <= 0 ? 'disabled' : '' ?>>
                                 <?php if ($restantesSlot > 0): ?>
                                     <i class="fa-solid fa-plus"></i>
-                                    <span>Salvar</span>
+                                    <span>Adicionar</span>
                                     <small><?= $restantesSlot ?> vaga(s) livre(s)</small>
                                 <?php else: ?>
                                     <span>Lotado</span>
@@ -1393,7 +1397,7 @@ require __DIR__ . '/../includes/topo.php';
             <div class="agenda-modal-actions">
                 <button class="secondary-action-button" id="agendaModalCancel" type="button">Cancelar</button>
                 <button class="save-button" type="submit">
-                    <?= $editarId !== null ? 'Salvar alterações' : 'Salvar' ?>
+                    <?= $editarId !== null ? 'Salvar' : 'Salvar' ?>
                 </button>
             </div>
         </form>

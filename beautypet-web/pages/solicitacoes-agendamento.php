@@ -490,7 +490,7 @@ require __DIR__ . '/../includes/topo.php';
                                         value="<?= (int) $item['id'] ?>">
                                     <button class="icon-action-button danger"
                                         type="submit" title="Cancelar">
-                                        <i class="fa-solid fa-xmark"></i>
+                                        <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
                             </div>

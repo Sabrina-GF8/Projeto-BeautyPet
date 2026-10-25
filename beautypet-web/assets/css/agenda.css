@@ -158,12 +158,12 @@
   }
 
   .field,
-.field.span-2,
-.field.span-3,
-.field.span-4,
-.field.span-6,
-.field.span-8,
-.field.span-9 {
+  .field.span-2,
+  .field.span-3,
+  .field.span-4,
+  .field.span-6,
+  .field.span-8,
+  .field.span-9 {
     grid-column: span 6
   }
 
@@ -180,13 +180,13 @@
   }
 
   .field,
-.field.span-2,
-.field.span-3,
-.field.span-4,
-.field.span-6,
-.field.span-8,
-.field.span-9,
-.field.span-12 {
+  .field.span-2,
+  .field.span-3,
+  .field.span-4,
+  .field.span-6,
+  .field.span-8,
+  .field.span-9,
+  .field.span-12 {
     grid-column: span 12
   }
 
@@ -314,7 +314,7 @@
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  }
+}
 
 .primary-action-button,
 .secondary-action-button {
@@ -332,7 +332,7 @@
 }
 
 .secondary-action-button {
-   background: white;
+  background: white;
   color: #333;
   border-color: #dedede;
   box-shadow: 0 8px 20px #00000008;
@@ -340,7 +340,7 @@
 }
 
 .secondary-action-button:hover {
- border-color: #bdbdbd;
+  border-color: #bdbdbd;
   background: #fffdf0;
 }
 
@@ -468,7 +468,7 @@
 
 .status-badge {
   width: fit-content;
-  }
+}
 
 .agenda-row-actions,
 .request-actions {
@@ -500,7 +500,25 @@
 
 .icon-action-button.danger {
   color: #b21f1f;
-  background: #ffe4e4
+  background: #ffe4e4;
+  border-color: #f0cbc8;
+}
+
+.icon-action-button.danger:hover {
+  background: #fff1f0;
+  color: #c1271f;
+}
+
+.icon-action-button.edit {
+  background: #e6e6e6;
+  color: #555555;
+  border: 1px dashed #ffe366; 
+}
+
+.icon-action-button.edit:hover {
+  background: #d1d1d1;
+  color: #555555;
+  border: 1px dashed #eed45f; 
 }
 
 .back-link {
@@ -549,8 +567,8 @@
 @media (max-width: 720px) {
 
   .agenda-heading,
-.agenda-heading-actions,
-.request-tabs {
+  .agenda-heading-actions,
+  .request-tabs {
     align-items: stretch;
     flex-direction: column
   }
@@ -560,19 +578,10 @@
   }
 
   .request-item,
-.reschedule-card {
+  .reschedule-card {
     grid-template-columns: 1fr
   }
 
-}
-
-.icon-action-button.edit {
-  color: #7a5600;
-  background: #fff0ae
-}
-
-.icon-action-button.edit:hover {
-  background: #ffe171
 }
 
 .agenda-address {
@@ -938,21 +947,21 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  }
+}
 
 .google-calendar-card-header>div {
   display: flex;
   align-items: center;
-  }
+}
 
 .google-calendar-card-header h2 {
   margin: 0;
-  }
+}
 
 .google-calendar-card-header small {
   display: block;
   margin-top: 3px;
-  }
+}
 
 .calendar-category-icon {
   display: grid;
@@ -998,11 +1007,11 @@
 
 .google-time-content {
   min-width: 0;
-  }
+}
 
 .time-events {
   flex: 1;
-  }
+}
 
 .calendar-event-main strong,
 .calendar-event-main span,
@@ -1012,11 +1021,11 @@
 
 .calendar-event-main span {
   margin-top: 2px;
-  }
+}
 
 .calendar-event-main small {
   margin-top: 3px;
-  }
+}
 
 .category-day-card {
   margin-bottom: 0;
@@ -1026,7 +1035,7 @@
 .category-add-header {
   width: 100%;
   font: inherit;
-  }
+}
 
 .category-heading-text strong,
 .category-heading-text small {
@@ -1035,7 +1044,7 @@
 
 .category-heading-text small {
   margin-top: 2px;
-  }
+}
 
 .category-event .agenda-row-actions {
   margin-left: auto
@@ -1044,7 +1053,7 @@
 .category-empty-add,
 .category-inline-add {
   font: inherit;
-  }
+}
 
 .agenda-event-modal {
   position: fixed;
@@ -1053,7 +1062,7 @@
   display: none;
   align-items: center;
   justify-content: center;
-  }
+}
 
 .agenda-event-modal.is-open {
   display: flex
@@ -1062,18 +1071,18 @@
 .agenda-event-dialog {
   max-height: 90vh;
   overflow: auto;
-  }
+}
 
 .agenda-modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  }
+}
 
 .agenda-modal-header h2 {
   margin: 4px 0 0;
-  }
+}
 
 .agenda-modal-category {
   font-weight: 800;
@@ -1123,7 +1132,7 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 18px;
-  }
+}
 
 body.agenda-modal-open {
   overflow: hidden
@@ -1591,11 +1600,25 @@ body.agenda-modal-open {
 }
 
 .small-action-button.start {
-  background: #f09c11
+  background: #e6e6e6; 
+  color: #555555; 
+  border: 1px dashed #cfcece;
+}
+
+.small-action-button.start:hover {
+  background: #fff897;
+  color: #555555;
 }
 
 .small-action-button.finish {
-  background: #16a34a
+  background: #e6e6e6; 
+  color: #555555; 
+  border: 1px dashed #cfcece;
+}
+
+.small-action-button.finish:hover {
+  background: #97e79b;
+  color: #555555;
 }
 
 .agenda-event-modal {
