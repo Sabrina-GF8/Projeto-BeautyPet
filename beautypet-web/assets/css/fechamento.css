@@ -353,12 +353,13 @@
   min-height: 42px;
   padding: 0 14px;
   border: 1px solid #e4e4e4;
-  background: #fff;
-  color: #4e5562
+  background: #1b9d50;
+  color: white;
 }
 
 .daily-ghost-button:hover {
-  background: #f8f9fb
+  background: #178844;
+  color: white;
 }
 
 .daily-close-message {
@@ -2343,16 +2344,25 @@ body.daily-modal-open {
 }
 
 .monthly-secondary-action {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #e4e4e4;
+  background: #1b9d50;
+  color: white;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 13px;
-  font-weight: 850;
+  border-radius: 17px;
+  font-weight: 700;
   cursor: pointer;
-  transition: .18s
+  transition: .18s;
+}
+
+.monthly-secondary-action:hover {
+  background: #178844;
+  color: white;
 }
 
 /* ===== Botão "Fechar mês" com o estilo do Finalizar Dia ===== */
@@ -2377,16 +2387,6 @@ body.daily-modal-open {
   background: #18844A;
   /* Hover fundo */
   transform: translateY(-1px);
-}
-
-.monthly-secondary-action {
-  border: 1px solid #e4e6eb;
-  background: #fff;
-  color: #505662
-}
-
-.monthly-secondary-action:hover {
-  background: #f8f9fb
 }
 
 .monthly-message {
