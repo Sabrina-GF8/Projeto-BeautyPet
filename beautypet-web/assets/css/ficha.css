@@ -2,7 +2,6 @@
  * ARQUIVO: assets/css/ficha.css
  * USADO POR: pages/ficha-pet.php e pages/ficha-tutor.php
  * RESPONSABILIDADE: Ficha individual do pet e do tutor.
- * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
 .page {
@@ -10,20 +9,20 @@
   padding: 30px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 3px 10px #0001
+  box-shadow: 0 3px 10px #0001;
 }
 
 .page h1 {
-  margin-bottom: 10px
+  margin-bottom: 10px;
 }
 
 .page p {
-  color: #666
+  color: #666;
 }
 
 @media (max-width: 900px) {
   .page {
-    padding: 20px
+    padding: 20px;
   }
 }
 
@@ -32,30 +31,30 @@
   margin: 0 auto 18px;
   padding: 13px 16px;
   border-radius: 10px;
-  font-weight: 600
+  font-weight: 600;
 }
 
 .message.success {
   color: #176b32;
   background: #eaf8ef;
-  border: 1px solid #b8e2c5
+  border: 1px solid #b8e2c5;
 }
 
 .message.error {
   color: #9d1c1c;
   background: #fff0f0;
-  border: 1px solid #efbcbc
+  border: 1px solid #efbcbc;
 }
 
 .records-page {
-  background: #fff9bf
+  background: #fff9bf;
 }
 
 .tutor-row:hover,
 .pet-record-card:hover,
 .linked-pet-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px #00000012
+  box-shadow: 0 8px 22px #00000012;
 }
 
 .record-avatar {
@@ -68,13 +67,13 @@
   color: white;
   font-size: 18px;
   font-weight: 800;
-  flex-shrink: 0
+  flex-shrink: 0;
 }
 
 .record-avatar.large {
   width: 82px;
   height: 82px;
-  font-size: 24px
+  font-size: 24px;
 }
 
 .detail-layout {
@@ -82,69 +81,69 @@
   grid-template-columns: minmax(0, 1fr) 220px;
   gap: 18px;
   max-width: 1150px;
-  margin: 0 auto 18px
+  margin: 0 auto 18px;
 }
 
 .detail-card {
   background: white;
   border: 1px solid #dedede;
   border-radius: 16px;
-  box-shadow: 0 2px 5px #0000000a
+  box-shadow: 0 2px 5px #0000000a;
 }
 
 .tutor-profile-card {
-  padding: 24px
+  padding: 24px;
 }
 
 .detail-profile-head,
 .pet-profile-identity {
   display: flex;
   align-items: center;
-  gap: 18px
+  gap: 18px;
 }
 
 .detail-profile-head h1,
 .pet-profile-identity h1 {
-  margin: 0 0 5px
+  margin: 0 0 5px;
 }
 
 .detail-profile-head p {
-  color: #777
+  color: #777;
 }
 
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 22px 30px;
-  margin-top: 30px
+  margin-top: 30px;
 }
 
 .contact-grid>div,
 .data-grid>div {
   display: flex;
   flex-direction: column;
-  gap: 5px
+  gap: 5px;
 }
 
 .contact-grid .wide,
 .data-grid .wide {
-  grid-column: 1 / -1
+  grid-column: 1 / -1;
 }
 
 .contact-grid small,
 .data-grid small,
 .text-information small {
-  color: #777
+  color: #777;
 }
 
 .contact-grid strong {
-  font-weight: 600
+  font-weight: 600;
 }
 
 .summary-column {
   display: flex;
   flex-direction: column;
-  gap: 10px
+  gap: 10px;
 }
 
 .summary-card {
@@ -156,36 +155,36 @@
   padding: 14px 16px;
   background: #f2f2f2;
   border: 1px solid #dedede;
-  border-radius: 12px
+  border-radius: 12px;
 }
 
 .summary-card small {
   color: #666;
-  font-weight: 600
+  font-weight: 600;
 }
 
 .summary-card strong {
-  font-size: 18px
+  font-size: 18px;
 }
 
 .summary-card.credit strong {
-  color: #15924b
+  color: #15924b;
 }
 
 .summary-card.debt strong {
-  color: #e32620
+  color: #e32620;
 }
 
 .section-card,
 .history-card {
   max-width: 1150px;
   margin: 0 auto 18px;
-  padding: 22px
+  padding: 22px;
 }
 
 .section-card>h2,
 .history-card>h2 {
-  margin-bottom: 18px
+  margin-bottom: 18px;
 }
 
 .section-title {
@@ -193,28 +192,28 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 15px;
-  margin-bottom: 18px
+  margin-bottom: 18px;
 }
 
 .section-title h2 {
   margin: 0;
-  font-size: 18px
+  font-size: 18px;
 }
 
 .section-title a {
   color: #b17e00;
   text-decoration: none;
-  font-weight: 700
+  font-weight: 700;
 }
 
 .section-title small {
-  color: #777
+  color: #777;
 }
 
 .linked-pets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-  gap: 16px
+  gap: 16px;
 }
 
 .linked-pet-card {
@@ -227,7 +226,7 @@
   border: 1px solid #e7e7e7;
   border-radius: 12px;
   text-decoration: none;
-  transition: .2s
+  transition: .2s;
 }
 
 .linked-pet-card img,
@@ -235,25 +234,25 @@
   width: 64px;
   height: 64px;
   object-fit: cover;
-  border-radius: 10px
+  border-radius: 10px;
 }
 
 .pet-photo-fallback {
   display: grid;
   place-items: center;
   background: #fff3b7;
-  color: #d5a500
+  color: #d5a500;
 }
 
 .pet-photo-fallback.large {
   width: 88px;
   height: 88px;
-  font-size: 28px
+  font-size: 28px;
 }
 
 .linked-pet-card span,
 .linked-pet-card small {
-  color: #777
+  color: #777;
 }
 
 .package-label {
@@ -263,7 +262,7 @@
   color: #765500 !important;
   background: #ffe474;
   border-radius: 7px;
-  font-weight: 700
+  font-weight: 700;
 }
 
 .inline-empty {
@@ -271,16 +270,16 @@
   color: #777;
   background: #fafafa;
   border: 1px dashed #ddd;
-  border-radius: 10px
+  border-radius: 10px;
 }
 
 .table-wrap {
-  overflow-x: auto
+  overflow-x: auto;
 }
 
 .records-table {
   width: 100%;
-  border-collapse: collapse
+  border-collapse: collapse;
 }
 
 .records-table th,
@@ -288,33 +287,33 @@
   padding: 13px 12px;
   border-bottom: 1px solid #eee;
   text-align: left;
-  vertical-align: top
+  vertical-align: top;
 }
 
 .records-table th {
   color: #777;
   background: #fafafa;
-  font-size: 13px
+  font-size: 13px;
 }
 
 .records-table td {
-  font-size: 14px
+  font-size: 14px;
 }
 
 .records-table td strong,
 .records-table td small {
-  display: block
+  display: block;
 }
 
 .records-table td small {
   margin-top: 4px;
-  color: #777
+  color: #777;
 }
 
 .records-table .money {
   color: #15924b;
   font-weight: 800;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .pet-profile-top {
@@ -324,35 +323,35 @@
   grid-template-columns: minmax(250px, 1fr) minmax(500px, 1.7fr);
   align-items: center;
   gap: 25px;
-  padding: 22px
+  padding: 22px;
 }
 
 .pet-profile-identity img {
   width: 88px;
   height: 88px;
   object-fit: cover;
-  border-radius: 13px
+  border-radius: 13px;
 }
 
 .pet-profile-identity strong {
   display: block;
-  margin-bottom: 4px
+  margin-bottom: 4px;
 }
 
 .pet-profile-identity a {
   color: #df3028;
   text-decoration: none;
-  font-weight: 700
+  font-weight: 700;
 }
 
 .pet-summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px
+  gap: 10px;
 }
 
 .pet-summary-grid .summary-card {
-  min-width: 0
+  min-width: 0;
 }
 
 .pet-detail-columns {
@@ -360,45 +359,45 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px
+  gap: 18px;
 }
 
 .pet-detail-columns .section-card {
-  width: 100%
+  width: 100%;
 }
 
 .data-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px 25px
+  gap: 20px 25px;
 }
 
 .text-information {
   display: flex;
   flex-direction: column;
-  gap: 20px
+  gap: 20px;
 }
 
 .text-information>div {
   padding-bottom: 16px;
-  border-bottom: 1px solid #eee
+  border-bottom: 1px solid #eee;
 }
 
 .text-information>div:last-child {
   padding-bottom: 0;
-  border-bottom: 0
+  border-bottom: 0;
 }
 
 .text-information p {
   margin-top: 6px;
   color: #333;
-  line-height: 1.5
+  line-height: 1.5;
 }
 
 .package-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 14px
+  gap: 14px;
 }
 
 .package-card {
@@ -408,22 +407,22 @@
   padding: 16px;
   background: #fff9d2;
   border: 1px solid #f0d66d;
-  border-radius: 11px
+  border-radius: 11px;
 }
 
 .package-card>div {
   display: flex;
   justify-content: space-between;
-  gap: 10px
+  gap: 10px;
 }
 
 .package-card small {
-  color: #777
+  color: #777;
 }
 
 .timeline {
   display: flex;
-  flex-direction: column
+  flex-direction: column;
 }
 
 .timeline-item {
@@ -431,11 +430,11 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 14px;
   padding: 15px 0;
-  border-bottom: 1px solid #eee
+  border-bottom: 1px solid #eee;
 }
 
 .timeline-item:last-child {
-  border-bottom: 0
+  border-bottom: 0;
 }
 
 .timeline-dot {
@@ -443,88 +442,86 @@
   height: 10px;
   margin-top: 6px;
   border: 2px solid #f0a000;
-  border-radius: 50%
+  border-radius: 50%;
 }
 
 .timeline-content {
   display: flex;
   flex-direction: column;
-  gap: 4px
+  gap: 4px;
 }
 
 .timeline-content p,
 .timeline-content small {
-  color: #777
+  color: #777;
 }
 
 .timeline-value {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px
+  gap: 4px;
 }
 
 .timeline-value strong {
-  color: #15924b
+  color: #15924b;
 }
 
 .timeline-value span {
   color: #777;
-  font-size: 13px
+  font-size: 13px;
 }
 
 @media (max-width: 1100px) {
   .pet-profile-top {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 850px) {
-
   .detail-layout,
   .pet-detail-columns {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
   }
 
   .summary-column {
     display: grid;
-    grid-template-columns: repeat(2, 1fr)
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .pet-summary-grid {
-    grid-template-columns: repeat(2, 1fr)
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 650px) {
-
   .contact-grid,
   .data-grid {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
   }
 
   .contact-grid .wide,
   .data-grid .wide {
-    grid-column: auto
+    grid-column: auto;
   }
 
   .summary-column,
   .pet-summary-grid {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
   }
 
   .section-title {
     align-items: flex-start;
-    flex-direction: column
+    flex-direction: column;
   }
 
   .timeline-item {
-    grid-template-columns: auto 1fr
+    grid-template-columns: auto 1fr;
   }
 
   .timeline-value {
     grid-column: 2;
-    align-items: flex-start
+    align-items: flex-start;
   }
 }
 
@@ -535,18 +532,18 @@
   margin-bottom: 10px;
   color: #555;
   text-decoration: none;
-  font-weight: 600
+  font-weight: 600;
 }
 
 .back-link:hover {
-  color: #111
+  color: #111;
 }
 
 .detail-page-actions {
   max-width: 1150px;
   margin: -8px auto 16px;
   display: flex;
-  justify-content: flex-end
+  justify-content: flex-end;
 }
 
 .detail-edit-button {
@@ -563,37 +560,34 @@
   text-decoration: none;
   font-weight: 800;
   box-shadow: 0 6px 16px #00000008;
-  transition: .2s
+  transition: .2s;
 }
 
 .detail-edit-button:hover {
   transform: translateY(-1px);
   background: #fff9e6;
-  border-color: #dfc965
+  border-color: #dfc965;
 }
 
-/* [BP-ALTERAÇÃO #10] O botão "Cadastrar novo pet" fica dentro de .section-title, cuja regra "a" deixava o texto dourado.
-   Esta regra mantém a mesma cor do botão "Editar tutor". */
 .section-title a.detail-edit-button {
-  color: #4c4638
+  color: #4c4638;
 }
 
 .detail-edit-message {
   max-width: 1150px;
-  margin: 0 auto 14px
+  margin: 0 auto 14px;
 }
 
 @media (max-width:650px) {
   .detail-page-actions {
-    justify-content: stretch
+    justify-content: stretch;
   }
 
   .detail-edit-button {
-    width: 100%
+    width: 100%;
   }
 }
 
-/* ===== Novo padrão de botão de adição tracejado (Dashed) para Cadastrar Pet ===== */
 .section-title a.detail-edit-button.dashed-add-button,
 a.detail-edit-button.dashed-add-button {
   display: inline-flex;
@@ -618,4 +612,98 @@ a.detail-edit-button.dashed-add-button:hover {
   border-color: #EF3A2F !important;
   color: #B2231C !important;
   transform: translateY(-1px);
+}
+
+/* ===== Estilização da Paginação (Histórico da Ficha) ===== */
+.pagination-bar {
+  max-width: 1150px;
+  margin: 25px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 20px;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px #0000000a;
+}
+
+.pagination-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f7f7f7;
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  color: #333;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: .18s;
+}
+
+.pagination-button:hover:not(.disabled) {
+  background: #fff8dd;
+  border-color: #e4bf36;
+  color: #222;
+}
+
+.pagination-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #fafafa;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-num {
+  min-width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+  background: #f7f7f7;
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  color: #444;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: .18s;
+}
+
+.pagination-num:hover {
+  background: #fff8dd;
+  border-color: #e4bf36;
+  color: #222;
+}
+
+.pagination-num.active {
+  background: #ffe474;
+  border-color: #e3b400;
+  color: #332600;
+  box-shadow: 0 2px 6px #00000008;
+}
+
+.pagination-dots {
+  color: #888;
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+@media (max-width: 650px) {
+  .pagination-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pagination-numbers {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }

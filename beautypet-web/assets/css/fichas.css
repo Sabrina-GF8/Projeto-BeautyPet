@@ -2,7 +2,6 @@
  * ARQUIVO: assets/css/fichas.css
  * USADO POR: pages/fichas-pets.php e pages/fichas-tutores.php
  * RESPONSABILIDADE: Listagens de fichas (plural) de pets e de tutores.
- * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
 .page {
@@ -494,7 +493,6 @@
   }
 }
 
-/* HEURÍSTICA 9: aviso exibido quando a ficha procurada não existe mais. */
 .message {
   margin: 0 0 18px;
   padding: 13px 16px;
@@ -506,4 +504,98 @@
   color: #9d1c1c;
   background: #fff0f0;
   border: 1px solid #efbcbc
+}
+
+/* ===== Estilização da Paginação (Mantida) ===== */
+.pagination-bar {
+  max-width: 1050px;
+  margin: 25px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 20px;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px #0000000a;
+}
+
+.pagination-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f7f7f7;
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  color: #333;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: .18s;
+}
+
+.pagination-button:hover:not(.disabled) {
+  background: #fff8dd;
+  border-color: #e4bf36;
+  color: #222;
+}
+
+.pagination-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #fafafa;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-num {
+  min-width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+  background: #f7f7f7;
+  border: 1px solid #dedede;
+  border-radius: 10px;
+  color: #444;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: .18s;
+}
+
+.pagination-num:hover {
+  background: #fff8dd;
+  border-color: #e4bf36;
+  color: #222;
+}
+
+.pagination-num.active {
+  background: #ffe474;
+  border-color: #e3b400;
+  color: #332600;
+  box-shadow: 0 2px 6px #00000008;
+}
+
+.pagination-dots {
+  color: #888;
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+@media (max-width: 650px) {
+  .pagination-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pagination-numbers {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }

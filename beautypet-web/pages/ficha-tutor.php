@@ -115,21 +115,36 @@ $stmt->execute([':cliente_id' => $id]);
 // Recupera todos os pets vinculados ao tutor.
 $pets = $stmt->fetchAll();
 
-// Consulta o histórico financeiro do tutor,
-// incluindo pagamentos e movimentações de crédito e débito.
-$sqlHistorico = <<<'SQL'
+// --- CONFIGURAÇÃO DA PAGINAÇÃO DO HISTÓRICO (25 itens por página) ---
+$itensHistoricoPorPagina = 22;
+$paginaHistoricoAtual = max(1, (int) ($_GET['pagina_historico'] ?? 1));
+$offsetHistorico = ($paginaHistoricoAtual - 1) * $itensHistoricoPorPagina;
+
+// Consulta a quantidade total de registros no histórico deste tutor
+$stmtCountHist = $pdo->prepare('SELECT COUNT(*) FROM vw_historico_cliente WHERE cliente_id = :cliente_id');
+$stmtCountHist->execute([':cliente_id' => $id]);
+$totalRegistrosHistorico = (int) $stmtCountHist->fetchColumn();
+$totalPaginasHistorico = max(1, ceil($totalRegistrosHistorico / $itensHistoricoPorPagina));
+
+if ($paginaHistoricoAtual > $totalPaginasHistorico) {
+    $paginaHistoricoAtual = $totalPaginasHistorico;
+    $offsetHistorico = ($paginaHistoricoAtual - 1) * $itensHistoricoPorPagina;
+}
+
+// Consulta o histórico financeiro do tutor paginado por página (25 itens/página)
+$sqlHistorico = '
     SELECT
         h.*,
         COALESCE(
-            NULLIF(CONCAT_WS(' + ', pg.formas, mov.movimentos), ''),
-            'Não informado'
+            NULLIF(CONCAT_WS(\' + \', pg.formas, mov.movimentos), \'\'),
+            \'Não informado\'
         ) AS forma_pagamento
     FROM vw_historico_cliente h
 
     LEFT JOIN (
         SELECT
             p.lancamento_diario_id,
-            STRING_AGG(DISTINCT fp.nome, ' + ' ORDER BY fp.nome) AS formas
+            STRING_AGG(DISTINCT fp.nome, \' + \' ORDER BY fp.nome) AS formas
         FROM pagamentos p
         JOIN formas_pagamento fp
             ON fp.id = p.forma_pagamento_id
@@ -144,16 +159,16 @@ $sqlHistorico = <<<'SQL'
             lancamento_diario_id,
             STRING_AGG(
                 DISTINCT CASE
-                    WHEN tipo_saldo = 'CREDITO' AND operacao = 'SAIDA'
-                        THEN 'Crédito utilizado'
-                    WHEN tipo_saldo = 'CREDITO' AND operacao = 'ENTRADA'
-                        THEN 'Crédito gerado'
-                    WHEN tipo_saldo = 'DEBITO' AND operacao = 'ENTRADA'
-                        THEN 'Débito pendente'
-                    WHEN tipo_saldo = 'DEBITO' AND operacao = 'SAIDA'
-                        THEN 'Débito pago'
+                    WHEN tipo_saldo = \'CREDITO\' AND operacao = \'SAIDA\'
+                        THEN \'Crédito utilizado\'
+                    WHEN tipo_saldo = \'CREDITO\' AND operacao = \'ENTRADA\'
+                        THEN \'Crédito gerado\'
+                    WHEN tipo_saldo = \'DEBITO\' AND operacao = \'ENTRADA\'
+                        THEN \'Débito pendente\'
+                    WHEN tipo_saldo = \'DEBITO\' AND operacao = \'SAIDA\'
+                        THEN \'Débito pago\'
                 END,
-                ' + '
+                \' + \'
             ) AS movimentos
         FROM movimentacoes_cliente
         WHERE lancamento_diario_id IS NOT NULL
@@ -163,8 +178,7 @@ $sqlHistorico = <<<'SQL'
 
     WHERE h.cliente_id = :cliente_id
     ORDER BY h.data_fechamento DESC, h.lancamento_diario_id DESC
-    LIMIT 100
-SQL;
+    LIMIT ' . $itensHistoricoPorPagina . ' OFFSET ' . $offsetHistorico;
 
 // Prepara a consulta do histórico financeiro.
 $stmt = $pdo->prepare($sqlHistorico);
@@ -326,9 +340,7 @@ require __DIR__ . '/../includes/topo.php';
 
             <h2>Pets vinculados</h2>
 
-            <!-- [BP-ALTERAÇÃO #10] Antes era um texto-link solto e o tutor precisava ser buscado de novo.
-                 Agora usa o mesmo botão do "Editar tutor" (.detail-edit-button) e já envia o tutor (?tutor=ID). -->
-           <a class="detail-edit-button dashed-add-button" href="cadastro-pet.php?tutor=<?= (int) $id ?>">
+            <a class="detail-edit-button dashed-add-button" href="cadastro-pet.php?tutor=<?= (int) $id ?>">
                 Cadastrar novo pet
             </a>
 
@@ -502,6 +514,39 @@ require __DIR__ . '/../includes/topo.php';
                 </table>
 
             </div>
+
+            <!-- Barra de Paginação do Histórico -->
+            <?php if ($totalPaginasHistorico > 1): ?>
+                <div class="pagination-bar">
+                    <?php if ($paginaHistoricoAtual > 1): ?>
+                        <a href="ficha-tutor.php?id=<?= $id ?>&pagina_historico=<?= $paginaHistoricoAtual - 1 ?>" class="pagination-button">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </a>
+                    <?php else: ?>
+                        <span class="pagination-button disabled"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
+                    <?php endif; ?>
+
+                    <div class="pagination-numbers">
+                        <?php for ($i = 1; $i <= $totalPaginasHistorico; $i++): ?>
+                            <?php if ($i == 1 || $i == $totalPaginasHistorico || ($i >= $paginaHistoricoAtual - 2 && $i <= $paginaHistoricoAtual + 2)): ?>
+                                <a href="ficha-tutor.php?id=<?= $id ?>&pagina_historico=<?= $i ?>" class="pagination-num <?= $i === $paginaHistoricoAtual ? 'active' : '' ?>">
+                                    <?= $i ?>
+                                </a>
+                            <?php elseif ($i == $paginaHistoricoAtual - 3 || $i == $paginaHistoricoAtual + 3): ?>
+                                <span class="pagination-dots">...</span>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                    </div>
+
+                    <?php if ($paginaHistoricoAtual < $totalPaginasHistorico): ?>
+                        <a href="ficha-tutor.php?id=<?= $id ?>&pagina_historico=<?= $paginaHistoricoAtual + 1 ?>" class="pagination-button">
+                            Seguinte <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <?php else: ?>
+                        <span class="pagination-button disabled">Seguinte <i class="fa-solid fa-chevron-right"></i></span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
         <?php endif; ?>
 

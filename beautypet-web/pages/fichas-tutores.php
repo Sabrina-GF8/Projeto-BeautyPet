@@ -4,14 +4,59 @@
 require __DIR__ . '/../config/config.php';
 
 // Recebe o termo de busca informado pelo usuário.
-// Caso não exista, utiliza uma string vazia.
 $busca = trim($_GET['busca'] ?? '');
 
-// Consulta os tutores ativos, seus pets e informações financeiras.
+// Define quantos tutores aparecem por página
+$itensPorPagina = 12;
+
+// Descobre a página atual pela URL (ex: ?pagina=2), padrão é 1
+$paginaAtual = max(1, (int) ($_GET['pagina'] ?? 1));
+$offset = ($paginaAtual - 1) * $itensPorPagina;
+
+// Consulta a quantidade total geral de tutores ativos no sistema (para o cabeçalho)
+$totalTutoresGeral = (int) $pdo
+    ->query('SELECT COUNT(*) FROM clientes WHERE ativo = TRUE')
+    ->fetchColumn();
+
+// Cria o array que armazenará os parâmetros da consulta.
+$parametros = [];
+$condicoes = ['c.ativo = TRUE'];
+
+// Verifica se foi informado algum termo de pesquisa.
+if ($busca !== '') {
+    $cpfBusca = preg_replace('/\D+/', '', $busca);
+    
+    $condicoesBusca = ['c.nome ILIKE :nome', 'c.email ILIKE :email'];
+    
+    $parametros[':nome'] = '%' . $busca . '%';
+    $parametros[':email'] = '%' . $busca . '%';
+
+    if ($cpfBusca !== '') {
+        $condicoesBusca[] = 'c.cpf LIKE :cpf';
+        $parametros[':cpf'] = '%' . $cpfBusca . '%';
+    }
+
+    $condicoes[] = '(' . implode(' OR ', $condicoesBusca) . ')';
+}
+
+$whereSql = 'WHERE ' . implode(' AND ', $condicoes);
+
+// 1. Consulta para contar o TOTAL de registros encontrados com base na busca
+$sqlCount = 'SELECT COUNT(DISTINCT c.id) FROM clientes c ' . $whereSql;
+$stmtCount = $pdo->prepare($sqlCount);
+$stmtCount->execute($parametros);
+$totalRegistros = (int) $stmtCount->fetchColumn();
+$totalPaginas = max(1, ceil($totalRegistros / $itensPorPagina));
+
+// Garante que a página atual não passe do limite máximo
+if ($paginaAtual > $totalPaginas) {
+    $paginaAtual = $totalPaginas;
+    $offset = ($paginaAtual - 1) * $itensPorPagina;
+}
+
+// 2. Consulta principal com LIMIT e OFFSET para trazer apenas os tutores da página atual
 $sql = '
-
     SELECT
-
         c.id,
         c.nome,
         c.cpf,
@@ -21,9 +66,7 @@ $sql = '
         COALESCE(g.total_gasto, 0.00)   AS total_gasto,
         COALESCE(s.saldo_credito, 0.00) AS saldo_credito,
         COALESCE(s.saldo_debito, 0.00)  AS saldo_debito
-
     FROM clientes c
-
     LEFT JOIN (
         SELECT
             cliente_id,
@@ -33,7 +76,6 @@ $sql = '
         GROUP BY cliente_id
     ) p
         ON p.cliente_id = c.id
-
     LEFT JOIN (
         SELECT
             cliente_id,
@@ -42,51 +84,11 @@ $sql = '
         GROUP BY cliente_id
     ) g
         ON g.cliente_id = c.id
-
     LEFT JOIN vw_saldo_cliente s
         ON s.cliente_id = c.id
-
-    WHERE c.ativo = TRUE
-
-';
-
-// Cria o array que armazenará os parâmetros da consulta.
-$parametros = [];
-
-// Verifica se foi informado algum termo de pesquisa.
-if ($busca !== '') {
-
-    // Remove caracteres que não sejam números para realizar
-    // a pesquisa por CPF.
-    $cpfBusca = preg_replace('/\D+/', '', $busca);
-
-    // Adiciona as condições de pesquisa por nome ou e-mail.
-    $sql .= '
-    AND (
-        c.nome ILIKE :nome
-        OR c.email ILIKE :email
-';
-
-    // Define os parâmetros utilizados na pesquisa.
-    $parametros = [
-        ':nome'  => '%' . $busca . '%',
-        ':email' => '%' . $busca . '%',
-    ];
-
-    // Se o termo possuir números, também realiza a busca por CPF.
-    if ($cpfBusca !== '') {
-
-        $sql .= ' OR c.cpf LIKE :cpf';
-
-        $parametros[':cpf'] = '%' . $cpfBusca . '%';
-    }
-
-    // Finaliza a condição de pesquisa.
-    $sql .= ')';
-}
-
-// Organiza os tutores em ordem alfabética.
-$sql .= ' ORDER BY c.nome';
+    ' . $whereSql . '
+    ORDER BY c.nome
+    LIMIT ' . $itensPorPagina . ' OFFSET ' . $offset;
 
 // Prepara a consulta SQL.
 $stmt = $pdo->prepare($sql);
@@ -94,13 +96,8 @@ $stmt = $pdo->prepare($sql);
 // Executa a consulta utilizando os parâmetros informados.
 $stmt->execute($parametros);
 
-// Armazena todos os tutores encontrados.
+// Armazena todos os tutores encontrados para a página atual.
 $tutores = $stmt->fetchAll();
-
-// Consulta a quantidade total de tutores ativos.
-$totalTutores = (int) $pdo
-    ->query('SELECT COUNT(*) FROM clientes WHERE ativo = TRUE')
-    ->fetchColumn();
 
 // Define o título da página.
 $tituloPagina = 'Fichas dos tutores';
@@ -118,7 +115,6 @@ require __DIR__ . '/../includes/topo.php';
 <div class="page records-page">
 
     <?php if (isset($_GET['nao_encontrado'])): ?>
-        <?php /* HEURÍSTICA 9: explica por que o usuário voltou para a lista e o que fazer. */ ?>
         <div class="message error" role="alert">O tutor procurado não foi encontrado ou foi removido. Pesquise novamente na lista abaixo.</div>
     <?php endif; ?>
 
@@ -136,9 +132,9 @@ require __DIR__ . '/../includes/topo.php';
         <!-- Exibe a quantidade de tutores cadastrados. -->
         <span class="counter">
 
-            <strong><?= $totalTutores ?></strong>
+            <strong><?= $totalTutoresGeral ?></strong>
 
-            <?= $totalTutores === 1 ? 'tutor cadastrado' : 'tutores cadastrados' ?>
+            <?= $totalTutoresGeral === 1 ? 'tutor cadastrado' : 'tutores cadastrados' ?>
 
         </span>
 
@@ -289,6 +285,43 @@ require __DIR__ . '/../includes/topo.php';
             <?php endforeach; ?>
 
         </div>
+
+        <!-- Barra de Paginação -->
+        <?php if ($totalPaginas > 1): ?>
+            <div class="pagination-bar">
+                <?php 
+                    $queryBusca = $busca !== '' ? '&busca=' . urlencode($busca) : '';
+                ?>
+
+                <?php if ($paginaAtual > 1): ?>
+                    <a href="fichas-tutores.php?pagina=<?= $paginaAtual - 1 ?><?= $queryBusca ?>" class="pagination-button">
+                        <i class="fa-solid fa-chevron-left"></i> Anterior
+                    </a>
+                <?php else: ?>
+                    <span class="pagination-button disabled"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
+                <?php endif; ?>
+
+                <div class="pagination-numbers">
+                    <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                        <?php if ($i == 1 || $i == $totalPaginas || ($i >= $paginaAtual - 2 && $i <= $paginaAtual + 2)): ?>
+                            <a href="fichas-tutores.php?pagina=<?= $i ?><?= $queryBusca ?>" class="pagination-num <?= $i === $paginaAtual ? 'active' : '' ?>">
+                                <?= $i ?>
+                            </a>
+                        <?php elseif ($i == $paginaAtual - 3 || $i == $paginaAtual + 3): ?>
+                            <span class="pagination-dots">...</span>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                </div>
+
+                <?php if ($paginaAtual < $totalPaginas): ?>
+                    <a href="fichas-tutores.php?pagina=<?= $paginaAtual + 1 ?><?= $queryBusca ?>" class="pagination-button">
+                        Seguinte <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                <?php else: ?>
+                    <span class="pagination-button disabled">Seguinte <i class="fa-solid fa-chevron-right"></i></span>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
     <?php endif; ?>
 
