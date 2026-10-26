@@ -499,7 +499,6 @@ require __DIR__ . '/../includes/topo.php';
                     <!-- Campo "acao" utilizado para enviar esta informação no formulário. -->
                     <input type="hidden" name="acao" value="reabrir_mes">
                     <button class="monthly-secondary-action" type="submit">
-                        <i class="fa-solid fa-lock-open"></i>
                         Reabrir mês
                     </button>
                 </form>

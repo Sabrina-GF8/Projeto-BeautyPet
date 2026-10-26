@@ -284,10 +284,6 @@ require __DIR__ . '/../includes/topo.php';
                         <?php endif; ?>
 
                     </div>
-
-                    <!-- Ícone que indica acesso à ficha do tutor. -->
-                    <i class="fa-solid fa-chevron-right record-arrow"></i>
-
                 </a>
 
             <?php endforeach; ?>
