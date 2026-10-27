@@ -2648,14 +2648,14 @@ require __DIR__ . '/../includes/topo.php';
     </section>
 
     <div class="daily-after-sheet-title">
-        <span>Resumo do dia</span>
+        <span>Resumo do dia </span>
         <small>Os totais ficam abaixo da planilha para deixar o fechamento mais limpo.</small>
     </div>
 
     <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
     <section class="daily-summary-grid">
         <article class="daily-summary-card emphasis">
-            <span>Comercializado</span>
+            <span>Total Comercializado</span>
             <strong><?= formatarMoeda($resumo['total_comercializado'] ?? 0) ?></strong>
             <small>Serviços + adicionais</small>
         </article>

@@ -139,39 +139,94 @@
   font-weight: 600;
 }
 
+/* ==========================================
+   ESTILOS DOS CARDS DE RESUMO DA FICHA DO PET
+   ========================================== */
+
 .summary-column {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px; 
 }
 
-.summary-card {
-  min-height: 78px;
+.pet-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.daily-summary-card {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid #eceef2;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 50px #00000007;
+}
+
+.daily-summary-card span,
+.daily-summary-card small,
+.daily-summary-card strong {
+  display: block;
+}
+
+.daily-summary-card span {
+  color: #717887;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.daily-summary-card strong {
+  margin-top: 7px;
+  color: #22252b;
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+
+.daily-summary-card small {
+  margin-top: 4px;
+  color: #9a9fac;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+/* Modificadores de Cores dos Cards */
+.daily-summary-card.emphasis {
+  border-color: #f1d168;
+  background: #fff9df;
+}
+
+.daily-summary-card.emphasis strong {
+  color: #8a6300;
+}
+
+.daily-summary-card.danger-soft {
+  background: #fff7f6;
+  border-color: #fbd5d3;
+}
+
+.daily-summary-card.danger-soft strong {
+  color: #c3382e;
+}
+
+.daily-summary-card.green-soft {
+  background: #f3fbf6;
+  border-color: #cdeee0;
+}
+
+.daily-summary-card.green-soft strong {
+  color: #16834a;
+}
+
+.pet-summary-column {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  padding: 14px 16px;
-  background: #f2f2f2;
-  border: 1px solid #dedede;
-  border-radius: 12px;
+  gap: 12px;
 }
 
-.summary-card small {
-  color: #666;
-  font-weight: 600;
-}
-
-.summary-card strong {
-  font-size: 18px;
-}
-
-.summary-card.credit strong {
-  color: #15924b;
-}
-
-.summary-card.debt strong {
-  color: #e32620;
+.pet-action-wrapper {
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* ==========================================
@@ -508,24 +563,25 @@
   gap: 8px;
   min-height: 42px;
   padding: 0 15px;
-  border: 1px solid #eadca5;
+  background: #e6e6e6;
+  color: #555555;
+  border: 1px dashed #ffe366;
   border-radius: 12px;
-  background: #fff;
-  color: #4c4638;
   text-decoration: none;
-  font-weight: 800;
+  font-weight: 700;
   box-shadow: 0 6px 16px #00000008;
   transition: .2s;
 }
 
 .detail-edit-button:hover {
   transform: translateY(-1px);
-  background: #fff9e6;
-  border-color: #dfc965;
+  background: #d1d1d1;
+  color: #555555;
+  border: 1px dashed #eed45f;
 }
 
 .section-title a.detail-edit-button {
-  color: #4c4638;
+  color: #22201c;
 }
 
 .detail-edit-message {
@@ -660,6 +716,7 @@ a.detail-edit-button.dashed-add-button:hover {
 }
 
 @media (max-width: 850px) {
+
   .detail-layout,
   .pet-detail-columns {
     grid-template-columns: 1fr;
@@ -668,6 +725,7 @@ a.detail-edit-button.dashed-add-button:hover {
   .summary-column {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .pet-summary-grid {
@@ -676,6 +734,7 @@ a.detail-edit-button.dashed-add-button:hover {
 }
 
 @media (max-width: 650px) {
+
   .contact-grid,
   .data-grid {
     grid-template-columns: 1fr;

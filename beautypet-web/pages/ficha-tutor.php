@@ -253,35 +253,38 @@ require __DIR__ . '/../includes/topo.php';
 
         </section>
 
-        <!-- Coluna lateral com resumo financeiro e quantidade de pets -->
+       <!-- Coluna lateral com resumo financeiro e quantidade de pets -->
         <aside class="summary-column">
 
-            <div class="summary-card">
-                <small>Total comercializado</small>
+            <article class="daily-summary-card emphasis">
+                <span>Total comercializado</span>
                 <strong><?= escapar(formatarMoeda($tutor['total_gasto'])) ?></strong>
-            </div>
+                <small>Serviços + adicionais</small>
+            </article>
 
-            <div class="summary-card credit">
-                <small>Crédito disponível</small>
+            <article class="daily-summary-card green-soft">
+                <span>Crédito disponível</span>
                 <strong><?= escapar(formatarMoeda($tutor['saldo_credito'])) ?></strong>
-            </div>
+                <small>Saldo a favor</small>
+            </article>
 
-            <div class="summary-card debt">
-                <small>Débito pendente</small>
+            <article class="daily-summary-card danger-soft">
+                <span>Débito pendente</span>
                 <strong>
                     <?= (float) $tutor['saldo_debito'] > 0
                         ? escapar(formatarMoeda($tutor['saldo_debito']))
                         : 'Nenhum' ?>
                 </strong>
-            </div>
+                <small>Valor em aberto</small>
+            </article>
 
-            <div class="summary-card">
-                <small>Pets cadastrados</small>
+            <article class="daily-summary-card">
+                <span>Pets cadastrados</span>
                 <strong><?= (int) $tutor['total_pets'] ?></strong>
-            </div>
+                <small>Vinculados ao tutor</small>
+            </article>
 
         </aside>
-
     </div>
 
     <!-- Seção de listagem de pets vinculados -->

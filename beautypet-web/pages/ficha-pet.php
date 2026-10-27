@@ -2,26 +2,19 @@
 /**
  * ARQUIVO: ficha-pet.php
  * RESPONSABILIDADE: Ficha detalhada do pet.
- * Carrega dados cadastrais, tutor, pacotes e histórico de serviços/financeiro para exibição da ficha do animal.
- *
- * Os comentários abaixo descrevem o motivo de cada etapa, os dados manipulados
- * e a relação entre interface, regras de negócio e banco de dados.
+ * Carrega dados cadastrais, tutor, pacotes e histórico de serviços/financeiro com paginação.
  */
 require __DIR__ . '/../config/config.php';
 
 // Converte o identificador recebido para uso seguro nas consultas e alterações.
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-// Verifica a condição abaixo antes de executar este bloco.
 if (!$id) {
-    // Redireciona o navegador após a operação para evitar reenvio do formulário e atualizar a tela.
-    // HEURÍSTICA 9: volta para a lista explicando o motivo.
     header('Location: fichas-pets.php?nao_encontrado=1');
-    // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
     exit;
 }
 
-// Prepara uma consulta em "pets" para carregar os dados necessários a esta etapa.
+// Prepara uma consulta em "pets" para carregar os dados cadastrais e financeiros do pet.
 $sqlPet = '
     SELECT
         p.*,
@@ -53,21 +46,16 @@ $sqlPet = '
       AND p.ativo = TRUE
 ';
 
-// Prepara uma consulta em "vw_saldo_pacotes" para carregar os dados necessários a esta etapa.
 $stmt = $pdo->prepare($sqlPet);
-// Executa a instrução preparada enviando os parâmetros de forma separada e segura.
 $stmt->execute([':id' => $id]);
-// Obtém a próxima linha retornada pela consulta como um registro associativo.
 $pet = $stmt->fetch();
 
-// Verifica a condição abaixo antes de executar este bloco.
 if (!$pet) {
-    // HEURÍSTICA 9: antes aparecia uma página em branco só com "Pet não encontrado.", sem menu nem saída.
     header('Location: fichas-pets.php?nao_encontrado=1');
     exit;
 }
 
-// Armazena a coleção "sqlPacotes" carregada para ser percorrida e exibida/processada a seguir.
+// Carrega os pacotes ativos e com créditos restantes do pet.
 $sqlPacotes = '
     SELECT
         pet_pacote_id,
@@ -85,11 +73,8 @@ $sqlPacotes = '
     ORDER BY data_compra DESC
 ';
 
-// Prepara uma consulta em "vw_historico_pet" para carregar os dados necessários a esta etapa.
 $stmt = $pdo->prepare($sqlPacotes);
-// Executa a instrução preparada enviando os parâmetros de forma separada e segura.
 $stmt->execute([':pet_id' => $id]);
-// Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
 $pacotes = $stmt->fetchAll();
 
 // Soma os créditos ainda disponíveis nos pacotes ativos do pet.
@@ -100,7 +85,23 @@ $totalCreditosRestantes = array_sum(
     )
 );
 
-// Prepara uma consulta em "vw_historico_pet" para carregar os dados necessários a esta etapa.
+// --- CONFIGURAÇÃO DA PAGINAÇÃO DO HISTÓRICO (25 itens por página) ---
+$itensHistoricoPorPagina = 25;
+$paginaHistoricoAtual = max(1, (int) ($_GET['pagina_historico'] ?? 1));
+$offsetHistorico = ($paginaHistoricoAtual - 1) * $itensHistoricoPorPagina;
+
+// Conta o total de registros no histórico deste pet para calcular as páginas.
+$stmtCountHist = $pdo->prepare('SELECT COUNT(*) FROM vw_historico_pet WHERE pet_id = :pet_id');
+$stmtCountHist->execute([':pet_id' => $id]);
+$totalRegistrosHistorico = (int) $stmtCountHist->fetchColumn();
+$totalPaginasHistorico = max(1, ceil($totalRegistrosHistorico / $itensHistoricoPorPagina));
+
+if ($paginaHistoricoAtual > $totalPaginasHistorico) {
+    $paginaHistoricoAtual = $totalPaginasHistorico;
+    $offsetHistorico = ($paginaHistoricoAtual - 1) * $itensHistoricoPorPagina;
+}
+
+// Consulta o histórico de atendimentos do pet com limite e offset aplicados.
 $sqlHistorico = '
     SELECT
         h.*,
@@ -147,24 +148,16 @@ $sqlHistorico = '
 
     WHERE h.pet_id = :pet_id
     ORDER BY h.data_fechamento DESC, h.lancamento_diario_id DESC
-    LIMIT 100
-';
+    LIMIT ' . $itensHistoricoPorPagina . ' OFFSET ' . $offsetHistorico;
 
-// Prepara a consulta SQL que será executada com parâmetros separados para manter segurança e clareza.
 $stmt = $pdo->prepare($sqlHistorico);
-// Executa a instrução preparada enviando os parâmetros de forma separada e segura.
 $stmt->execute([':pet_id' => $id]);
-// Transforma todas as linhas retornadas pela consulta em uma lista para uso na página.
 $historico = $stmt->fetchAll();
 
-// Define o título exibido na aba/navegador pelo template compartilhado.
+// Define o título e os metadados da página.
 $tituloPagina = 'Ficha de ' . $pet['nome'];
-// Informa ao menu lateral qual item deve aparecer destacado nesta página.
 $paginaAtiva = 'fichas-pets';
-
-// Define o(s) CSS desta página em assets/css/ (ficha.css); o includes/topo.php monta os <link> correspondentes.
 $cssPagina = 'ficha';
-// Carrega o arquivo compartilhado necessário para usar conexão, funções, layout ou outras dependências desta página.
 require __DIR__ . '/../includes/topo.php';
 ?>
 
@@ -178,14 +171,7 @@ require __DIR__ . '/../includes/topo.php';
         <div class="message success detail-edit-message">Dados atualizados com sucesso!</div>
     <?php endif; ?>
 
-    <div class="detail-page-actions">
-        <a class="detail-edit-button" href="cadastro-pet.php?editar=<?= (int) $id ?>">
-            <i class="fa-solid fa-pen"></i>
-            Editar pet
-        </a>
-    </div>
-
-    <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
+    <!-- Seção de topo com identidade, resumos do pet e botão de edição alinhado à direita -->
     <section class="detail-card pet-profile-top">
         <div class="pet-profile-identity">
             <?php $fotoPet = urlFotoPet($pet['foto_url'] ?? null); ?>
@@ -206,40 +192,48 @@ require __DIR__ . '/../includes/topo.php';
             </div>
         </div>
 
-        <!-- Bloco visual "pet-summary-grid" que organiza esta parte da interface. -->
+       <div class="pet-summary-column">
         <div class="pet-summary-grid">
-            <!-- Bloco visual "summary-card" que organiza esta parte da interface. -->
-            <div class="summary-card">
-                <small>Total comercializado</small>
+            <article class="daily-summary-card emphasis">
+                <span>Total comercializado</span>
                 <strong><?= escapar(formatarMoeda($pet['total_gasto'])) ?></strong>
-            </div>
+                <small>Serviços + adicionais</small>
+            </article>
 
-            <!-- Bloco visual "summary-card credit" que organiza esta parte da interface. -->
-            <div class="summary-card credit">
-                <small>Crédito do tutor</small>
+            <article class="daily-summary-card green-soft">
+                <span>Crédito do tutor</span>
                 <strong><?= escapar(formatarMoeda($pet['saldo_credito_tutor'])) ?></strong>
-            </div>
+                <small>Saldo disponível</small>
+            </article>
 
-            <!-- Bloco visual "summary-card debt" que organiza esta parte da interface. -->
-            <div class="summary-card debt">
-                <small>Débito do tutor</small>
+            <article class="daily-summary-card danger-soft">
+                <span>Débito do tutor</span>
                 <strong>
                     <?= (float) $pet['saldo_debito_tutor'] > 0
                         ? escapar(formatarMoeda($pet['saldo_debito_tutor']))
                         : 'Nenhum' ?>
                 </strong>
-            </div>
+                <small>Valor pendente</small>
+            </article>
 
-            <!-- Bloco visual "summary-card" que organiza esta parte da interface. -->
-            <div class="summary-card">
-                <small>Créditos de pacote</small>
+            <article class="daily-summary-card">
+                <span>Créditos de pacote</span>
                 <strong><?= $totalCreditosRestantes ?></strong>
-            </div>
+                <small>Ainda disponíveis</small>
+            </article>
         </div>
-    </section>
 
+        <!-- Botão de edição reposicionado para ficar logo abaixo e alinhado à direita dos cards -->
+        <div class="pet-action-wrapper">
+            <a class="detail-edit-button" href="cadastro-pet.php?editar=<?= (int) $id ?>">
+                Editar pet
+            </a>
+        </div>
+    </div>
+</section>
+
+    <!-- Colunas de detalhes do pet -->
     <div class="pet-detail-columns">
-        <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
         <section class="detail-card section-card">
             <h2>Dados do pet</h2>
 
@@ -312,7 +306,6 @@ require __DIR__ . '/../includes/topo.php';
             </div>
         </section>
 
-        <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
         <section class="detail-card section-card">
             <h2>Comportamento e saúde</h2>
 
@@ -356,7 +349,7 @@ require __DIR__ . '/../includes/topo.php';
         </section>
     </div>
 
-    <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
+    <!-- Seção de pacotes ativos -->
     <section class="detail-card section-card">
         <div class="section-title">
             <h2>Pacotes ativos</h2>
@@ -397,7 +390,7 @@ require __DIR__ . '/../includes/topo.php';
         <?php endif; ?>
     </section>
 
-    <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
+    <!-- Seção de histórico financeiro em formato de tabela idêntico ao tutor -->
     <section class="detail-card history-card">
         <div class="section-title">
             <h2>Histórico de atendimentos</h2>
@@ -409,37 +402,83 @@ require __DIR__ . '/../includes/topo.php';
                 Ainda não existem atendimentos lançados para este pet.
             </div>
         <?php else: ?>
-            <div class="timeline">
-                <?php foreach ($historico as $item): ?>
-                    <article class="timeline-item">
-                        <div class="timeline-dot"></div>
-
-                        <div class="timeline-content">
-                            <strong><?= escapar($item['servico']) ?></strong>
-
-                            <?php if (!empty($item['descricao'])): ?>
-                                <p><?= escapar($item['descricao']) ?></p>
-                            <?php endif; ?>
-
-                            <small>
-                                Pagamento: <?= escapar($item['forma_pagamento']) ?>
-                            </small>
-
-                            <?php if ((float) $item['total_adicionais'] > 0): ?>
-                                <small>
-                                    Adicionais:
-                                    <?= escapar(formatarMoeda($item['total_adicionais'])) ?>
-                                </small>
-                            <?php endif; ?>
-                        </div>
-
-                        <div class="timeline-value">
-                            <strong><?= escapar(formatarMoeda($item['valor_total'])) ?></strong>
-                            <span><?= escapar(formatarData($item['data_fechamento'])) ?></span>
-                        </div>
-                    </article>
-                <?php endforeach; ?>
+            <div class="table-wrap">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Pet</th>
+                            <th>Serviço</th>
+                            <th>Valor</th>
+                            <th>Forma de pagamento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($historico as $item): ?>
+                            <tr>
+                                <td>
+                                    <?= escapar(formatarData($item['data_fechamento'])) ?>
+                                </td>
+                                <td>
+                                    <?= escapar($item['pet']) ?>
+                                </td>
+                                <td>
+                                    <strong><?= escapar($item['servico']) ?></strong>
+                                    <?php if (!empty($item['descricao'])): ?>
+                                        <small><?= escapar($item['descricao']) ?></small>
+                                    <?php endif; ?>
+                                    <?php if ((float) $item['total_adicionais'] > 0): ?>
+                                        <small>
+                                            Inclui <?= escapar(formatarMoeda($item['total_adicionais'])) ?>
+                                            em adicional(is)
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="money">
+                                    <?= escapar(formatarMoeda($item['valor_total'])) ?>
+                                </td>
+                                <td>
+                                    <?= escapar($item['forma_pagamento']) ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
+
+            <!-- Barra de paginação numérica do histórico -->
+            <?php if ($totalPaginasHistorico > 1): ?>
+                <div class="pagination-bar">
+                    <?php if ($paginaHistoricoAtual > 1): ?>
+                        <a href="ficha-pet.php?id=<?= $id ?>&pagina_historico=<?= $paginaHistoricoAtual - 1 ?>" class="pagination-button">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </a>
+                    <?php else: ?>
+                        <span class="pagination-button disabled"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
+                    <?php endif; ?>
+
+                    <div class="pagination-numbers">
+                        <?php for ($i = 1; $i <= $totalPaginasHistorico; $i++): ?>
+                            <?php if ($i == 1 || $i == $totalPaginasHistorico || ($i >= $paginaHistoricoAtual - 2 && $i <= $paginaHistoricoAtual + 2)): ?>
+                                <a href="ficha-pet.php?id=<?= $id ?>&pagina_historico=<?= $i ?>" class="pagination-num <?= $i === $paginaHistoricoAtual ? 'active' : '' ?>">
+                                    <?= $i ?>
+                                </a>
+                            <?php elseif ($i == $paginaHistoricoAtual - 3 || $i == $paginaHistoricoAtual + 3): ?>
+                                <span class="pagination-dots">...</span>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                    </div>
+
+                    <?php if ($paginaHistoricoAtual < $totalPaginasHistorico): ?>
+                        <a href="ficha-pet.php?id=<?= $id ?>&pagina_historico=<?= $paginaHistoricoAtual + 1 ?>" class="pagination-button">
+                            Seguinte <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <?php else: ?>
+                        <span class="pagination-button disabled">Seguinte <i class="fa-solid fa-chevron-right"></i></span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
         <?php endif; ?>
     </section>
 </div>
