@@ -18,11 +18,10 @@ $totalTutoresGeral = (int) $pdo
     ->query('SELECT COUNT(*) FROM clientes WHERE ativo = TRUE')
     ->fetchColumn();
 
-// Cria o array que armazenará os parâmetros da consulta.
+// Configura os parâmetros e condições de busca dinâmica
 $parametros = [];
 $condicoes = ['c.ativo = TRUE'];
 
-// Verifica se foi informado algum termo de pesquisa.
 if ($busca !== '') {
     $cpfBusca = preg_replace('/\D+/', '', $busca);
     
@@ -41,20 +40,19 @@ if ($busca !== '') {
 
 $whereSql = 'WHERE ' . implode(' AND ', $condicoes);
 
-// 1. Consulta para contar o TOTAL de registros encontrados com base na busca
+// Consulta para contar o TOTAL de registros encontrados com base na busca
 $sqlCount = 'SELECT COUNT(DISTINCT c.id) FROM clientes c ' . $whereSql;
 $stmtCount = $pdo->prepare($sqlCount);
 $stmtCount->execute($parametros);
 $totalRegistros = (int) $stmtCount->fetchColumn();
 $totalPaginas = max(1, ceil($totalRegistros / $itensPorPagina));
 
-// Garante que a página atual não passe do limite máximo
 if ($paginaAtual > $totalPaginas) {
     $paginaAtual = $totalPaginas;
     $offset = ($paginaAtual - 1) * $itensPorPagina;
 }
 
-// 2. Consulta principal com LIMIT e OFFSET para trazer apenas os tutores da página atual
+// Consulta principal com LIMIT e OFFSET para trazer apenas os tutores da página atual
 $sql = '
     SELECT
         c.id,
@@ -90,24 +88,14 @@ $sql = '
     ORDER BY c.nome
     LIMIT ' . $itensPorPagina . ' OFFSET ' . $offset;
 
-// Prepara a consulta SQL.
+// Executa a consulta paginada dos tutores
 $stmt = $pdo->prepare($sql);
-
-// Executa a consulta utilizando os parâmetros informados.
 $stmt->execute($parametros);
-
-// Armazena todos os tutores encontrados para a página atual.
 $tutores = $stmt->fetchAll();
 
-// Define o título da página.
 $tituloPagina = 'Fichas dos tutores';
-
-// Define a página ativa no menu.
 $paginaAtiva = 'fichas-tutores';
-
-// Define o(s) CSS desta página em assets/css/ (fichas.css); o includes/topo.php monta os <link> correspondentes.
 $cssPagina = 'fichas';
-// Carrega o topo da página.
 require __DIR__ . '/../includes/topo.php';
 
 ?>
@@ -118,29 +106,19 @@ require __DIR__ . '/../includes/topo.php';
         <div class="message error" role="alert">O tutor procurado não foi encontrado ou foi removido. Pesquise novamente na lista abaixo.</div>
     <?php endif; ?>
 
-    <!-- Cabeçalho da página de fichas dos tutores. -->
+    <!-- Cabeçalho da página de fichas dos tutores -->
     <div class="page-heading">
-
         <div>
-
             <h1>Fichas dos tutores</h1>
-
             <small>Consulte os dados, pets vinculados e histórico financeiro.</small>
-
         </div>
-
-        <!-- Exibe a quantidade de tutores cadastrados. -->
         <span class="counter">
-
             <strong><?= $totalTutoresGeral ?></strong>
-
             <?= $totalTutoresGeral === 1 ? 'tutor cadastrado' : 'tutores cadastrados' ?>
-
         </span>
-
     </div>
 
-    <!-- Formulário utilizado para pesquisar tutores. -->
+    <!-- Formulário de pesquisa de tutores -->
     <form
         class="records-search records-live-search"
         method="get"
@@ -159,17 +137,11 @@ require __DIR__ . '/../includes/topo.php';
             data-records-live-input>
 
         <?php if ($busca !== ''): ?>
-
-            <!-- Botão utilizado para limpar a pesquisa. -->
             <a href="fichas-tutores.php" class="clear-search" title="Limpar busca">
-
                 <i class="fa-solid fa-xmark"></i>
-
             </a>
-
         <?php endif; ?>
 
-        <!-- Sugestões exibidas enquanto o nome é digitado. -->
         <div
             class="records-live-results"
             data-records-live-results
@@ -179,114 +151,65 @@ require __DIR__ . '/../includes/topo.php';
     </form>
 
     <?php if (!$tutores): ?>
-
-        <!-- Mensagem exibida quando nenhum tutor é encontrado. -->
         <div class="empty-state">
-
             <i class="fa-regular fa-address-card"></i>
-
             <h2>Nenhum tutor encontrado</h2>
-
             <p>Cadastre um tutor ou tente outro termo de busca.</p>
-
             <a class="primary-link" href="cadastro-tutor.php">Cadastrar tutor</a>
-
         </div>
-
     <?php else: ?>
-
-        <!-- Lista de tutores encontrados. -->
+        
+        <!-- Lista de tutores da página atual -->
         <div class="tutor-list">
-
             <?php foreach ($tutores as $tutor): ?>
-
-                <!-- Cada tutor direciona para sua ficha individual. -->
                 <a class="tutor-row" href="ficha-tutor.php?id=<?= (int) $tutor['id'] ?>">
 
-                    <!-- Exibe as iniciais do nome do tutor. -->
                     <div class="record-avatar">
                         <?= escapar(iniciaisNome($tutor['nome'])) ?>
                     </div>
 
-                    <!-- Informações principais do tutor. -->
                     <div class="record-main">
-
                         <strong><?= escapar($tutor['nome']) ?></strong>
-
                         <span><?= escapar(formatarCpf($tutor['cpf'])) ?></span>
-
                         <small><?= escapar($tutor['email'] ?: formatarTelefone($tutor['telefone_principal'])) ?></small>
-
                     </div>
 
-                    <!-- Exibe os indicadores financeiros e a quantidade de pets. -->
                     <div class="record-metrics">
-
                         <div class="metric-box">
-
                             <small>Total comercializado</small>
-
                             <strong><?= escapar(formatarMoeda($tutor['total_gasto'])) ?></strong>
-
                         </div>
 
                         <div class="metric-box yellow">
-
                             <small>Pets</small>
-
                             <strong>
-
                                 <?= (int) $tutor['total_pets'] ?>
-
                                 <?= (int) $tutor['total_pets'] === 1 ? 'pet' : 'pets' ?>
-
                             </strong>
-
                         </div>
 
-                        <!-- Verifica se o tutor possui débito. -->
                         <?php if ((float) $tutor['saldo_debito'] > 0): ?>
-
                             <div class="metric-box red">
-
                                 <small>Débito</small>
-
                                 <strong><?= escapar(formatarMoeda($tutor['saldo_debito'])) ?></strong>
-
                             </div>
-
-                        <!-- Caso não tenha débito, verifica se possui crédito. -->
                         <?php elseif ((float) $tutor['saldo_credito'] > 0): ?>
-
                             <div class="metric-box green">
-
                                 <small>Crédito</small>
-
                                 <strong><?= escapar(formatarMoeda($tutor['saldo_credito'])) ?></strong>
-
                             </div>
-
-                        <!-- Caso não tenha débito nem crédito, informa que não há pendências. -->
                         <?php else: ?>
-
                             <div class="metric-box">
-
                                 <small>Saldo</small>
-
                                 <strong>Sem pendências</strong>
-
                             </div>
-
                         <?php endif; ?>
-
                     </div>
                 </a>
-
             <?php endforeach; ?>
-
         </div>
 
-        <!-- Barra de Paginação -->
+        <!-- Renderiza a barra de paginação numérica -->
         <?php if ($totalPaginas > 1): ?>
             <div class="pagination-bar">
                 <?php 
@@ -328,8 +251,5 @@ require __DIR__ . '/../includes/topo.php';
 </div>
 
 <?php
-
-// Carrega o rodapé da página.
 require __DIR__ . '/../includes/rodape.php';
-
 ?>

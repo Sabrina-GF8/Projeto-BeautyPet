@@ -1,9 +1,11 @@
 /*
  * ARQUIVO: assets/css/ficha.css
- * USADO POR: pages/ficha-pet.php e pages/ficha-tutor.php
- * RESPONSABILIDADE: Ficha individual do pet e do tutor.
+ * RESPONSABILIDADE: Estilização das fichas individuais (pets e tutores) e da barra de paginação do histórico.
  */
 
+/* ==========================================
+   ESTRUTURA E LAYOUT GERAL DA PÁGINA
+   ========================================== */
 .page {
   min-height: 100%;
   padding: 30px;
@@ -20,10 +22,8 @@
   color: #666;
 }
 
-@media (max-width: 900px) {
-  .page {
-    padding: 20px;
-  }
+.records-page {
+  background: #fff9bf;
 }
 
 .message {
@@ -46,10 +46,9 @@
   border: 1px solid #efbcbc;
 }
 
-.records-page {
-  background: #fff9bf;
-}
-
+/* ==========================================
+   AVATARS, PERFIS E GRID DO TUTOR
+   ========================================== */
 .tutor-row:hover,
 .pet-record-card:hover,
 .linked-pet-card:hover {
@@ -175,6 +174,9 @@
   color: #e32620;
 }
 
+/* ==========================================
+   SEÇÕES, PETS VINCULADOS E HISTÓRICO
+   ========================================== */
 .section-card,
 .history-card {
   max-width: 1150px;
@@ -273,49 +275,9 @@
   border-radius: 10px;
 }
 
-.table-wrap {
-  overflow-x: auto;
-}
-
-.records-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.records-table th,
-.records-table td {
-  padding: 13px 12px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-  vertical-align: top;
-}
-
-.records-table th {
-  color: #777;
-  background: #fafafa;
-  font-size: 13px;
-}
-
-.records-table td {
-  font-size: 14px;
-}
-
-.records-table td strong,
-.records-table td small {
-  display: block;
-}
-
-.records-table td small {
-  margin-top: 4px;
-  color: #777;
-}
-
-.records-table .money {
-  color: #15924b;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
+/* ==========================================
+   ESTILOS ESPECÍFICOS DA FICHA DO PET
+   ========================================== */
 .pet-profile-top {
   max-width: 1150px;
   margin: 0 auto 18px;
@@ -472,57 +434,50 @@
   font-size: 13px;
 }
 
-@media (max-width: 1100px) {
-  .pet-profile-top {
-    grid-template-columns: 1fr;
-  }
+/* ==========================================
+   TABELAS E BOTÕES DE AÇÃO
+   ========================================== */
+.table-wrap {
+  overflow-x: auto;
 }
 
-@media (max-width: 850px) {
-  .detail-layout,
-  .pet-detail-columns {
-    grid-template-columns: 1fr;
-  }
-
-  .summary-column {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .pet-summary-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-@media (max-width: 650px) {
-  .contact-grid,
-  .data-grid {
-    grid-template-columns: 1fr;
-  }
+.records-table th,
+.records-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: top;
+}
 
-  .contact-grid .wide,
-  .data-grid .wide {
-    grid-column: auto;
-  }
+.records-table th {
+  color: #777;
+  background: #fafafa;
+  font-size: 13px;
+}
 
-  .summary-column,
-  .pet-summary-grid {
-    grid-template-columns: 1fr;
-  }
+.records-table td {
+  font-size: 14px;
+}
 
-  .section-title {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+.records-table td strong,
+.records-table td small {
+  display: block;
+}
 
-  .timeline-item {
-    grid-template-columns: auto 1fr;
-  }
+.records-table td small {
+  margin-top: 4px;
+  color: #777;
+}
 
-  .timeline-value {
-    grid-column: 2;
-    align-items: flex-start;
-  }
+.records-table .money {
+  color: #15924b;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .back-link {
@@ -578,16 +533,6 @@
   margin: 0 auto 14px;
 }
 
-@media (max-width:650px) {
-  .detail-page-actions {
-    justify-content: stretch;
-  }
-
-  .detail-edit-button {
-    width: 100%;
-  }
-}
-
 .section-title a.detail-edit-button.dashed-add-button,
 a.detail-edit-button.dashed-add-button {
   display: inline-flex;
@@ -614,7 +559,9 @@ a.detail-edit-button.dashed-add-button:hover {
   transform: translateY(-1px);
 }
 
-/* ===== Estilização da Paginação (Histórico da Ficha) ===== */
+/* ==========================================
+   ESTILIZAÇÃO DA PAGINAÇÃO
+   ========================================== */
 .pagination-bar {
   max-width: 1150px;
   margin: 25px auto 0;
@@ -697,11 +644,80 @@ a.detail-edit-button.dashed-add-button:hover {
   font-weight: bold;
 }
 
+/* ==========================================
+   MEDIA QUERIES (RESPONSIVIDADE)
+   ========================================== */
+@media (max-width: 1100px) {
+  .pet-profile-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 850px) {
+  .detail-layout,
+  .pet-detail-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-column {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pet-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 650px) {
+  .contact-grid,
+  .data-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-grid .wide,
+  .data-grid .wide {
+    grid-column: auto;
+  }
+
+  .summary-column,
+  .pet-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .timeline-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .timeline-value {
+    grid-column: 2;
+    align-items: flex-start;
+  }
+
+  .detail-page-actions {
+    justify-content: stretch;
+  }
+
+  .detail-edit-button {
+    width: 100%;
+  }
+
   .pagination-bar {
     flex-direction: column;
     gap: 12px;
   }
+
   .pagination-numbers {
     flex-wrap: wrap;
     justify-content: center;

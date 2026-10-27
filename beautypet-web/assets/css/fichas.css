@@ -4,6 +4,9 @@
  * RESPONSABILIDADE: Listagens de fichas (plural) de pets e de tutores.
  */
 
+/* ==========================================
+   ESTRUTURA E LAYOUT GERAL DA PÁGINA
+   ========================================== */
 .page {
   min-height: 100%;
   padding: 30px;
@@ -20,6 +23,26 @@
   color: #666
 }
 
+.records-page {
+  background: #fff9bf
+}
+
+.message {
+  margin: 0 0 18px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-weight: 600
+}
+
+.message.error {
+  color: #9d1c1c;
+  background: #fff0f0;
+  border: 1px solid #efbcbc
+}
+
+/* ==========================================
+   CABEÇALHO DA PÁGINA E CONTADOR
+   ========================================== */
 .page-heading {
   display: flex;
   align-items: flex-start;
@@ -43,26 +66,13 @@
   white-space: nowrap
 }
 
-@media (max-width: 900px) {
-  .page {
-    padding: 20px
-  }
-}
-
-@media (max-width: 650px) {
-  .page-heading {
-    flex-direction: column
-  }
-}
-
 .counter strong {
   color: #222
 }
 
-.records-page {
-  background: #fff9bf
-}
-
+/* ==========================================
+   BARRA DE PESQUISA E LIVE SEARCH
+   ========================================== */
 .records-search {
   position: relative;
   z-index: 30;
@@ -102,7 +112,6 @@
   color: #9a9ea6
 }
 
-/* Sugestões personalizadas das páginas de fichas. A caixa é clara para não usar o autocomplete preto do navegador. */
 .records-live-results {
   position: absolute;
   z-index: 3600;
@@ -211,6 +220,18 @@
   background: #f1f1f1
 }
 
+.records-search-note {
+  display: block;
+  max-width: 1050px;
+  margin: -14px auto 20px;
+  color: #8b929e;
+  font-size: 11px;
+  text-align: right
+}
+
+/* ==========================================
+   LISTAGEM E CARDS DE TUTORES E PETS
+   ========================================== */
 .tutor-list {
   max-width: 1050px;
   margin: 0 auto;
@@ -320,30 +341,6 @@
   color: #aaa
 }
 
-.empty-state {
-  max-width: 1050px;
-  margin: 0 auto;
-  padding: 55px 20px;
-  text-align: center;
-  background: white;
-  border: 1px solid #dedede;
-  border-radius: 16px
-}
-
-.empty-state>i {
-  margin-bottom: 15px;
-  color: #e3b400;
-  font-size: 42px
-}
-
-.empty-state h2 {
-  margin-bottom: 7px
-}
-
-.empty-state p {
-  margin-bottom: 18px
-}
-
 .linked-pet-card img,
 .pet-photo-fallback {
   width: 64px;
@@ -444,69 +441,33 @@
   color: #168044
 }
 
-@media (max-width: 1100px) {
-  .tutor-row {
-    grid-template-columns: auto 1fr auto
-  }
-
-  .record-metrics {
-    grid-column: 1 / -1;
-    justify-content: stretch
-  }
-
-  .metric-box {
-    flex: 1
-  }
-
-  .record-arrow {
-    grid-column: 3;
-    grid-row: 1
-  }
-}
-
-@media (max-width: 650px) {
-  .tutor-row {
-    grid-template-columns: auto minmax(0, 1fr)
-  }
-
-  .record-arrow {
-    display: none
-  }
-
-  .record-metrics {
-    flex-direction: column
-  }
-}
-
-.records-search-note {
-  display: block;
+.empty-state {
   max-width: 1050px;
-  margin: -14px auto 20px;
-  color: #8b929e;
-  font-size: 11px;
-  text-align: right
+  margin: 0 auto;
+  padding: 55px 20px;
+  text-align: center;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 16px
 }
 
-@media (max-width:650px) {
-  .records-search-note {
-    text-align: left
-  }
+.empty-state>i {
+  margin-bottom: 15px;
+  color: #e3b400;
+  font-size: 42px
 }
 
-.message {
-  margin: 0 0 18px;
-  padding: 13px 16px;
-  border-radius: 10px;
-  font-weight: 600
+.empty-state h2 {
+  margin-bottom: 7px
 }
 
-.message.error {
-  color: #9d1c1c;
-  background: #fff0f0;
-  border: 1px solid #efbcbc
+.empty-state p {
+  margin-bottom: 18px
 }
 
-/* ===== Estilização da Paginação (Mantida) ===== */
+/* ==========================================
+   ESTILIZAÇÃO DA PAGINAÇÃO
+   ========================================== */
 .pagination-bar {
   max-width: 1050px;
   margin: 25px auto 0;
@@ -589,11 +550,61 @@
   font-weight: bold;
 }
 
+/* ==========================================
+   MEDIA QUERIES (RESPONSIVIDADE)
+   ========================================== */
+@media (max-width: 1100px) {
+  .tutor-row {
+    grid-template-columns: auto 1fr auto
+  }
+
+  .record-metrics {
+    grid-column: 1 / -1;
+    justify-content: stretch
+  }
+
+  .metric-box {
+    flex: 1
+  }
+
+  .record-arrow {
+    grid-column: 3;
+    grid-row: 1
+  }
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 20px
+  }
+}
+
 @media (max-width: 650px) {
+  .page-heading {
+    flex-direction: column
+  }
+
+  .tutor-row {
+    grid-template-columns: auto minmax(0, 1fr)
+  }
+
+  .record-arrow {
+    display: none
+  }
+
+  .record-metrics {
+    flex-direction: column
+  }
+
+  .records-search-note {
+    text-align: left
+  }
+
   .pagination-bar {
     flex-direction: column;
     gap: 12px;
   }
+
   .pagination-numbers {
     flex-wrap: wrap;
     justify-content: center;
