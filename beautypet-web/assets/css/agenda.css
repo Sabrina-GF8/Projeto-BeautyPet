@@ -148,7 +148,8 @@
 }
 
 .save-button:hover {
-  background: #cf1c15
+  background: #cf1c15;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 900px) {
@@ -344,11 +345,13 @@
   border-radius: 10px;
   text-decoration: none;
   font-weight: 700;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .secondary-action-button:hover {
-  background: #f7f8fa
+  background: #f7f8fa;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px #0000000f;
 }
 
 .agenda-form-card,
@@ -1225,28 +1228,6 @@ body.agenda-modal-open {
 /* ===== Agenda redesenhada - inspiração Google Agenda, adaptada ao Beauty Pet ===== */
 .agenda-heading-actions {
   gap: 12px
-}
-
-.secondary-action-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid #eadca5;
-  border-radius: 12px;
-  background: #fff;
-  color: #403c34;
-  text-decoration: none;
-  font-weight: 700;
-  box-shadow: 0 8px 20px #00000008;
-  transition: .2s
-}
-
-.secondary-action-button:hover {
-  transform: translateY(-1px);
-  background: #fffdf4;
-  box-shadow: 0 10px 24px #0000000f
 }
 
 .request-count {

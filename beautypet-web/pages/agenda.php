@@ -971,6 +971,7 @@ require __DIR__ . '/../includes/topo.php';
                     <i class="fa-solid fa-sliders"></i>
                     Agenda-padrão
                 </a>
+                
             <?php endif; ?>
 
             <a class="secondary-action-button" href="solicitacoes-agendamento.php">

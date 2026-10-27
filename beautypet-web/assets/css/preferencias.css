@@ -12,54 +12,183 @@
  */
 
 /* ---------- Pular para o conteúdo (teclado e leitor de tela) ---------- */
-.bp-pular-conteudo{position:fixed;top:-60px;left:12px;z-index:5000;padding:10px 16px;border-radius:10px;background:#222;color:#fff;font-weight:700;text-decoration:none;transition:top .15s}
-.bp-pular-conteudo:focus{top:12px}
+.bp-pular-conteudo {
+   position: fixed;
+   top: -60px;
+   left: 12px;
+   z-index: 5000;
+   padding: 10px 16px;
+   border-radius: 10px;
+   background: #222;
+   color: #fff;
+   font-weight: 700;
+   text-decoration: none;
+   transition: top .15s
+}
+
+.bp-pular-conteudo:focus {
+   top: 12px
+}
 
 /* ---------- Tema escuro + alto contraste (filtros combinados) ---------- */
-html{--bp-filtro-tema:invert(0);--bp-filtro-contraste:contrast(1)}
-html[data-tema="escuro"]{--bp-filtro-tema:invert(.92) hue-rotate(180deg);background:#111}
-html[data-contraste="alto"]{--bp-filtro-contraste:contrast(1.35)}
+html {
+   --bp-filtro-tema: invert(0);
+   --bp-filtro-contraste: contrast(1)
+}
+
+html[data-tema="escuro"] {
+   --bp-filtro-tema: invert(.92) hue-rotate(180deg);
+   background: #111
+}
+
+html[data-contraste="alto"] {
+   --bp-filtro-contraste: contrast(1.35)
+}
+
 html[data-tema="escuro"],
-html[data-contraste="alto"]{filter:var(--bp-filtro-tema) var(--bp-filtro-contraste)}
+html[data-contraste="alto"] {
+   filter: var(--bp-filtro-tema) var(--bp-filtro-contraste)
+}
 
 /* NÃO INVERTER: fotos, ícones coloridos e o tradutor de Libras voltam às cores reais no tema escuro. */
 html[data-tema="escuro"] img,
 html[data-tema="escuro"] video,
 html[data-tema="escuro"] picture,
 html[data-tema="escuro"] canvas,
-html[data-tema="escuro"] [vw]{filter:invert(1) hue-rotate(180deg)}
+html[data-tema="escuro"] [vw] {
+   filter: invert(1) hue-rotate(180deg)
+}
 
 /* Alto contraste: textos cinza claro ficam mais escuros e as bordas mais visíveis. */
-html[data-contraste="alto"] body{color:#000}
-html[data-contraste="alto"] small{color:#333}
-html[data-contraste="alto"] a{text-decoration-thickness:2px}
+html[data-contraste="alto"] body {
+   color: #000
+}
+
+html[data-contraste="alto"] small {
+   color: #333
+}
+
+html[data-contraste="alto"] a {
+   text-decoration-thickness: 2px
+}
 
 /* ---------- Tamanho da letra ---------- */
 /* O sistema usa medidas em px; o zoom aumenta tudo do conteúdo na mesma proporção.
    A altura do <main> é dividida pelo zoom para a barra de rolagem continuar no lugar certo. */
-html[data-fonte="grande"] main{zoom:1.12;height:calc((100vh - 75px) / 1.12)}
-html[data-fonte="muito-grande"] main{zoom:1.25;height:calc((100vh - 75px) / 1.25)}
+html[data-fonte="grande"] main {
+   zoom: 1.12;
+   height: calc((100vh - 75px) / 1.12)
+}
+
+html[data-fonte="muito-grande"] main {
+   zoom: 1.25;
+   height: calc((100vh - 75px) / 1.25)
+}
+
 html[data-fonte="grande"] .sidebar,
-html[data-fonte="grande"] header{font-size:17px}
+html[data-fonte="grande"] header {
+   font-size: 17px
+}
+
 html[data-fonte="muito-grande"] .sidebar,
-html[data-fonte="muito-grande"] header{font-size:19px}
+html[data-fonte="muito-grande"] header {
+   font-size: 19px
+}
 
 /* ---------- Reduzir animações ---------- */
 html[data-reduzir-animacoes="1"] *,
 html[data-reduzir-animacoes="1"] *::before,
-html[data-reduzir-animacoes="1"] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+html[data-reduzir-animacoes="1"] *::after {
+   animation-duration: .001ms !important;
+   animation-iteration-count: 1 !important;
+   transition-duration: .001ms !important;
+   scroll-behavior: auto !important
+}
 
 /* ---------- Foco reforçado (navegação pelo teclado) ---------- */
-html[data-foco-reforcado="1"] :focus-visible{outline:3px solid #1a5fd0!important;outline-offset:3px!important;border-radius:6px}
+html[data-foco-reforcado="1"] :focus-visible {
+   outline: 3px solid #1a5fd0 !important;
+   outline-offset: 3px !important;
+   border-radius: 6px
+}
 
 /* ---------- Aviso flutuante (troca de usuário e alerta visual de solicitações) ---------- */
-.bp-aviso-flutuante{position:fixed;right:24px;bottom:24px;z-index:4000;display:flex;align-items:center;gap:10px;max-width:min(420px,calc(100vw - 48px));padding:14px 18px;border-radius:14px;background:#176a3b;color:#fff;font-weight:700;text-decoration:none;box-shadow:0 14px 40px rgba(0,0,0,.22);animation:bpAvisoSome 5s ease forwards}
-.bp-aviso-flutuante.bp-aviso-solicitacao{background:#ef3038;animation:bpAvisoPisca 1s ease-in-out 3,bpAvisoSome 9s ease forwards}
-@keyframes bpAvisoSome{0%,85%{opacity:1;transform:none}100%{opacity:0;transform:translateY(10px);visibility:hidden}}
-@keyframes bpAvisoPisca{0%,100%{box-shadow:0 14px 40px rgba(0,0,0,.22)}50%{box-shadow:0 0 0 8px rgba(239,48,56,.35)}}
+.bp-aviso-flutuante {
+   position: fixed;
+   right: 24px;
+   bottom: 24px;
+   z-index: 4000;
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   max-width: min(420px, calc(100vw - 48px));
+   padding: 14px 18px;
+   border-radius: 14px;
+   background: #176a3b;
+   color: #fff;
+   font-weight: 700;
+   text-decoration: none;
+   box-shadow: 0 14px 40px rgba(0, 0, 0, .22);
+   animation: bpAvisoSome 5s ease forwards
+}
+
+.bp-aviso-flutuante.bp-aviso-solicitacao {
+   background: #ef3038;
+   animation: bpAvisoPisca 1s ease-in-out 3, bpAvisoSome 9s ease forwards
+}
+
+@keyframes bpAvisoSome {
+
+   0%,
+   85% {
+      opacity: 1;
+      transform: none
+   }
+
+   100% {
+      opacity: 0;
+      transform: translateY(10px);
+      visibility: hidden
+   }
+}
+
+@keyframes bpAvisoPisca {
+
+   0%,
+   100% {
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .22)
+   }
+
+   50% {
+      box-shadow: 0 0 0 8px rgba(239, 48, 56, .35)
+   }
+}
 
 /* ---------- Engrenagem de Configurações no topo (ao lado do sino) ---------- */
-.settings-link{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:#555;font-size:19px;text-decoration:none;transition:background .2s,color .2s}
-.settings-link:hover{background:#f4f4f4;color:#222}
-.settings-link.active{background:#ffe07a;color:#222}
-@media (max-width:650px){.settings-link{display:none}}
+.settings-link {
+   width: 42px;
+   height: 42px;
+   display: grid;
+   place-items: center;
+   border-radius: 50%;
+   color: #555;
+   font-size: 19px;
+   text-decoration: none;
+   transition: background .2s, color .2s
+}
+
+.settings-link:hover {
+   background: #f4f4f4;
+   color: #222
+}
+
+.settings-link.active {
+   background: #ffe07a;
+   color: #222
+}
+
+@media (max-width:650px) {
+   .settings-link {
+      display: none
+   }
+}
