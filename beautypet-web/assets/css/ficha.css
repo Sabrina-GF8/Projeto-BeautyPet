@@ -49,11 +49,38 @@
 /* ==========================================
    AVATARS, PERFIS E GRID DO TUTOR
    ========================================== */
+
+.pet-profile-identity a {
+  color: #ef2a20;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+  margin-top: 4px;
+  text-decoration: underline;
+}
+
+.pet-profile-identity a:hover {
+  background: rgb(254, 255, 182);
+  border-radius: 50px;
+}
+
 .tutor-row:hover,
 .pet-record-card:hover,
 .linked-pet-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 22px #00000012;
+}
+
+.tutor-profile-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tutor-action-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
 }
 
 .record-avatar {
@@ -146,7 +173,7 @@
 .summary-column {
   display: flex;
   flex-direction: column;
-  gap: 12px; 
+  gap: 12px;
 }
 
 .pet-summary-grid {
@@ -190,7 +217,6 @@
   line-height: 1.35;
 }
 
-/* Modificadores de Cores dos Cards */
 .daily-summary-card.emphasis {
   border-color: #f1d168;
   background: #fff9df;
@@ -353,12 +379,6 @@
 .pet-profile-identity strong {
   display: block;
   margin-bottom: 4px;
-}
-
-.pet-profile-identity a {
-  color: #df3028;
-  text-decoration: none;
-  font-weight: 700;
 }
 
 .pet-summary-grid {

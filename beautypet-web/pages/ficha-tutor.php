@@ -186,69 +186,82 @@ require __DIR__ . '/../includes/topo.php';
         <div class="message success detail-edit-message">Dados atualizados com sucesso!</div>
     <?php endif; ?>
 
-    <div class="detail-page-actions">
-        <a class="detail-edit-button" href="cadastro-tutor.php?editar=<?= (int) $id ?>">
-            <i class="fa-solid fa-pen"></i>
-            Editar tutor
-        </a>
-    </div>
-
     <!-- Layout principal contendo perfil do tutor e resumo lateral -->
     <div class="detail-layout">
 
+        <!-- Card com os dados pessoais do tutor e botão de edição integrado -->
         <section class="detail-card tutor-profile-card">
 
-            <div class="detail-profile-head">
+            <div>
+                <div class="detail-profile-head">
 
-                <div class="record-avatar large">
-                    <?= escapar(iniciaisNome($tutor['nome'])) ?>
+                    <!-- Exibe as iniciais do nome do tutor. -->
+                    <div class="record-avatar large">
+                        <?= escapar(iniciaisNome($tutor['nome'])) ?>
+                    </div>
+
+                    <div>
+                        <!-- Nome do tutor. -->
+                        <h1><?= escapar($tutor['nome']) ?></h1>
+
+                        <!-- Data em que o tutor foi cadastrado. -->
+                        <p>
+                            Tutor cadastrado em
+                            <?= escapar(formatarData($tutor['criado_em'])) ?>
+                        </p>
+                    </div>
+
                 </div>
 
-                <div>
-                    <h1><?= escapar($tutor['nome']) ?></h1>
-                    <p>
-                        Tutor cadastrado em
-                        <?= escapar(formatarData($tutor['criado_em'])) ?>
-                    </p>
-                </div>
+                <!-- Exibe as informações de contato e endereço. -->
+                <div class="contact-grid">
 
+                    <!-- E-mail do tutor. -->
+                    <div>
+                        <small>E-mail</small>
+                        <strong><?= escapar($tutor['email'] ?: 'Não informado') ?></strong>
+                    </div>
+
+                    <!-- CPF do tutor. -->
+                    <div>
+                        <small>CPF</small>
+                        <strong><?= escapar(formatarCpf($tutor['cpf'])) ?></strong>
+                    </div>
+
+                    <!-- Telefone principal do tutor. -->
+                    <div>
+                        <small>Telefone</small>
+                        <strong><?= escapar(formatarTelefone($tutor['telefone_principal'])) ?></strong>
+                    </div>
+
+                    <!-- Telefone reserva do tutor. -->
+                    <div>
+                        <small>Telefone reserva</small>
+                        <strong><?= escapar(formatarTelefone($tutor['telefone_reserva'])) ?></strong>
+                    </div>
+
+                    <!-- Endereço completo do tutor. -->
+                    <div class="wide">
+                        <small>Endereço</small>
+                        <strong><?= escapar(enderecoCompleto($tutor)) ?></strong>
+                    </div>
+
+                    <!-- Exibe as observações somente quando existem. -->
+                    <?php if (!empty($tutor['observacoes'])): ?>
+                        <div class="wide">
+                            <small>Observações</small>
+                            <strong><?= nl2br(escapar($tutor['observacoes'])) ?></strong>
+                        </div>
+                    <?php endif; ?>
+
+                </div>
             </div>
 
-            <!-- Grade de dados de contato do tutor -->
-            <div class="contact-grid">
-
-                <div>
-                    <small>E-mail</small>
-                    <strong><?= escapar($tutor['email'] ?: 'Não informado') ?></strong>
-                </div>
-
-                <div>
-                    <small>CPF</small>
-                    <strong><?= escapar(formatarCpf($tutor['cpf'])) ?></strong>
-                </div>
-
-                <div>
-                    <small>Telefone</small>
-                    <strong><?= escapar(formatarTelefone($tutor['telefone_principal'])) ?></strong>
-                </div>
-
-                <div>
-                    <small>Telefone reserva</small>
-                    <strong><?= escapar(formatarTelefone($tutor['telefone_reserva'])) ?></strong>
-                </div>
-
-                <div class="wide">
-                    <small>Endereço</small>
-                    <strong><?= escapar(enderecoCompleto($tutor)) ?></strong>
-                </div>
-
-                <?php if (!empty($tutor['observacoes'])): ?>
-                    <div class="wide">
-                        <small>Observações</small>
-                        <strong><?= nl2br(escapar($tutor['observacoes'])) ?></strong>
-                    </div>
-                <?php endif; ?>
-
+            <!-- Botão de edição posicionado no canto inferior direito do card -->
+            <div class="tutor-action-wrapper">
+                <a class="detail-edit-button" href="cadastro-tutor.php?editar=<?= (int) $id ?>">
+                    Editar tutor
+                </a>
             </div>
 
         </section>

@@ -1001,7 +1001,7 @@
   margin-left: auto;
   font-weight: 700;
   color: #c51f1a;
-  text-decoration: none
+  text-decoration: underline;
 }
 
 .google-time-row:last-child {
