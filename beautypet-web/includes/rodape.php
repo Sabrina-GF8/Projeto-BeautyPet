@@ -11,6 +11,43 @@
 .global-search-kind img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
 </style>
 
+<!-- [BP-ATALHOS] Estilo da dica que mostra o atalho quando o mouse para sobre um item do menu lateral. -->
+<style>
+/* Caixinha escura flutuante; fica "position:fixed" para não ser cortada pelo menu lateral. */
+.bp-atalho-dica{
+    position:fixed;
+    left:0;
+    top:0;
+    z-index:10000;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.18);
+    background:#1f2937;
+    color:#fff;
+    font:500 13px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);
+    white-space:nowrap;
+    /* Escondida por padrão; a classe "is-visible" (colocada pelo JS) a revela com um leve fade. */
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .15s ease;
+}
+.bp-atalho-dica.is-visible{opacity:1;visibility:visible}
+/* Aparência de "tecla" para o texto Alt + letra. */
+.bp-atalho-dica kbd{
+    padding:2px 6px;
+    border-radius:5px;
+    background:rgba(255,255,255,.18);
+    font:600 12px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+/* Respeita quem desativa animações no sistema (acessibilidade). */
+@media (prefers-reduced-motion:reduce){.bp-atalho-dica{transition:none}}
+</style>
+
 <!-- Script responsável pelas interações desta parte da página no navegador. -->
 
 <script>
@@ -1005,6 +1042,149 @@ if (requestNotificationBell && requestNotificationBadge) {
 
 <script src="<?= BASE_URL ?>/assets/js/mascaras.js?v=bp-mascaras-v1"></script>
 
+<!-- [BP-ATALHOS] Atalhos de teclado (Alt + letra) para o menu lateral + dica ao parar o mouse sobre o item. -->
+<script>
+(function () {
+    // Pega todos os links do menu lateral que têm o atributo data-atalho (definido no topo.php).
+    const links = document.querySelectorAll(".sidebar a[data-atalho]");
+    if (!links.length) return;
+
+    // Monta uma "tabela" letra -> link. Ex.: mapa["A"] é o link da Agenda.
+    const mapa = {};
+    links.forEach(link => {
+        mapa[link.dataset.atalho.toUpperCase()] = link;
+    });
+
+    // ------------------------------------------------------------
+    // 1) DICA QUE REVELA O ATALHO
+    // ------------------------------------------------------------
+
+    // Cria uma única caixinha de dica, reaproveitada por todos os itens.
+    const dica = document.createElement("div");
+    dica.className = "bp-atalho-dica";
+    dica.setAttribute("role", "tooltip");
+    document.body.appendChild(dica);
+
+    // Monta o nome do item; nos submenus inclui o grupo (ex.: "Pets › Cadastro") para não confundir os dois "Cadastro".
+    function nomeDoItem(link) {
+        const nome = (link.getAttribute("aria-label") || link.textContent).trim().replace(/\s+/g, " ");
+        const resumo = link.closest("details")?.querySelector("summary");
+        const grupo = resumo ? resumo.getAttribute("aria-label") : "";
+        return grupo ? grupo + " › " + nome : nome;
+    }
+
+    // Mostra a dica ao lado do item, centralizada na vertical.
+    function mostrarDica(link) {
+        dica.innerHTML = "";
+
+        const texto = document.createElement("span");
+        texto.textContent = nomeDoItem(link);
+
+        const tecla = document.createElement("kbd");
+        tecla.textContent = "Alt + " + link.dataset.atalho.toUpperCase();
+
+        dica.append(texto, tecla);
+
+        const caixa = link.getBoundingClientRect();
+        const topo = caixa.top + caixa.height / 2 - dica.offsetHeight / 2;
+
+        dica.style.left = caixa.right + 10 + "px";
+        // Math.max/min impedem que a dica saia para fora da tela.
+        dica.style.top = Math.max(4, Math.min(topo, window.innerHeight - dica.offsetHeight - 4)) + "px";
+        dica.classList.add("is-visible");
+    }
+
+    // O mouse precisa ficar PARADO ~0,4 s sobre o item para a dica aparecer.
+    let temporizador = null;
+
+    function esconderDica() {
+        clearTimeout(temporizador);
+        dica.classList.remove("is-visible");
+    }
+
+    function agendarDica(link) {
+        if (dica.classList.contains("is-visible")) return; // já está aparecendo
+        clearTimeout(temporizador);                        // se o mouse mexeu, recomeça a contagem
+        temporizador = setTimeout(() => mostrarDica(link), 400);
+    }
+
+    links.forEach(link => {
+        link.addEventListener("mouseenter", () => agendarDica(link)); // mouse entrou no item
+        link.addEventListener("mousemove", () => agendarDica(link));  // mouse ainda se movendo: espera parar
+        link.addEventListener("mouseleave", esconderDica);            // mouse saiu: some
+        link.addEventListener("click", esconderDica);                 // clicou: some
+
+        // Quem navega só pelo teclado (Tab) também vê o atalho, sem esperar.
+        link.addEventListener("focus", () => {
+            if (link.matches(":focus-visible")) mostrarDica(link);
+        });
+        link.addEventListener("blur", esconderDica);
+    });
+
+    // A dica some ao rolar a página ou apertar Esc (evita ficar "perdida" na tela).
+    window.addEventListener("scroll", esconderDica, true);
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") esconderDica();
+    });
+
+    // ------------------------------------------------------------
+    // 2) PREVENÇÃO DE ERROS: avisa antes de sair de um formulário preenchido
+    // ------------------------------------------------------------
+
+    let formularioAlterado = false;
+
+    // Marca quando a pessoa digita/altera algo em um formulário da área principal.
+    document.addEventListener("input", event => {
+        if (event.target.closest && event.target.closest("main form")) {
+            formularioAlterado = true;
+        }
+    });
+
+    // Ao salvar/enviar, não há mais dados "pendentes".
+    document.addEventListener("submit", () => {
+        formularioAlterado = false;
+    });
+
+    // ------------------------------------------------------------
+    // 3) EXECUTA O ATALHO (Alt + letra)
+    // ------------------------------------------------------------
+
+    document.addEventListener("keydown", event => {
+        // Só vale Alt sozinho + letra. Ctrl/Shift/Cmd junto (inclusive AltGr do teclado ABNT2) são ignorados.
+        if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        if (event.getModifierState && event.getModifierState("AltGraph")) return;
+        if (event.repeat) return; // segurar a tecla não dispara várias vezes
+
+        // Com a janela "Trocar usuário" aberta, os atalhos ficam desligados para não tirar a pessoa dela.
+        if (document.body.classList.contains("account-modal-open")) return;
+
+        // event.code ("KeyA") funciona em qualquer layout; no Mac, Option+A geraria outro caractere em event.key.
+        if (!event.code || !event.code.startsWith("Key")) return;
+        const link = mapa[event.code.slice(3)];
+        if (!link) return;
+
+        // Impede que o navegador use o Alt+letra para outra coisa.
+        event.preventDefault();
+        esconderDica();
+
+        // Já está nessa tela: apenas leva o foco para o conteúdo, sem recarregar a página.
+        if (link.pathname === window.location.pathname) {
+            const principal = document.getElementById("conteudo-principal");
+            if (principal) principal.focus();
+            return;
+        }
+
+        // Se há formulário preenchido e não salvo, pede confirmação antes de sair.
+        if (formularioAlterado && !window.confirm("Há dados preenchidos que ainda não foram salvos. Deseja sair desta página mesmo assim?")) {
+            return;
+        }
+
+        // Vai para a tela do item, igual a clicar nele.
+        window.location.assign(link.href);
+    });
+})();
+</script>
+
 </body>
 
-</html>
+</html> 

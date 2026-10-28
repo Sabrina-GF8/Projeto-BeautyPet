@@ -104,14 +104,18 @@ try {
         </div>
 
         <nav>
+            <?php /* [BP-ATALHOS] Cada item do menu ganhou 2 atributos:
+                     data-atalho="X"          -> a letra usada com Alt (lida pelo script no rodape.php, que faz a navegação e mostra a dica).
+                     aria-keyshortcuts="Alt+X" -> avisa leitores de tela qual é o atalho do item.
+                     Para trocar uma letra, mude os DOIS atributos do item. */ ?>
             <?php /* [BP-ALTERAÇÃO #4] aria-label: com o menu recolhido o texto fica invisível, e o leitor de tela (cegos) não lia o nome do item. */ ?>
-            <a href="<?= BASE_URL ?>/index.php" aria-label="Dashboard"
+            <a href="<?= BASE_URL ?>/index.php" aria-label="Dashboard" data-atalho="I" aria-keyshortcuts="Alt+I"
                 class="menu-item <?= $paginaAtiva === 'dashboard' ? 'active' : '' ?>">
                 <i class="fa-solid fa-table-columns"></i>
                 <span>Dashboard</span>
             </a>
 
-            <a href="<?= BASE_URL ?>/pages/agenda.php" aria-label="Agenda"
+            <a href="<?= BASE_URL ?>/pages/agenda.php" aria-label="Agenda" data-atalho="A" aria-keyshortcuts="Alt+A"
                 class="menu-item <?= in_array($paginaAtiva, ['agenda', 'solicitacoes-agendamento'], true) ? 'active' : '' ?>">
                 <i class="fa-regular fa-calendar"></i>
                 <span>Agenda</span>
@@ -126,12 +130,12 @@ try {
                     <i class="fa-solid fa-chevron-down arrow"></i>
                 </summary>
 
-                <a href="<?= BASE_URL ?>/pages/fechamento-diario.php" class="submenu <?= $paginaAtiva === 'fechamento-diario' ? 'active' : '' ?>">
+                <a href="<?= BASE_URL ?>/pages/fechamento-diario.php" data-atalho="R" aria-keyshortcuts="Alt+R" class="submenu <?= $paginaAtiva === 'fechamento-diario' ? 'active' : '' ?>">
                     <i class="fa-solid fa-calendar-day"></i>
                     <span>Diário</span>
                 </a>
 
-                <a href="<?= BASE_URL ?>/pages/fechamento-mensal.php" class="submenu <?= $paginaAtiva === 'fechamento-mensal' ? 'active' : '' ?>">
+                <a href="<?= BASE_URL ?>/pages/fechamento-mensal.php" data-atalho="M" aria-keyshortcuts="Alt+M" class="submenu <?= $paginaAtiva === 'fechamento-mensal' ? 'active' : '' ?>">
                     <i class="fa-solid fa-calendar-week"></i>
                     <span>Mensal</span>
                 </a>
@@ -146,13 +150,13 @@ try {
                     <i class="fa-solid fa-chevron-down arrow"></i>
                 </summary>
 
-                <a href="<?= BASE_URL ?>/pages/cadastro-tutor.php"
+                <a href="<?= BASE_URL ?>/pages/cadastro-tutor.php" data-atalho="U" aria-keyshortcuts="Alt+U"
                     class="submenu <?= $paginaAtiva === 'cadastro-tutor' ? 'active' : '' ?>">
                     <i class="fa-solid fa-user-plus"></i>
                     <span>Cadastro</span>
                 </a>
 
-                <a href="<?= BASE_URL ?>/pages/fichas-tutores.php"
+                <a href="<?= BASE_URL ?>/pages/fichas-tutores.php" data-atalho="O" aria-keyshortcuts="Alt+O"
                     class="submenu <?= $paginaAtiva === 'fichas-tutores' ? 'active' : '' ?>">
                     <i class="fa-regular fa-address-card"></i>
                     <span>Fichas</span>
@@ -168,13 +172,13 @@ try {
                     <i class="fa-solid fa-chevron-down arrow"></i>
                 </summary>
 
-                <a href="<?= BASE_URL ?>/pages/cadastro-pet.php"
+                <a href="<?= BASE_URL ?>/pages/cadastro-pet.php" data-atalho="P" aria-keyshortcuts="Alt+P"
                     class="submenu <?= $paginaAtiva === 'cadastro-pet' ? 'active' : '' ?>">
                     <i class="fa-solid fa-dog"></i>
                     <span>Cadastro</span>
                 </a>
 
-                <a href="<?= BASE_URL ?>/pages/fichas-pets.php"
+                <a href="<?= BASE_URL ?>/pages/fichas-pets.php" data-atalho="X" aria-keyshortcuts="Alt+X"
                     class="submenu <?= $paginaAtiva === 'fichas-pets' ? 'active' : '' ?>">
                     <i class="fa-solid fa-notes-medical"></i>
                     <span>Fichas</span>
@@ -182,13 +186,13 @@ try {
             </details>
 
             <?php /* [BP-ALTERAÇÃO #5] Financeiro e Configurações: as páginas foram criadas e o item fica destacado quando aberto. */ ?>
-            <a href="<?= BASE_URL ?>/pages/financeiro.php" aria-label="Financeiro"
+            <a href="<?= BASE_URL ?>/pages/financeiro.php" aria-label="Financeiro" data-atalho="N" aria-keyshortcuts="Alt+N"
                 class="menu-item <?= $paginaAtiva === 'financeiro' ? 'active' : '' ?>">
                 <i class="fa-solid fa-dollar-sign"></i>
                 <span>Financeiro</span>
             </a>
 
-            <a href="<?= BASE_URL ?>/pages/configuracoes.php" aria-label="Configurações"
+            <a href="<?= BASE_URL ?>/pages/configuracoes.php" aria-label="Configurações" data-atalho="G" aria-keyshortcuts="Alt+G"
                 class="menu-item <?= $paginaAtiva === 'configuracoes' ? 'active' : '' ?>">
                 <i class="fa-solid fa-gear"></i>
                 <span>Configurações</span>
