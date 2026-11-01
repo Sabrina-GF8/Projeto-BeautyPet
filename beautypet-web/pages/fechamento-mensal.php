@@ -630,7 +630,7 @@ require __DIR__ . '/../includes/topo.php';
         </div>
     </section>
 
-    <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
+   <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
     <section class="monthly-summary-section">
         <div class="monthly-section-title">
             <div>
@@ -640,39 +640,45 @@ require __DIR__ . '/../includes/topo.php';
             <small>Calculado automaticamente a partir dos lançamentos diários.</small>
         </div>
 
-        <!-- Bloco visual "monthly-summary-grid" que organiza esta parte da interface. -->
+        <!-- Bloco visual adaptado com o mesmo padrão visual de cartões (daily-summary-grid) -->
         <div class="monthly-summary-grid">
-            <article class="monthly-summary-card featured">
+            <article class="daily-summary-card emphasis">
                 <span>Total comercializado</span>
                 <strong><?= formatarMoeda($totais['comercializado']) ?></strong>
                 <small>Serviços + adicionais</small>
             </article>
-            <article class="monthly-summary-card">
+
+            <article class="daily-summary-card">
                 <span>Total recebido</span>
                 <strong><?= formatarMoeda($totais['recebido']) ?></strong>
                 <small>Inclui pagamentos de débitos antigos</small>
             </article>
-            <article class="monthly-summary-card">
+
+            <article class="daily-summary-card">
                 <span>Pets únicos</span>
                 <strong><?= $petsUnicosMes ?></strong>
                 <small><?= $totais['servicos'] ?> serviço(s) realizado(s)</small>
             </article>
-            <article class="monthly-summary-card">
+
+            <article class="daily-summary-card">
                 <span>Adicionais</span>
                 <strong><?= formatarMoeda($totais['adicionais']) ?></strong>
                 <small>Somados aos serviços</small>
             </article>
-            <article class="monthly-summary-card debt">
+
+            <article class="daily-summary-card danger-soft">
                 <span>Débito gerado</span>
                 <strong><?= formatarMoeda($totais['debito_gerado']) ?></strong>
                 <small>Valores que ficaram para pagar</small>
             </article>
-            <article class="monthly-summary-card paid">
+
+            <article class="daily-summary-card green-soft">
                 <span>Débito pago</span>
                 <strong><?= formatarMoeda($totais['debito_pago']) ?></strong>
                 <small>Pagamentos de dívidas antigas</small>
             </article>
-            <article class="monthly-summary-card credit">
+
+            <article class="daily-summary-card green-soft">
                 <span>Crédito utilizado</span>
                 <strong><?= formatarMoeda($totais['credito_utilizado']) ?></strong>
                 <small>Saldo de crédito usado no mês</small>

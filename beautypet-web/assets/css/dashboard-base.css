@@ -2,239 +2,691 @@
  * ARQUIVO: assets/css/dashboard-base.css
  * USADO POR: index.php
  * RESPONSABILIDADE: Regras do antigo style.css usadas somente pelo dashboard (index.php).
- * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
-.contact-grid>div,.data-grid>div{display:flex;flex-direction:column;gap:5px}
-.contact-grid small,.data-grid small,.text-information small{color:#777}
-.data-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:20px 25px}
-@media (max-width: 650px){
-  .contact-grid,.data-grid{grid-template-columns:1fr}
+/* ==========================================================================
+   1. GRIDES, ALINHAMENTOS E COMPONENTES GERAIS DE CONTEÚDO
+   ========================================================================== */
+.contact-grid>div,
+.data-grid>div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
-.dashboard-destaque{
-   background:#fff7c8 !important;
-    border:1px solid #f1df73;
-    border-radius:20px;
-    padding:24px 26px 0;
-    box-shadow:0 8px 24px rgba(111,92,0,.08);
-    overflow:hidden;
+
+.contact-grid small,
+.data-grid small,
+.text-information small {
+    color: #777;
 }
-.dashboard-titulo h1{
-    margin:0;
-    font-size:30px;
-    line-height:1.1;
-    color:#222;
+
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 25px;
 }
-.dashboard-titulo p{
-    margin:7px 0 20px;
-    color:#737373;
-    font-size:14px;
+
+@media (max-width: 650px) {
+    .contact-grid,
+    .data-grid {
+        grid-template-columns: 1fr;
+    }
 }
-.dashboard-abas{
-    display:flex;
-    gap:8px;
-    overflow-x:auto;
-    scrollbar-width:thin;
+
+
+/* ==========================================================================
+   2. CABEÇALHO E DESTAQUE DO DASHBOARD
+   ========================================================================== */
+.dashboard-destaque {
+    background: #fff7c8 !important;
+    border: 1px solid #f1df73;
+    border-radius: 20px;
+    padding: 24px 26px 0;
+    box-shadow: 0 8px 24px rgba(111, 92, 0, .08);
+    overflow: hidden;
 }
-.dashboard-aba.aba-ativa{
-    background:#fff;
-    color:#d9251f;
-    box-shadow:0 -1px 0 #fff,0 0 0 1px rgba(226,196,25,.12);
+
+.dashboard-titulo h1 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.1;
+    color: #222;
 }
-.aba-painel{display:none;animation:dashboardFade .18s ease}
-.aba-painel.aba-painel-ativo{display:block}
-@keyframes dashboardFade{from{opacity:.25;transform:translateY(4px)}to{opacity:1;transform:none}}
-.kpi-grid{
-    display:grid;
-    grid-template-columns:repeat(6,minmax(0,1fr));
-    gap:14px;
-    margin-bottom:20px;
+
+.dashboard-titulo p {
+    margin: 7px 0 20px;
+    color: #737373;
+    font-size: 14px;
 }
-.kpi-card{
-    min-width:0;
-    min-height:148px;
-    padding:18px;
-    border:1px solid var(--dash-borda);
-    border-radius:18px;
-    background:#fff;
-    box-shadow:0 7px 22px rgba(31,35,48,.055);
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    justify-content:flex-start;
-    text-align:left;
-    color:var(--dash-texto);
+
+.dashboard-abas {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: thin;
 }
-button.kpi-card{
-    width:100%;
-    font:inherit;
-    cursor:pointer;
+
+.dashboard-aba.aba-ativa {
+    background: #fff;
+    color: #d9251f;
+    box-shadow: 0 -1px 0 #fff, 0 0 0 1px rgba(226, 196, 25, .12);
 }
-button.kpi-card:disabled{cursor:default;opacity:.82}
-/* [BP-ALTERAÇÃO #8] Hover só no card que é botão (.kpi-card-botao). Antes valia para todos os .kpi-card, inclusive os informativos (<article>). */
-.kpi-card-botao:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(31,35,48,.1)}
-.kpi-card-alerta{border-color:#ffd6d3;background:linear-gradient(180deg,#fff,#fff8f7)}
-.kpi-icone{
-    width:38px;
-    height:38px;
-    border-radius:12px;
-    display:grid;
-    place-items:center;
-    margin-bottom:15px;
-    font-size:16px;
+
+.aba-painel {
+    display: none;
+    animation: dashboardFade .18s ease;
 }
-.kpi-icone-verde{background:#e9f8ef;color:#2e9c62}
-.kpi-icone-azul{background:#eaf2ff;color:#407bdb}
-.kpi-icone-ciano{background:#e9f9fb;color:#2b9cac}
-.kpi-icone-roxo{background:#f2ecff;color:#7b55cf}
-.kpi-icone-amarelo{background:#fff5d8;color:#c58a00}
-.kpi-icone-vermelho{background:#ffebe9;color:#e34a43}
-.kpi-valor{font-size:24px;line-height:1.1;margin-bottom:7px;color:#222}
-.kpi-rotulo{font-size:12px;line-height:1.35;color:#73777e}
-.kpi-dica{margin-top:auto;padding-top:8px;font-size:10px;color:#d44842}
-.card-painel{
-    background:#fff;
-    border:1px solid var(--dash-borda);
-    border-radius:18px;
-    padding:22px;
-    box-shadow:var(--dash-sombra);
+
+.aba-painel.aba-painel-ativo {
+    display: block;
 }
-.card-painel h2{margin:0;color:#292929;font-size:18px}
-.card-painel-nota{display:block;margin-top:4px;color:#8a8d93;font-size:12px}
-.card-painel-cabecalho{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:18px;
-    padding-bottom:17px;
-    border-bottom:1px solid #eeeef2;
+
+@keyframes dashboardFade {
+    from {
+        opacity: .25;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
-.link-secundario{
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    color:#df3028;
-    font-size:13px;
-    font-weight:600;
-    text-decoration:none;
+
+.dashboard-linha {
+    display: grid;
+    gap: 18px;
+    margin-bottom: 18px;
 }
-.link-secundario:hover{text-decoration:underline}
-.atendimentos-lista{list-style:none;margin:0;padding:0}
-.atendimento-item{
-    display:grid;
-    grid-template-columns:minmax(190px,1.4fr) minmax(95px,.55fr) minmax(160px,1fr) 90px 110px;
-    align-items:center;
-    gap:14px;
-    padding:14px 2px;
-    border-bottom:1px solid #f0f0f2;
+
+.dashboard-linha-principal {
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, .85fr);
 }
-.atendimento-item:last-child{border-bottom:0}
-.atendimento-pet{display:flex;align-items:center;gap:11px;min-width:0}
-.atendimento-foto{
-    width:44px;height:44px;border-radius:50%;object-fit:cover;flex:0 0 auto;
-    border:2px solid #fff1a8;background:#fff8c9;
+
+
+/* ==========================================================================
+   3. CARDS DE KPI (INDICADORES DO TOPO)
+   ========================================================================== */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
 }
-.atendimento-foto-vazia{display:grid;place-items:center;font-size:12px;font-weight:700;color:#b37d00}
-.atendimento-identidade{display:flex;flex-direction:column;min-width:0}
-.atendimento-identidade strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.atendimento-identidade small{color:#8a8d93;margin-top:2px}
-.atendimento-valor{font-weight:700;color:#333}
-.atendimento-servico{color:#60636a;font-size:13px}
-.atendimento-hora{font-weight:600;color:#45474d}
-.etiqueta{
-    justify-self:end;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-width:92px;
-    min-height:29px;
-    padding:5px 9px;
-    border-radius:999px;
-    background:#f0f1f3;
-    color:#62666d;
-    font-size:10px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.025em;
+
+.kpi-card {
+    min-width: 0;
+    min-height: 148px;
+    padding: 18px;
+    border: 1px solid var(--dash-borda);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 7px 22px rgba(31, 35, 48, .055);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    color: var(--dash-texto);
 }
-.painel-vazio{
-    margin:16px 0 0;
-    padding:22px;
-    border:1px dashed #dedfe3;
-    border-radius:14px;
-    background:#fafafa;
-    color:#8b8e94;
-    text-align:center;
+
+button.kpi-card {
+    width: 100%;
+    font: inherit;
+    cursor: pointer;
 }
-.dashboard-linha{
-    display:grid;
-    gap:18px;
-    margin-bottom:18px;
+
+button.kpi-card:disabled {
+    cursor: default;
+    opacity: .82;
 }
-.dashboard-linha-principal{grid-template-columns:minmax(0,1.35fr) minmax(320px,.85fr)}
-.grafico-area{position:relative;height:310px;margin-top:20px}
-.grafico-rosca{position:relative;height:220px;max-width:280px;margin:18px auto 6px}
-.legenda-lista,.barras-lista{list-style:none;padding:0;margin:16px 0 0}
-.legenda-lista{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 14px}
-.legenda-lista li{display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:8px;font-size:12px}
-.legenda-cor{width:9px;height:9px;border-radius:50%}
-.legenda-nome{color:#666}
-.legenda-valor{color:#333}
-.barras-lista{display:flex;flex-direction:column;gap:15px}
-.barra-item{display:grid;gap:7px}
-.barra-cabecalho{display:flex;align-items:center;justify-content:space-between;font-size:13px}
-.barra-trilho{height:8px;border-radius:999px;background:#ededf1;overflow:hidden}
-.barra-preenchimento{height:100%;border-radius:999px;background:linear-gradient(90deg,#f3b000,#ef3028)}
-.barra-valor{color:#92959b;font-size:11px}
-/* Modal: pets sem retornar */
-body.lista-modal-aberta{overflow:hidden}
-.lista-modal{
-    position:fixed;inset:0;z-index:3000;background:rgba(20,20,24,.46);
-    backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:22px;
+
+.kpi-card-botao:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(31, 35, 48, .1);
 }
-.lista-modal.is-open{display:flex}
-.lista-modal-caixa{
-    width:min(680px,100%);max-height:min(720px,88vh);overflow:hidden;background:#fff;
-    border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.22);display:flex;flex-direction:column;
+
+.kpi-card-alerta {
+    border-color: #ffd6d3;
+    background: linear-gradient(180deg, #fff, #fff8f7);
 }
-.dashboard .lista-modal-topo{
-    height:auto;min-height:0;background:#fff9d3;border:0;border-bottom:1px solid #efe7bd;
-    padding:19px 21px;display:flex;align-items:flex-start;justify-content:space-between;gap:15px;
+
+/* Card de faturamento do dia com tom de verde suave */
+.kpi-card-verde {
+    border-color: #cdeee0;
+    background: linear-gradient(180deg, #fff, #f3fbf6);
 }
-.lista-modal-topo h2{margin:0 0 4px;font-size:19px}
-.lista-modal-topo small{color:#7a7d83}
-.lista-modal-fechar{width:36px;height:36px;border:0;border-radius:10px;background:#fff;cursor:pointer;color:#555}
-.lista-modal-busca{display:flex;align-items:center;gap:9px;margin:15px 18px 8px;padding:10px 12px;border:1px solid #e2e2e6;border-radius:12px}
-.lista-modal-busca input{width:100%;border:0;outline:0;font:inherit;background:transparent}
-.lista-modal-itens{list-style:none;margin:0;padding:6px 18px 16px;overflow-y:auto}
-.lista-modal-item{border-bottom:1px solid #f0f0f2}
-.lista-modal-item:last-child{border-bottom:0}
-.lista-modal-item a{display:flex;align-items:center;gap:12px;padding:11px 5px;text-decoration:none;color:inherit;border-radius:10px}
-.lista-modal-item a:hover{background:#fffaf0}
-.lista-modal-iniciais{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;background:#fff1ad;color:#a36e00;font-size:11px;font-weight:700;flex:0 0 auto}
-.lista-modal-identidade{display:flex;flex-direction:column;min-width:0;flex:1}
-.lista-modal-identidade strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lista-modal-identidade small{margin-top:2px;color:#85888e}
-.lista-modal-numero{color:#b04640;font-weight:700;font-size:12px}
-.lista-modal-nota{padding:0 21px 16px;margin:0;color:#8a8d93;font-size:11px}
-.lista-modal-vazio{margin:10px 18px}
-@media (max-width:1350px){
-    .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+.kpi-icone {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 15px;
+    font-size: 16px;
 }
-@media (max-width:980px){
-    .dashboard-linha-principal{grid-template-columns:1fr}
-    .atendimento-item{grid-template-columns:1.4fr .7fr 1fr}
-    .atendimento-hora,.etiqueta{justify-self:start}
-    .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+.kpi-icone-verde {
+    background: #e9f8ef;
+    color: #2e9c62;
 }
-@media (max-width:680px){
-    .dashboard-destaque{padding:20px 16px 0;border-radius:15px}
-    .dashboard-titulo h1{font-size:25px}
-    .dashboard-aba{padding:11px 10px;font-size:12px}
-    .kpi-grid{grid-template-columns:1fr}
-    .card-painel{padding:16px}
-    .card-painel-cabecalho{align-items:flex-start;flex-direction:column}
-    .atendimento-item{grid-template-columns:1fr;gap:8px}
-    .atendimento-valor,.atendimento-servico,.atendimento-hora,.etiqueta{justify-self:start}
-    .legenda-lista{grid-template-columns:1fr}
+
+.kpi-icone-azul {
+    background: #eaf2ff;
+    color: #407bdb;
+}
+
+.kpi-icone-ciano {
+    background: #e9f9fb;
+    color: #2b9cac;
+}
+
+.kpi-icone-roxo {
+    background: #f2ecff;
+    color: #7b55cf;
+}
+
+.kpi-icone-amarelo {
+    background: #fff5d8;
+    color: #c58a00;
+}
+
+.kpi-icone-vermelho {
+    background: #ffebe9;
+    color: #e34a43;
+}
+
+.kpi-valor {
+    font-size: 24px;
+    line-height: 1.1;
+    margin-bottom: 7px;
+    color: #222;
+}
+
+.kpi-rotulo {
+    font-size: 12px;
+    line-height: 1.35;
+    color: #73777e;
+}
+
+.kpi-dica {
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 10px;
+    color: #d44842;
+}
+
+
+/* ==========================================================================
+   4. PAINÉIS DE CONTEÚDO E ATENDIMENTOS DO DIA
+   ========================================================================== */
+.card-painel {
+    background: #fff;
+    border: 1px solid var(--dash-borda);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: var(--dash-sombra);
+}
+
+.card-painel h2 {
+    margin: 0;
+    color: #292929;
+    font-size: 18px;
+}
+
+.card-painel-nota {
+    display: block;
+    margin-top: 4px;
+    color: #8a8d93;
+    font-size: 12px;
+}
+
+.card-painel-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid #eeeef2;
+}
+
+.link-secundario {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #df3028;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.link-secundario:hover {
+    text-decoration: underline;
+}
+
+.atendimentos-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.atendimento-item {
+    display: grid;
+    grid-template-columns: minmax(190px, 1.4fr) minmax(95px, .55fr) minmax(160px, 1fr) 90px 110px;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 2px;
+    border-bottom: 1px solid #f0f0f2;
+}
+
+.atendimento-item:last-child {
+    border-bottom: 0;
+}
+
+.atendimento-pet {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.atendimento-foto {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 auto;
+    border: 2px solid #fff1a8;
+    background: #fff8c9;
+}
+
+.atendimento-foto-vazia {
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #b37d00;
+}
+
+.atendimento-identidade {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.atendimento-identidade strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.atendimento-identidade small {
+    color: #8a8d93;
+    margin-top: 2px;
+}
+
+.atendimento-valor {
+    font-weight: 700;
+    color: #333;
+}
+
+.atendimento-servico {
+    color: #60636a;
+    font-size: 13px;
+}
+
+.atendimento-hora {
+    font-weight: 600;
+    color: #45474d;
+}
+
+.etiqueta {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 92px;
+    min-height: 29px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #f0f1f3;
+    color: #62666d;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .025em;
+}
+
+.painel-vazio {
+    margin: 16px 0 0;
+    padding: 22px;
+    border: #dedfe3;
+    border-radius: 14px;
+    background: #fafafa;
+    color: #8b8e94;
+    text-align: center;
+}
+
+
+/* ==========================================================================
+   5. GRÁFICOS E ESTATÍSTICAS
+   ========================================================================== */
+.grafico-area {
+    position: relative;
+    height: 310px;
+    margin-top: 20px;
+}
+
+.grafico-rosca {
+    position: relative;
+    height: 220px;
+    max-width: 280px;
+    margin: 18px auto 6px;
+}
+
+.legenda-lista,
+.barras-lista {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+}
+
+.legenda-lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px 14px;
+}
+
+.legenda-lista li {
+    display: grid;
+    grid-template-columns: 10px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.legenda-cor {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.legenda-nome {
+    color: #666;
+}
+
+.legenda-valor {
+    color: #333;
+}
+
+.barras-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.barra-item {
+    display: grid;
+    gap: 7px;
+}
+
+.barra-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.barra-trilho {
+    height: 8px;
+    border-radius: 999px;
+    background: #ededf1;
+    overflow: hidden;
+}
+
+.barra-preenchimento {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f3b000, #ef3028);
+}
+
+.barra-valor {
+    color: #92959b;
+    font-size: 11px;
+}
+
+
+/* ==========================================================================
+   6. MODAL (PETS SEM RETORNAR)
+   ========================================================================== */
+body.lista-modal-aberta {
+    overflow: hidden;
+}
+
+.lista-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background: rgba(20, 20, 24, .46);
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+}
+
+.lista-modal.is-open {
+    display: flex;
+}
+
+.lista-modal-caixa {
+    width: min(680px, 100%);
+    max-height: min(720px, 88vh);
+    overflow: hidden;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .22);
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard .lista-modal-topo {
+    height: auto;
+    min-height: 0;
+    background: #fff9d3;
+    border: 0;
+    border-bottom: 1px solid #efe7bd;
+    padding: 19px 21px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.lista-modal-topo h2 {
+    margin: 0 0 4px;
+    font-size: 19px;
+}
+
+.lista-modal-topo small {
+    color: #7a7d83;
+}
+
+.lista-modal-fechar {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    color: #555;
+}
+
+.lista-modal-busca {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 15px 18px 8px;
+    padding: 10px 12px;
+    border: 1px solid #e2e2e6;
+    border-radius: 12px;
+}
+
+.lista-modal-busca input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    font: inherit;
+    background: transparent;
+}
+
+.lista-modal-itens {
+    list-style: none;
+    margin: 0;
+    padding: 6px 18px 16px;
+    overflow-y: auto;
+}
+
+.lista-modal-item {
+    border-bottom: 1px solid #f0f0f2;
+}
+
+.lista-modal-item:last-child {
+    border-bottom: 0;
+}
+
+.lista-modal-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 5px;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 10px;
+}
+
+.lista-modal-item a:hover {
+    background: #fffaf0;
+}
+
+.lista-modal-iniciais {
+    width: 39px;
+    height: 39px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: #fff1ad;
+    color: #a36e00;
+    font-size: 11px;
+    font-weight: 700;
+    flex: 0 0 auto;
+}
+
+.lista-modal-identidade {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.lista-modal-identidade strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lista-modal-identidade small {
+    margin-top: 2px;
+    color: #85888e;
+}
+
+.lista-modal-numero {
+    color: #b04640;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.lista-modal-nota {
+    padding: 0 21px 16px;
+    margin: 0;
+    color: #8a8d93;
+    font-size: 11px;
+}
+
+.lista-modal-vazio {
+    margin: 10px 18px;
+}
+
+
+/* ==========================================================================
+   7. MEDIA QUERIES (RESPONSIVIDADE)
+   ========================================================================== */
+@media (max-width: 1350px) {
+    .kpi-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 980px) {
+    .dashboard-linha-principal {
+        grid-template-columns: 1fr;
+    }
+
+    .atendimento-item {
+        grid-template-columns: 1.4fr .7fr 1fr;
+    }
+
+    .atendimento-hora,
+    .etiqueta {
+        justify-self: start;
+    }
+
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 680px) {
+    .dashboard-destaque {
+        padding: 20px 16px 0;
+        border-radius: 15px;
+    }
+
+    .dashboard-titulo h1 {
+        font-size: 25px;
+    }
+
+    .dashboard-aba {
+        padding: 11px 10px;
+        font-size: 12px;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-painel {
+        padding: 16px;
+    }
+
+    .card-painel-cabecalho {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .atendimento-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .atendimento-valor,
+    .atendimento-servico,
+    .atendimento-hora,
+    .etiqueta {
+        justify-self: start;
+    }
+
+    .legenda-lista {
+        grid-template-columns: 1fr;
+    }
 }

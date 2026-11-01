@@ -114,9 +114,9 @@ require __DIR__ . '/includes/topo.php';
          ================================================================= -->
     <section class="aba-painel aba-painel-ativo" id="painel-visao-geral" role="tabpanel" aria-labelledby="botao-aba-visao-geral">
 
-        <!-- Cards com os numeros do dia. Cada card responde a uma pergunta rapida da equipe. -->
+       <!-- Cards com os numeros do dia. Cada card responde a uma pergunta rapida da equipe. -->
         <div class="kpi-grid">
-            <article class="kpi-card">
+            <article class="kpi-card kpi-card-verde">
                 <span class="kpi-icone kpi-icone-verde"><i class="fa-solid fa-dollar-sign"></i></span>
                 <strong class="kpi-valor"><?= escapar(formatarMoeda($resumo['faturamento'])) ?></strong>
                 <small class="kpi-rotulo">Faturamento do dia</small>
