@@ -92,8 +92,8 @@ try {
 
     <!-- [BP-CARREGANDO] Heurística 1 de Nielsen (visibilidade do status do sistema): bolinha de carregamento nos botões,
          bloqueio de envio duplicado e aviso de internet. Vale para TODOS os formulários sem alterar as páginas. Veja o topo do carregando.js. -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/carregando.css?v=bp-carregando-v1">
-    <script src="<?= BASE_URL ?>/assets/js/carregando.js?v=bp-carregando-v1"></script>
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/carregamento-global.css?v=bp-carregando-v1">
+    <script src="<?= BASE_URL ?>/assets/js/carregamento-global.js?v=bp-carregando-v1"></script>
 </head>
 <body>
 <!-- [BP-ALTERAÇÃO #4] Acessibilidade: quem usa teclado ou leitor de tela pula direto o menu. Só aparece ao receber foco (Tab). -->

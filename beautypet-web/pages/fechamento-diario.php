@@ -3815,7 +3815,7 @@ require __DIR__ . '/../includes/topo.php';
             if (!key) return;
 
             button.disabled = true;
-            // [BP-CARREGANDO] Bolinha no botão enquanto o registro é buscado (internet lenta). Veja assets/js/carregando.js.
+            // [BP-CARREGANDO] Bolinha no botão enquanto o registro é buscado (internet lenta). Veja assets/js/carregamento-global.js.
             window.BPCarregando?.iniciar({ botao: button, mensagem: 'Abrindo o registro...', bloquearTela: false });
 
             try {

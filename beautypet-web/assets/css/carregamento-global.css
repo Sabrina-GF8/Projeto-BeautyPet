@@ -1,9 +1,9 @@
 /*
- * ARQUIVO: assets/css/carregando.css
+ * ARQUIVO: assets/css/carregamento-global.css
  * [BP-CARREGANDO] Arquivo novo. Carregado em todas as páginas pelo includes/topo.php.
  *
  * RESPONSABILIDADE: visual do indicador de carregamento (Heurística 1 de Nielsen: visibilidade do status do sistema).
- * Quem coloca e tira estas classes é o assets/js/carregando.js. Nenhuma página precisa de CSS próprio para isso.
+ * Quem coloca e tira estas classes é o assets/js/carregamento-global.js. Nenhuma página precisa de CSS próprio para isso.
  *
  * PEÇAS:
  *   .bp-giro                 -> a "bolinha" que gira (usada no botão e no aviso)
@@ -36,7 +36,7 @@
 
 /* ---------- Botão enquanto envia ---------- */
 /* Não usamos o atributo "disabled" de propósito: um botão desabilitado não é enviado junto com o formulário
-   e, em alguns navegadores, o envio nem chega a acontecer. O clique repetido é barrado pelo carregando.js. */
+   e, em alguns navegadores, o envio nem chega a acontecer. O clique repetido é barrado pelo carregamento-global.js. */
 .bp-botao-ocupado {
     pointer-events: none;
     cursor: progress
