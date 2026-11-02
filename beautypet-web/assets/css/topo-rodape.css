@@ -1,34 +1,56 @@
-/*
- * ARQUIVO: assets/css/topo-rodape.css
- * USADO POR: includes/topo.php e includes/rodape.php
- * RESPONSABILIDADE: Layout base carregado em TODAS as páginas: reset, menu lateral, cabeçalho, sino de notificações, perfil, modal de troca de usuário, mensagens e elementos comuns.
- * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
- */
+/* ============================================================================
+   ARQUIVO: assets/css/topo-rodape.css
+   USADO POR: includes/topo.php e includes/rodape.php
+   RESPONSABILIDADE: Layout base (reset, menu lateral, cabeçalho, sino, engrenagem,
+   perfil, modal de troca de usuário, mensagens e componentes globais).
+   ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   1. Reset Geral e Variáveis Base
+   -------------------------------------------------------------------------- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif
+  font-family: "Segoe UI", sans-serif;
 }
 
 body {
   background: #f5f7fa;
-  color: #222
+  color: #222;
 }
 
 button,
 input,
 select,
 textarea {
-  font: inherit
+  font: inherit;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .container {
   display: flex;
-  min-height: 100vh
+  min-height: 100vh;
 }
 
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+main {
+  height: calc(100vh - 75px);
+  padding: 25px;
+  overflow-y: auto;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Menu Lateral (Sidebar) e Logotipo
+   -------------------------------------------------------------------------- */
 .sidebar {
   width: 75px;
   height: 100vh;
@@ -37,29 +59,27 @@ textarea {
   overflow-x: hidden;
   overflow-y: auto;
   transition: width .3s;
-  flex-shrink: 0
+  flex-shrink: 0;
 }
 
 .sidebar:hover {
-  width: 260px
+  width: 260px;
 }
 
-/* [BP-ALTERAÇÃO #11] Altura fixa de 75px (já contando a borda, box-sizing:border-box), igual ao header, para a linha do logo encontrar a linha do topo.
-   Antes: padding:20px 16px deixava a linha uns 8px abaixo da linha do header. Cor da borda igual à do header (#e5e5e5). */
 .logo {
   display: flex;
   align-items: center;
   gap: 15px;
   height: 75px;
   padding: 0 16px;
-  border-bottom: 1px solid #e5e5e5
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .logo img {
   width: 42px;
   height: 42px;
   object-fit: contain;
-  flex-shrink: 0
+  flex-shrink: 0;
 }
 
 .logo-text,
@@ -69,7 +89,7 @@ textarea {
   opacity: 0;
   visibility: hidden;
   white-space: nowrap;
-  transition: .2s
+  transition: .2s;
 }
 
 .sidebar:hover .logo-text,
@@ -77,19 +97,19 @@ textarea {
 .sidebar:hover .submenu span,
 .sidebar:hover .arrow {
   opacity: 1;
-  visibility: visible
+  visibility: visible;
 }
 
 .logo-text h2 {
-  font-size: 18px
+  font-size: 18px;
 }
 
 .logo-text small {
-  color: #888
+  color: #888;
 }
 
 nav {
-  margin-top: 15px
+  margin-top: 15px;
 }
 
 .menu-item,
@@ -99,84 +119,97 @@ nav {
   color: #444;
   text-decoration: none;
   cursor: pointer;
-  transition: .2s
+  transition: .2s;
 }
 
 .menu-item {
   justify-content: space-between;
-  padding: 14px 25px
+  padding: 14px 25px;
 }
 
-nav>a.menu-item {
+nav > a.menu-item {
   justify-content: flex-start;
-  gap: 20px
+  gap: 20px;
 }
 
 .menu-left,
 .submenu {
-  gap: 20px
+  gap: 20px;
 }
 
 .menu-left {
   display: flex;
-  align-items: center
+  align-items: center;
 }
 
 .menu-item:hover,
 .submenu:hover {
-  background: #f4f4f4
+  background: #f4f4f4;
 }
 
 .menu-item.active,
 .submenu.active {
   background: #ffe07a;
   color: #222;
-  font-weight: 700
+  font-weight: 700;
 }
 
 .menu-item.active {
   border-left: 5px solid #f3b000;
-  padding-left: 20px
+  padding-left: 20px;
 }
 
 .submenu.active {
   border-left: 5px solid #f3b000;
-  padding-left: 57px
+  padding-left: 57px;
 }
 
 .menu-item i,
 .submenu i {
   width: 20px;
   text-align: center;
-  flex-shrink: 0
+  flex-shrink: 0;
 }
 
 summary {
-  list-style: none
+  list-style: none;
 }
 
 summary::-webkit-details-marker {
-  display: none
+  display: none;
 }
 
 .arrow {
-  font-size: 12px
+  font-size: 12px;
 }
 
 details[open] .arrow {
-  transform: rotate(180deg)
+  transform: rotate(180deg);
 }
 
 .submenu {
   padding: 12px 25px 12px 62px;
-  color: #666
+  color: #666;
 }
 
-.content {
-  flex: 1;
-  min-width: 0
+.sidebar nav details > .submenu {
+  display: none;
 }
 
+.sidebar nav details:hover > .submenu,
+.sidebar nav details:focus-within > .submenu {
+  display: flex;
+}
+
+.sidebar nav details:hover > summary .arrow,
+.sidebar nav details:focus-within > summary .arrow {
+  transform: rotate(180deg);
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Cabeçalho (Header) e Busca Global
+   -------------------------------------------------------------------------- */
 header {
   height: 75px;
   background: white;
@@ -184,7 +217,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 35px
+  padding: 0 35px;
 }
 
 .search {
@@ -194,33 +227,35 @@ header {
   gap: 12px;
   background: #f4f4f4;
   padding: 12px 18px;
-  border-radius: 30px
+  border-radius: 30px;
 }
 
 .search input {
   width: 100%;
   border: none;
   outline: none;
-  background: transparent
-}
-
-.header-right,
-.profile {
-  display: flex;
-  align-items: center
+  background: transparent;
 }
 
 .header-right {
-  gap: 25px
+  display: flex;
+  align-items: center;
+  gap: 25px;
 }
 
+
+/* --------------------------------------------------------------------------
+   4. Ícones do Topo: Sino de Notificações e Engrenagem (Configurações)
+      * Engrenagem atualizada com o mesmo design e hover do sininho.
+   -------------------------------------------------------------------------- */
 .notification {
   font-size: 20px;
-  color: #555
+  color: #555;
 }
 
-/* Sino de solicitações vindas do aplicativo mobile. */
-.notification-link {
+/* Estilo unificado para o Sino e para a Engrenagem */
+.notification-link,
+.settings-link {
   position: relative;
   width: 42px;
   height: 42px;
@@ -228,12 +263,16 @@ header {
   place-items: center;
   border-radius: 50%;
   text-decoration: none;
+  color: #555;
+  font-size: 20px;
   transition: background .2s, color .2s, transform .2s;
 }
 
-.notification-link:hover {
-  background: #fff1f1;
-  color: #ef3038;
+/* Comportamento de Hover compartilhado (fundo vermelho claro e ícone vermelho) */
+.notification-link:hover,
+.settings-link:hover {
+  background: #fff1f1 !important;
+  color: #ef3038 !important;
 }
 
 .notification-link.has-notifications {
@@ -241,9 +280,15 @@ header {
   background: #fff1f1;
 }
 
-.notification-link.has-notifications>i {
+.notification-link.has-notifications > i {
   animation: notificationBellRing 1.05s ease-in-out infinite;
   transform-origin: 50% 10%;
+}
+
+/* Engrenagem ativa ganha destaque idêntico ao estado ativo do sistema */
+.settings-link.active {
+  background: #fff1f1;
+  color: #ef3038;
 }
 
 .notification-badge {
@@ -267,64 +312,36 @@ header {
 }
 
 .notification-badge[hidden] {
-  display: none
+  display: none;
 }
 
 .notification-link.notification-arrived {
   animation: notificationArrival .65s ease-out 1;
 }
 
-@keyframes notificationBellRing {
 
-  0%,
-  100% {
-    transform: rotate(0)
-  }
-
-  20% {
-    transform: rotate(12deg)
-  }
-
-  40% {
-    transform: rotate(-10deg)
-  }
-
-  60% {
-    transform: rotate(8deg)
-  }
-
-  80% {
-    transform: rotate(-5deg)
-  }
-}
-
-@keyframes notificationArrival {
-  0% {
-    transform: scale(1)
-  }
-
-  45% {
-    transform: scale(1.18)
-  }
-
-  100% {
-    transform: scale(1)
-  }
-}
-
+/* --------------------------------------------------------------------------
+   5. Área de Perfil do Usuário no Topo
+   -------------------------------------------------------------------------- */
 .profile-container {
-  position: relative
+  position: relative;
 }
 
 .profile {
+  display: flex;
+  align-items: center;
   gap: 12px;
   padding: 7px 10px;
   border-radius: 10px;
-  cursor: pointer
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
 }
 
 .profile:hover {
-  background: #f4f4f4
+  background: #f4f4f4;
 }
 
 .avatar {
@@ -335,152 +352,32 @@ header {
   border-radius: 50%;
   background: #f05b5b;
   color: white;
-  font-weight: bold
+  font-weight: bold;
 }
 
 .user {
   display: flex;
-  flex-direction: column
+  flex-direction: column;
 }
 
 .user small {
-  color: #777
+  color: #777;
 }
 
 .profile-arrow {
+  color: #8b9099;
   font-size: 12px;
-  transition: .2s
+  transition: .2s;
 }
 
 .profile-container.open .profile-arrow {
-  transform: rotate(180deg)
+  transform: rotate(180deg);
 }
 
-main {
-  height: calc(100vh - 75px);
-  padding: 25px;
-  overflow-y: auto
-}
 
-@media (max-width: 900px) {
-  header {
-    padding: 0 18px
-  }
-
-  .user {
-    display: none
-  }
-
-  main {
-    padding: 15px
-  }
-}
-
-@media (max-width: 650px) {
-
-  .sidebar,
-  .sidebar:hover {
-    width: 64px
-  }
-
-  .search {
-    width: auto;
-    flex: 1
-  }
-
-  .notification {
-    display: none
-  }
-}
-
-.primary-link {
-  display: inline-flex;
-  padding: 11px 18px;
-  color: white;
-  background: #ef241b;
-  border-radius: 9px;
-  text-decoration: none;
-  font-weight: 700
-}
-
-button.profile {
-  border: 0;
-  background: transparent;
-  font: inherit;
-  text-align: left
-}
-
-.password-field {
-  position: relative
-}
-
-.password-field input {
-  padding-right: 42px
-}
-
-.toggle-password {
-  position: absolute;
-  top: 50%;
-  right: 6px;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: #777;
-  cursor: pointer
-}
-
-.toggle-password:hover {
-  background: #f2f2f2;
-  color: #333
-}
-
-.password-field input {
-  width: 100%
-}
-
-[hidden] {
-  display: none !important
-}
-
-.calendar-count {
-  font-weight: 700;
-  white-space: nowrap
-}
-
-@media (max-width:620px) {
-  .calendar-event {
-    align-items: flex-start;
-    flex-wrap: wrap
-  }
-}
-
-.calendar-count {
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #f6f7fb;
-  color: #6e7381;
-  font-size: 12px
-}
-
-.calendar-event {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  padding: 12px 13px;
-  border: 1px solid #eceff4;
-  border-radius: 16px;
-  background: #fbfcfe;
-  transition: .2s
-}
-
-/* [BP-ALTERAÇÃO #8] Removido o hover de .calendar-event: o card da agenda não é clicável (só os botões de ação dentro dele).
-   Regra antiga: .calendar-event:hover{transform:translateY(-1px);box-shadow:0 10px 22px #0000000d} */
-/* ===== Acesso de usuários em modal ===== */
+/* --------------------------------------------------------------------------
+   6. Modais de Acesso e Troca de Usuário
+   -------------------------------------------------------------------------- */
 .account-modal,
 .account-page-modal {
   position: fixed;
@@ -492,16 +389,16 @@ button.profile {
   padding: 24px;
   background: rgba(24, 27, 35, .38);
   backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px)
+  -webkit-backdrop-filter: blur(7px);
 }
 
 .account-modal.is-open,
 .account-page-modal.is-open {
-  display: flex
+  display: flex;
 }
 
 body.account-modal-open {
-  overflow: hidden
+  overflow: hidden;
 }
 
 .account-dialog {
@@ -513,7 +410,7 @@ body.account-modal-open {
   border: 1px solid rgba(255, 255, 255, .75);
   border-radius: 26px;
   background: #fff;
-  box-shadow: 0 28px 85px rgba(0, 0, 0, .22)
+  box-shadow: 0 28px 85px rgba(0, 0, 0, .22);
 }
 
 .account-modal-close {
@@ -530,12 +427,12 @@ body.account-modal-open {
   color: #666;
   text-decoration: none;
   cursor: pointer;
-  transition: .2s
+  transition: .2s;
 }
 
 .account-modal-close:hover {
   background: #eceef2;
-  color: #222
+  color: #222;
 }
 
 .account-dialog-icon {
@@ -547,7 +444,7 @@ body.account-modal-open {
   border-radius: 18px;
   background: #fff1b8;
   color: #9a6b00;
-  font-size: 22px
+  font-size: 22px;
 }
 
 .account-dialog h2 {
@@ -555,7 +452,7 @@ body.account-modal-open {
   text-align: center;
   font-size: 25px;
   font-weight: 800;
-  letter-spacing: -.02em
+  letter-spacing: -.02em;
 }
 
 .account-dialog-subtitle {
@@ -563,32 +460,32 @@ body.account-modal-open {
   margin: 8px auto 22px;
   color: #777e89;
   text-align: center;
-  line-height: 1.45
+  line-height: 1.45;
 }
 
 .account-login-form,
 .account-create-form {
   display: flex;
   flex-direction: column;
-  gap: 15px
+  gap: 15px;
 }
 
 .account-field {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  min-width: 0
+  min-width: 0;
 }
 
 .account-field label,
 .account-label {
   color: #454a54;
   font-size: 13px;
-  font-weight: 700
+  font-weight: 700;
 }
 
-.account-field>input,
-.account-field>select,
+.account-field > input,
+.account-field > select,
 .account-input-icon input,
 .account-password-field input {
   width: 100%;
@@ -598,54 +495,52 @@ body.account-modal-open {
   outline: none;
   background: #fff;
   color: #24272e;
-  transition: .2s
+  transition: .2s;
 }
 
-.account-field>input,
-.account-field>select {
-  padding: 0 13px
-}
-
-.account-field>select {
-  cursor: pointer
+.account-field > input,
+.account-field > select {
+  padding: 0 13px;
+  cursor: pointer;
 }
 
 .account-input-icon {
-  position: relative
+  position: relative;
 }
 
-.account-input-icon>i {
+.account-input-icon > i {
   position: absolute;
   top: 50%;
   left: 15px;
   z-index: 1;
   transform: translateY(-50%);
   color: #9aa0ab;
-  pointer-events: none
+  pointer-events: none;
 }
 
 .account-input-icon input {
-  padding: 0 14px 0 43px
+  padding: 0 14px 0 43px;
 }
 
 .account-password-field {
-  position: relative
+  position: relative;
 }
 
 .account-password-field input {
-  padding: 0 48px 0 14px
+  padding: 0 48px 0 14px;
+  width: 100%;
 }
 
-.account-field>input:focus,
-.account-field>select:focus,
+.account-field > input:focus,
+.account-field > select:focus,
 .account-input-icon input:focus,
 .account-password-field input:focus {
   border-color: #e3b31c;
-  box-shadow: 0 0 0 3px rgba(243, 176, 0, .13)
+  box-shadow: 0 0 0 3px rgba(243, 176, 0, .13);
 }
 
 .account-input-icon.has-error input {
-  border-color: #e05a54
+  border-color: #e05a54;
 }
 
 .account-primary-button {
@@ -664,12 +559,12 @@ body.account-modal-open {
   font-weight: 800;
   text-decoration: none;
   cursor: pointer;
-  transition: .2s
+  transition: .2s;
 }
 
 .account-primary-button:hover {
   background: #d9241c;
-  transform: translateY(-1px)
+  transform: translateY(-1px);
 }
 
 .account-secondary-link {
@@ -683,11 +578,11 @@ body.account-modal-open {
   color: #555d69;
   text-decoration: none;
   font-size: 13px;
-  font-weight: 700
+  font-weight: 700;
 }
 
 .account-secondary-link:hover {
-  color: #d62a22
+  color: #d62a22;
 }
 
 .account-message {
@@ -696,137 +591,95 @@ body.account-modal-open {
   border-radius: 12px;
   font-size: 13px;
   font-weight: 600;
-  line-height: 1.4
+  line-height: 1.4;
 }
 
 .account-message.error {
   color: #9d2520;
   background: #fff0ef;
-  border: 1px solid #f3c9c6
+  border: 1px solid #f3c9c6;
 }
 
 .account-message.success {
   color: #176a3b;
   background: #eaf8ef;
-  border: 1px solid #c2e7ce
+  border: 1px solid #c2e7ce;
 }
 
 .account-message.info {
   color: #5f6570;
   background: #f4f5f7;
-  border: 1px solid #e2e4e8
+  border: 1px solid #e2e4e8;
 }
 
-/* Centraliza verticalmente os ícones de mostrar/ocultar senha. */
-.password-field .toggle-password,
-.account-password-field .toggle-password {
+
+/* --------------------------------------------------------------------------
+   7. Elementos Auxiliares, Senhas e Componentes de UI
+   -------------------------------------------------------------------------- */
+.primary-link {
+  display: inline-flex;
+  padding: 11px 18px;
+  color: white;
+  background: #ef241b;
+  border-radius: 9px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 42px;
+}
+
+.toggle-password {
+  position: absolute;
   top: 50%;
   right: 8px;
   transform: translateY(-50%);
-  margin: 0
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+  margin: 0;
+}
+
+.toggle-password:hover {
+  background: #f2f2f2;
+  color: #333;
 }
 
 .toggle-password i {
-  line-height: 1
+  line-height: 1;
 }
 
-.profile {
-  border: 0;
-  background: transparent
-}
-
-.profile .profile-arrow {
-  color: #8b9099;
-  font-size: 13px
-}
-
-@media (max-width:700px) {
-
-  .account-modal,
-  .account-page-modal {
-    padding: 14px
-  }
-
-  .account-dialog {
-    padding: 26px 20px 22px;
-    border-radius: 22px;
-    max-height: calc(100vh - 28px)
-  }
-}
-
-.sidebar nav details>.submenu {
-  display: none;
-}
-
-.sidebar nav details:hover>.submenu,
-.sidebar nav details:focus-within>.submenu {
-  display: flex;
-}
-
-.sidebar nav details:hover>summary .arrow,
-.sidebar nav details:focus-within>summary .arrow {
-  transform: rotate(180deg);
-}
-
-/* ============================================================================
-   DASHBOARD BEAUTY PET
-   --------------------------------------------------------------------------
-   Estilos exclusivos da tela inicial. O dashboard novo usa classes próprias
-   (kpi-card, dashboard-abas, card-painel etc.) que não existiam no CSS antigo.
-   Esta seção mantém a identidade visual do restante do sistema.
-   ========================================================================== */
-
-.dashboard {
-  --dash-amarelo: #fff7c9;
-  ;
-  --dash-amarelo-claro: #fff4ab;
-  --dash-vermelho: #ef3028;
-  --dash-texto: #262626;
-  --dash-cinza: #6f737a;
-  --dash-borda: #ececf0;
-  --dash-fundo: #f7f7f9;
-  --dash-branco: #fff;
-  --dash-sombra: 0 10px 30px rgba(34, 34, 34, .08);
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  width: 100%;
-  color: var(--dash-texto);
-}
-
-.dashboard *,
-.dashboard *::before,
-.dashboard *::after {
-  box-sizing: border-box
-}
-
-.dashboard-aba {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: #666;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 13px 14px;
-  border-radius: 12px 12px 0 0;
-  font: inherit;
-  font-weight: 600;
+.calendar-count {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #f6f7fb;
+  color: #6e7381;
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
-  cursor: pointer;
-  transition: .2s ease;
 }
 
-.dashboard-aba:hover {
-  background: rgba(255, 255, 255, .55);
-  color: #262626
-}
-
-@media (max-width:680px) {
-  .dashboard-aba {
-    padding: 11px 10px;
-    font-size: 12px
-  }
+.calendar-event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #eceff4;
+  border-radius: 16px;
+  background: #fbfcfe;
+  transition: .2s;
 }
 
 /* Container do componente de busca */
@@ -834,7 +687,7 @@ body.account-modal-open {
   position: relative;
 }
 
-/* Container da lista */
+/* Container da lista de busca */
 [data-search-results] {
   position: absolute;
   top: calc(100% + 4px);
@@ -857,13 +710,136 @@ body.account-modal-open {
   display: none !important;
 }
 
-/* [BP-ALTERAÇÃO #6] Máscaras (assets/js/mascaras.js).
-   O campo numérico original fica escondido (continua enviando "12.34" para o PHP);
-   a pessoa digita no campo "gêmeo" que mostra "12,34". */
 .bp-mascara-original {
-  display: none !important
+  display: none !important;
 }
 
 .bp-mascara-gemeo {
-  text-align: left
+  text-align: left;
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Dashboard Beauty Pet (Estilos Específicos)
+   -------------------------------------------------------------------------- */
+.dashboard {
+  --dash-amarelo: #fff7c9;
+  --dash-amarelo-claro: #fff4ab;
+  --dash-vermelho: #ef3028;
+  --dash-texto: #262626;
+  --dash-cinza: #6f737a;
+  --dash-borda: #ececf0;
+  --dash-fundo: #f7f7f9;
+  --dash-branco: #fff;
+  --dash-sombra: 0 10px 30px rgba(34, 34, 34, .08);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  color: var(--dash-texto);
+}
+
+.dashboard *,
+.dashboard *::before,
+.dashboard *::after {
+  box-sizing: border-box;
+}
+
+.dashboard-aba {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #666;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 14px;
+  border-radius: 12px 12px 0 0;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.dashboard-aba:hover {
+  background: rgba(255, 255, 255, .55);
+  color: #262626;
+}
+
+
+/* --------------------------------------------------------------------------
+   9. Animações Globais
+   -------------------------------------------------------------------------- */
+@keyframes notificationBellRing {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(12deg); }
+  40% { transform: rotate(-10deg); }
+  60% { transform: rotate(8deg); }
+  80% { transform: rotate(-5deg); }
+}
+
+@keyframes notificationArrival {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+
+/* --------------------------------------------------------------------------
+   10. Responsividade
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  header {
+    padding: 0 18px;
+  }
+
+  .user {
+    display: none;
+  }
+
+  main {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 700px) {
+  .account-modal,
+  .account-page-modal {
+    padding: 14px;
+  }
+
+  .account-dialog {
+    padding: 26px 20px 22px;
+    border-radius: 22px;
+    max-height: calc(100vh - 28px);
+  }
+}
+
+@media (max-width: 650px) {
+  .sidebar,
+  .sidebar:hover {
+    width: 64px;
+  }
+
+  .search {
+    width: auto;
+    flex: 1;
+  }
+
+  .notification {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .calendar-event {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-aba {
+    padding: 11px 10px;
+    font-size: 12px;
+  }
 }
