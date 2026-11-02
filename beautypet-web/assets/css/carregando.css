@@ -1,0 +1,205 @@
+/*
+ * ARQUIVO: assets/css/carregando.css
+ * [BP-CARREGANDO] Arquivo novo. Carregado em todas as páginas pelo includes/topo.php.
+ *
+ * RESPONSABILIDADE: visual do indicador de carregamento (Heurística 1 de Nielsen: visibilidade do status do sistema).
+ * Quem coloca e tira estas classes é o assets/js/carregando.js. Nenhuma página precisa de CSS próprio para isso.
+ *
+ * PEÇAS:
+ *   .bp-giro                 -> a "bolinha" que gira (usada no botão e no aviso)
+ *   .bp-botao-ocupado        -> botão enquanto o envio está em andamento
+ *   .bp-carregando-camada    -> película invisível que impede cliques em outras coisas durante o envio
+ *   .bp-carregando-aviso     -> caixinha na parte de baixo da tela com o texto ("Salvando...")
+ *   .bp-faixa-conexao        -> faixa no topo quando a internet cai ou volta
+ *
+ * Cores seguem o DESIGN.md (amarelo da marca, aviso e sucesso).
+ */
+
+/* ---------- Bolinha que gira ---------- */
+.bp-giro {
+    display: inline-block;
+    box-sizing: border-box;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: bpGirar .75s linear infinite
+}
+
+@keyframes bpGirar {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+/* ---------- Botão enquanto envia ---------- */
+/* Não usamos o atributo "disabled" de propósito: um botão desabilitado não é enviado junto com o formulário
+   e, em alguns navegadores, o envio nem chega a acontecer. O clique repetido é barrado pelo carregando.js. */
+.bp-botao-ocupado {
+    pointer-events: none;
+    cursor: progress
+}
+
+/* A bolinha do botão fica no centro e o conteúdo do botão (texto/ícone) fica invisível,
+   assim o botão não muda de tamanho e a tela não "pula". A cor da bolinha vem do JS (--bp-cor-giro). */
+.bp-giro-botao {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border-width: 2px;
+    color: var(--bp-cor-giro, currentColor)
+}
+
+.bp-botao-ocupado>*:not(.bp-giro) {
+    visibility: hidden
+}
+
+/* ---------- Película que bloqueia a tela durante o envio ---------- */
+.bp-carregando-camada {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    cursor: progress;
+    background: transparent;
+    transition: background .2s
+}
+
+/* Só escurece de leve se a resposta demorar (o JS coloca esta classe junto com o aviso). Em envios rápidos nada pisca. */
+.bp-carregando-camada.bp-visivel {
+    background: rgba(255, 255, 255, .55)
+}
+
+.bp-carregando-camada[hidden] {
+    display: none
+}
+
+/* ---------- Aviso com texto ---------- */
+.bp-carregando-aviso {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    z-index: 9001;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: min(460px, calc(100vw - 32px));
+    padding: 14px 20px;
+    border-radius: 14px;
+    background: #222;
+    color: #fff;
+    font: 600 14px/1.4 Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, .28);
+    transform: translateX(-50%);
+    animation: bpAvisoEntra .25s ease
+}
+
+.bp-carregando-aviso[hidden] {
+    display: none
+}
+
+.bp-carregando-aviso .bp-giro {
+    color: #F3B000
+}
+
+@keyframes bpAvisoEntra {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%)
+    }
+}
+
+/* Botão "Tentar de novo": só aparece se o servidor ficar muito tempo sem responder. */
+.bp-carregando-liberar {
+    flex: none;
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, .55);
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer
+}
+
+.bp-carregando-liberar:hover {
+    background: rgba(255, 255, 255, .15)
+}
+
+.bp-carregando-liberar[hidden] {
+    display: none
+}
+
+/* ---------- Faixa de conexão (sem internet / voltou) ---------- */
+.bp-faixa-conexao {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9002;
+    padding: 10px 16px;
+    color: #fff;
+    text-align: center;
+    font: 600 14px/1.3 Poppins, system-ui, -apple-system, "Segoe UI", sans-serif
+}
+
+.bp-faixa-conexao[hidden] {
+    display: none
+}
+
+.bp-faixa-offline {
+    background: #B26B00
+}
+
+.bp-faixa-online {
+    background: #1E8A47
+}
+
+/* ---------- Acessibilidade: movimento reduzido ---------- */
+/* Quem pediu "Reduzir animações" (Configurações do sistema) ou usa essa opção no sistema operacional não vê a bolinha girar:
+   o botão mantém o texto, fica mais claro e quem informa o andamento é o aviso de texto. */
+html[data-reduzir-animacoes="1"] .bp-giro-botao {
+    display: none
+}
+
+html[data-reduzir-animacoes="1"] .bp-botao-ocupado {
+    opacity: .6
+}
+
+html[data-reduzir-animacoes="1"] .bp-botao-ocupado>*:not(.bp-giro) {
+    visibility: visible
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bp-giro-botao {
+        display: none
+    }
+
+    .bp-botao-ocupado {
+        opacity: .6
+    }
+
+    .bp-botao-ocupado>*:not(.bp-giro) {
+        visibility: visible
+    }
+
+    .bp-carregando-aviso {
+        animation: none
+    }
+}
+
+/* O texto do botão só some (color:transparent) quando a bolinha pode girar. */
+@media (prefers-reduced-motion: no-preference) {
+    html:not([data-reduzir-animacoes="1"]) .bp-botao-ocupado {
+        color: transparent !important
+    }
+}

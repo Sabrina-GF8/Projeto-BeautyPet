@@ -89,6 +89,11 @@ try {
          Ficam no <head> para o tema escuro ser aplicado antes de a página aparecer. -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/preferencias.css?v=bp-config-v1">
     <script src="<?= BASE_URL ?>/assets/js/preferencias.js?v=bp-config-v1"></script>
+
+    <!-- [BP-CARREGANDO] Heurística 1 de Nielsen (visibilidade do status do sistema): bolinha de carregamento nos botões,
+         bloqueio de envio duplicado e aviso de internet. Vale para TODOS os formulários sem alterar as páginas. Veja o topo do carregando.js. -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/carregando.css?v=bp-carregando-v1">
+    <script src="<?= BASE_URL ?>/assets/js/carregando.js?v=bp-carregando-v1"></script>
 </head>
 <body>
 <!-- [BP-ALTERAÇÃO #4] Acessibilidade: quem usa teclado ou leitor de tela pula direto o menu. Só aparece ao receber foco (Tab). -->

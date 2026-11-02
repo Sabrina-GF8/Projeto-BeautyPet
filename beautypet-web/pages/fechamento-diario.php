@@ -3815,6 +3815,8 @@ require __DIR__ . '/../includes/topo.php';
             if (!key) return;
 
             button.disabled = true;
+            // [BP-CARREGANDO] Bolinha no botão enquanto o registro é buscado (internet lenta). Veja assets/js/carregando.js.
+            window.BPCarregando?.iniciar({ botao: button, mensagem: 'Abrindo o registro...', bloquearTela: false });
 
             try {
                 // Armazena em "response" um valor usado pela lógica executada no navegador.
@@ -3856,6 +3858,7 @@ require __DIR__ . '/../includes/topo.php';
                 alert('Não foi possível abrir esta linha para edição. Verifique a conexão e atualize a página (F5) antes de tentar de novo.');
             } finally {
                 button.disabled = false;
+                window.BPCarregando?.parar(button);
             }
         });
     });
