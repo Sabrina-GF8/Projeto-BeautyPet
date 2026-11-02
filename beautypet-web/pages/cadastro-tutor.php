@@ -428,7 +428,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                                 <label for="estado">Estado</label> <?php /* Exibe o rótulo de um campo. */ ?>
                                 <!-- Lista de seleção "estado" com as opções válidas para este dado. -->
                                 <select id="estado" name="estado"> <?php /* Cria uma lista de opções. */ ?>
-                                    <option value="">UF</option> <?php /* Define uma opção selecionável. */ ?>
+                                    <option value=""> UF </option> <?php /* Define uma opção selecionável. */ ?>
                                     <?php // Executa esta instrução como parte da regra de negócio desta página.
                                     // Armazena a coleção "estados" carregada para ser percorrida e exibida/processada a seguir.
                                     $estados = [ // Armazena em estados o valor usado nas próximas etapas deste fluxo.
@@ -479,7 +479,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                         <?php if ($modoEdicao): ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                             <a class="secondary-action-button" href="ficha-tutor.php?id=<?= (int) $editarId ?>">Cancelar</a> <?php /* Cria um link de navegação. */ ?>
                         <?php endif; ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                        <button class="save-button" type="submit"><?= $modoEdicao ? 'Salvar alterações' : 'Salvar' ?></button> <?php /* Cria um botão de ação. */ ?>
+                        <button class="save-button" type="submit"><?= $modoEdicao ? 'Salvar' : 'Salvar' ?></button> <?php /* Cria um botão de ação. */ ?>
                     </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                 </form> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>

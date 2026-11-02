@@ -616,7 +616,6 @@ require __DIR__ . '/../includes/topo.php';
 
         <div class="form-actions">
             <button class="save-button" type="submit">
-                <i class="fa-solid fa-floppy-disk"></i>
                 <?= $editarId !== null ? 'Salvar' : 'Criar agenda-padrão' ?>
             </button>
         </div>

@@ -601,7 +601,7 @@ require __DIR__ . '/../includes/topo.php'; // Carrega a configuração ou funç�
                         <?php if ($modoEdicao): ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
                             <a class="secondary-action-button" href="ficha-pet.php?id=<?= (int) $editarId ?>">Cancelar</a> <?php /* Cria um link de navegação. */ ?>
                         <?php endif; ?> <?php /* Compõe o conteúdo visual ou textual exibido nesta parte da página. */ ?>
-                        <button class="save-button" type="submit"><?= $modoEdicao ? 'Salvar alterações' : 'Salvar' ?></button> <?php /* Cria um botão de ação. */ ?>
+                        <button class="save-button" type="submit"><?= $modoEdicao ? 'Salvar' : 'Salvar' ?></button> <?php /* Cria um botão de ação. */ ?>
                     </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
                 </form> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
             </div> <?php /* Fecha o elemento HTML aberto anteriormente. */ ?>
