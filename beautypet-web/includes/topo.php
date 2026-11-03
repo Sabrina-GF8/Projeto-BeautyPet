@@ -94,6 +94,11 @@ try {
          bloqueio de envio duplicado e aviso de internet. Vale para TODOS os formulários sem alterar as páginas. Veja o topo do carregando.js. -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/carregamento-global.css?v=bp-carregando-v1">
     <script src="<?= BASE_URL ?>/assets/js/carregamento-global.js?v=bp-carregando-v1"></script>
+
+    <!-- [BP-TOAST] Mensagens de sucesso e de erro viram toast: flutuam na parte de baixo da tela, ficam 7 segundos e somem com fade-out.
+         As páginas continuam usando <div class="message success|error"> normalmente. Veja o topo do toast-mensagens.js. -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/toast-mensagens.css?v=bp-toast-v1">
+    <script src="<?= BASE_URL ?>/assets/js/toast-mensagens.js?v=bp-toast-v1"></script>
 </head>
 <body>
 <!-- [BP-ALTERAÇÃO #4] Acessibilidade: quem usa teclado ou leitor de tela pula direto o menu. Só aparece ao receber foco (Tab). -->
@@ -336,10 +341,8 @@ try {
         <?php if (($mensagemUsuario['tipo'] ?? '') === 'success'): ?>
             <!-- [BP-ALTERAÇÃO #4] A mensagem "Usuário alterado para..." era gravada mas nunca aparecia
                  (o modal só abre sozinho quando dá erro). Agora aparece um aviso no canto da tela. -->
-            <div class="bp-aviso-flutuante" role="status">
-                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                <span><?= escapar($mensagemUsuario['texto']) ?></span>
-            </div>
+            <!-- [BP-TOAST] Passa a usar o mesmo toast das outras mensagens de sucesso (antes era um aviso verde à parte). -->
+            <div class="message success" role="status"><?= escapar($mensagemUsuario['texto']) ?></div>
         <?php endif; ?>
 
         <!-- Área principal onde o conteúdo específico da página é exibido. -->
