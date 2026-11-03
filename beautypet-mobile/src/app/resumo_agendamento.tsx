@@ -28,6 +28,8 @@ import {
     useState,
 } from 'react';
 
+import { useFeedback } from '../context/feedbackContext';
+
 import { api } from '../lib/api';
 
 type Pet = {
@@ -92,6 +94,8 @@ export default function ResumoAgendamento() {
 
   const [enviando, setEnviando] =
     useState(false);
+
+  const { executar } = useFeedback();
 
   const petId = Number(params.petId);
   const data = String(params.data || '');
@@ -206,17 +210,23 @@ export default function ResumoAgendamento() {
       setEnviando(true);
 
       const resposta =
-        await api<{ mensagem?: string }>(
-          'solicitar_agendamento',
-          {
-            pet_id: petId,
-            servico_ids: servicoIds,
-            data,
-            horario,
-            duracao_minutos: 60,
-          }
+        await executar(
+          'Enviando sua solicitação...',
+          () =>
+            api<{ mensagem?: string }>(
+              'solicitar_agendamento',
+              {
+                pet_id: petId,
+                servico_ids: servicoIds,
+                data,
+                horario,
+                duracao_minutos: 60,
+              }
+            )
         );
 
+      // Aqui o Alert continua: a pessoa precisa ler que a solicitação ainda
+      // será confirmada pelo Beauty Pet antes de voltar ao início.
       Alert.alert(
         'Solicitação enviada!',
         resposta.mensagem ||

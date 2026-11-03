@@ -13,6 +13,7 @@ import {
 
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
+import { useFeedback } from "../context/feedbackContext";
 import { api } from "../lib/api";
 
 export default function Signup() {
@@ -21,6 +22,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const { executar, mostrarToast } = useFeedback();
 
   async function handleSignUp() {
     if (
@@ -59,22 +61,16 @@ export default function Signup() {
     try {
       setCarregando(true);
 
-      const resposta = await api<{ mensagem?: string }>("cadastro", {
-        nome: name.trim(),
-        email: email.trim(),
-        senha: password,
-      });
-
-      Alert.alert(
-        "Cadastrar",
-        resposta.mensagem || "Cadastro realizado com sucesso.",
-        [
-          {
-            text: "OK",
-            onPress: () => router.replace("/login"),
-          },
-        ]
+      const resposta = await executar("Criando sua conta...", () =>
+        api<{ mensagem?: string }>("cadastro", {
+          nome: name.trim(),
+          email: email.trim(),
+          senha: password,
+        })
       );
+
+      mostrarToast(resposta.mensagem || "Cadastro realizado com sucesso.");
+      router.replace("/login");
     } catch (erro) {
       Alert.alert(
         "Cadastrar",
@@ -159,9 +155,10 @@ export default function Signup() {
                 />
 
                 <Button
-                  label={carregando ? "Cadastrando..." : "Cadastrar"}
+                  label="Cadastrar"
+                  textoCarregando="Cadastrando..."
                   onPress={handleSignUp}
-                  disabled={carregando}
+                  carregando={carregando}
                 />
 
               </View>

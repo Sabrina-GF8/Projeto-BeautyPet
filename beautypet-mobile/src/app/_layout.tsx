@@ -7,6 +7,7 @@ import {
 } from "@expo-google-fonts/poppins";
 
 import { Stack } from "expo-router";
+import { FeedbackProvider } from "../context/feedbackContext";
 import { NotificationProvider } from "../context/notificationContext";
 
 export default function RootLayout() {
@@ -22,12 +23,14 @@ export default function RootLayout() {
   }
 
   return (
-    <NotificationProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
-    </NotificationProvider>
+    <FeedbackProvider>
+      <NotificationProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
+      </NotificationProvider>
+    </FeedbackProvider>
   );
 }

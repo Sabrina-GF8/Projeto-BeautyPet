@@ -18,6 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 import { useRouter } from 'expo-router';
+import { useFeedback } from '../context/feedbackContext';
 import { api, limparSessao } from '../lib/api';
 
 import {
@@ -31,6 +32,7 @@ import {
 export default function Perfil() {
 
   const router = useRouter();
+  const { executar } = useFeedback();
 
   const [menuAberto, setMenuAberto] = useState(false);
   const [dadosPessoaisAberto, setDadosPessoaisAberto] = useState(false);
@@ -76,7 +78,7 @@ export default function Perfil() {
 
   async function sair() {
     try {
-      await api('logout');
+      await executar('Saindo da conta...', () => api('logout'));
     } catch {
       // Limpa a sessão local mesmo se o servidor estiver indisponível.
     }

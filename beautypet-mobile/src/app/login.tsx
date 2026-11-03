@@ -13,12 +13,14 @@ import {
 
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
+import { useFeedback } from "../context/feedbackContext";
 import { api, definirSessao } from "../lib/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const { executar } = useFeedback();
 
   async function handleSignIn() {
     if (!email.trim() || !password.trim()) {
@@ -36,19 +38,21 @@ export default function Login() {
     try {
       setCarregando(true);
 
-      const resposta = await api<{
-        token: string;
-        cliente: {
-          id: number;
-          nome: string;
-          email?: string | null;
-        };
-      }>("login", {
-        email: email.trim(),
-        senha: password,
-      });
+      const resposta = await executar("Entrando...", () =>
+        api<{
+          token: string;
+          cliente: {
+            id: number;
+            nome: string;
+            email?: string | null;
+          };
+        }>("login", {
+          email: email.trim(),
+          senha: password,
+        })
+      );
 
-     await definirSessao(resposta.token, resposta.cliente);
+      await definirSessao(resposta.token, resposta.cliente);
       router.replace("/home");
     } catch (erro) {
       Alert.alert(
@@ -118,9 +122,10 @@ export default function Login() {
                 />
 
                 <Button
-                  label={carregando ? "Entrando..." : "Entrar"}
+                  label="Entrar"
+                  textoCarregando="Entrando..."
                   onPress={handleSignIn}
-                  disabled={carregando}
+                  carregando={carregando}
                 />
               </View>
             </View>

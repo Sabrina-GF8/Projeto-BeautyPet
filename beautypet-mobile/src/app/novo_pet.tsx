@@ -14,6 +14,7 @@ import { ArrowLeft, PawPrint } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
+import { useFeedback } from "@/context/feedbackContext";
 
 type Especie = { id: number; nome: string };
 type Raca = { id: number; especie_id: number; nome: string };
@@ -57,6 +58,7 @@ export default function NovoPet() {
   const [especieId, setEspecieId] = useState<number | null>(null);
   const [racaId, setRacaId] = useState<number | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const { executar, mostrarToast } = useFeedback();
 
   useEffect(() => {
     api<{ especies: Especie[]; racas: Raca[] }>("catalogo_pet")
@@ -109,21 +111,20 @@ export default function NovoPet() {
 
     try {
       setSalvando(true);
-      const resposta = await api<{ mensagem?: string }>("adicionar_pet", {
-        nome: nome.trim(),
-        especie_id: especieId,
-        raca_id: racaId,
-        sexo,
-        cor: cor.trim(),
-        data_nascimento: dataIso,
-        castrado,
-      });
-
-      Alert.alert(
-        "Pet cadastrado",
-        resposta.mensagem || "O pet foi vinculado à ficha do tutor.",
-        [{ text: "OK", onPress: () => router.replace("/perfil") }]
+      const resposta = await executar("Cadastrando o pet...", () =>
+        api<{ mensagem?: string }>("adicionar_pet", {
+          nome: nome.trim(),
+          especie_id: especieId,
+          raca_id: racaId,
+          sexo,
+          cor: cor.trim(),
+          data_nascimento: dataIso,
+          castrado,
+        })
       );
+
+      mostrarToast(resposta.mensagem || "Pet cadastrado e vinculado à ficha do tutor.");
+      router.replace("/perfil");
     } catch (erro) {
       Alert.alert(
         "Novo pet",

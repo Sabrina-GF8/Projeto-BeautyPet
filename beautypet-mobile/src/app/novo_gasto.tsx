@@ -17,6 +17,8 @@ import {
   X,
 } from 'lucide-react-native';
 
+import { useFeedback } from '../context/feedbackContext';
+
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
@@ -178,6 +180,9 @@ export default function NovoGasto() {
   const [salvando, setSalvando] =
     useState(false);
 
+  const { executar, mostrarToast } =
+    useFeedback();
+
   useEffect(() => {
     Promise.all([
       api<{
@@ -249,39 +254,34 @@ export default function NovoGasto() {
     try {
       setSalvando(true);
 
-      await api(
-        'adicionar_gasto',
-        {
-          categoria_id: categoriaId,
+      await executar(
+        'Adicionando o gasto...',
+        () =>
+          api(
+            'adicionar_gasto',
+            {
+              categoria_id: categoriaId,
 
-          categoria_nome:
-            categoriaSelecionada?.nome,
+              categoria_nome:
+                categoriaSelecionada?.nome,
 
-          pet_id: petId,
+              pet_id: petId,
 
-          descricao:
-            descricao.trim(),
+              descricao:
+                descricao.trim(),
 
-          valor,
+              valor,
 
-          data_gasto: dataIso,
-        }
+              data_gasto: dataIso,
+            }
+          )
       );
 
-      Alert.alert(
-        'Pronto! 💛',
-        'Gasto adicionado com sucesso!',
-        [
-          {
-            text: 'OK',
-
-            onPress: () =>
-              router.replace(
-                '/financeiro'
-              ),
-          },
-        ]
+      mostrarToast(
+        'Pronto! 💛 Gasto adicionado com sucesso!'
       );
+
+      router.replace('/financeiro');
     } catch (erro) {
       Alert.alert(
         'Novo gasto',

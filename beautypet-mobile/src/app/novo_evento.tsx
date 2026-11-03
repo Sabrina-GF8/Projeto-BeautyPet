@@ -1,4 +1,4 @@
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from 'react-native';
 
 import { useState } from 'react';
 
@@ -7,6 +7,7 @@ import { Poppins_400Regular, Poppins_600SemiBold, useFonts, } from '@expo-google
 import { useRouter } from 'expo-router';
 
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useFeedback } from '../context/feedbackContext';
 import { api } from '../lib/api';
 
 export default function NovoEvento() {
@@ -20,6 +21,7 @@ export default function NovoEvento() {
   const [tituloEvento, setTituloEvento] = useState('');
   const [detalhes, setDetalhes] = useState('');
   const [salvando, setSalvando] = useState(false);
+  const { executar, mostrarToast } = useFeedback();
 
   const [fontsLoaded] = useFonts({Poppins_400Regular, Poppins_600SemiBold,});
 
@@ -49,18 +51,17 @@ export default function NovoEvento() {
     try {
       setSalvando(true);
 
-      const resposta = await api<{ mensagem?: string }>('criar_evento', {
-        titulo: tituloEvento.trim(),
-        descricao: detalhes.trim(),
-        data: dataSql(data),
-        horario: horaSql(horario),
-      });
-
-      Alert.alert(
-        'Novo evento',
-        resposta.mensagem || 'Evento criado com sucesso.',
-        [{ text: 'OK', onPress: () => router.replace('/agenda') }]
+      const resposta = await executar('Criando o evento...', () =>
+        api<{ mensagem?: string }>('criar_evento', {
+          titulo: tituloEvento.trim(),
+          descricao: detalhes.trim(),
+          data: dataSql(data),
+          horario: horaSql(horario),
+        })
       );
+
+      mostrarToast(resposta.mensagem || 'Evento criado com sucesso.');
+      router.replace('/agenda');
     } catch (erro) {
       Alert.alert(
         'Novo evento',
@@ -216,13 +217,24 @@ export default function NovoEvento() {
           </Text>
         </Pressable>
 
+        {/* HEURÍSTICA 1: o botão mostra que está salvando e fica travado até terminar. */}
         <Pressable
-          style={styles.botao}
+          style={({ pressed }) => [
+            styles.botao,
+            (pressed || salvando) && { opacity: 0.6 },
+          ]}
           onPress={criarEvento}
+          disabled={salvando}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: salvando, busy: salvando }}
         >
-          <Text style={styles.textoBotao}>
-            Criar evento
-          </Text>
+          {salvando ? (
+            <ActivityIndicator color="#222222" />
+          ) : (
+            <Text style={styles.textoBotao}>
+              Criar evento
+            </Text>
+          )}
         </Pressable>
 
       </View>

@@ -1,19 +1,46 @@
-import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  View,
+} from "react-native";
 
 type ButtonProps = TouchableOpacityProps & {
   label: string;
+  // HEURÍSTICA 1: mostra a bolinha girando e trava o botão enquanto a ação roda.
+  carregando?: boolean;
+  textoCarregando?: string;
 };
 
-export function Button({ label, style, disabled, ...rest }: ButtonProps) {
+export function Button({
+  label,
+  style,
+  disabled,
+  carregando = false,
+  textoCarregando,
+  ...rest
+}: ButtonProps) {
+  const bloqueado = disabled || carregando;
+
   return (
     <TouchableOpacity
       {...rest}
-      style={[styles.container, disabled && styles.disabled, style]}
-      disabled={disabled}
+      style={[styles.container, bloqueado && styles.disabled, style]}
+      disabled={bloqueado}
       activeOpacity={0.7}
       accessibilityRole="button"
+      accessibilityState={{ disabled: bloqueado, busy: carregando }}
     >
-      <Text style={styles.label}>{label}</Text>
+      {carregando ? (
+        <View style={styles.linha}>
+          <ActivityIndicator color="#FFFFFF" />
+          <Text style={styles.label}>{textoCarregando || label}</Text>
+        </View>
+      ) : (
+        <Text style={styles.label}>{label}</Text>
+      )}
     </TouchableOpacity>
   );
 }
@@ -27,6 +54,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 10,
     marginTop: 65,
+  },
+  linha: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   label: {
     color: "#FFFFFF",
