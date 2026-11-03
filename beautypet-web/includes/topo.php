@@ -95,7 +95,8 @@ try {
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/carregamento-global.css?v=bp-carregando-v1">
     <script src="<?= BASE_URL ?>/assets/js/carregamento-global.js?v=bp-carregando-v1"></script>
 
-    <!-- [BP-TOAST] Mensagens de sucesso e de erro viram toast: flutuam na parte de baixo da tela, ficam 7 segundos e somem com fade-out.
+    <!-- [BP-TOAST] Mensagens de sucesso e de erro viram toast: flutuam na parte de baixo da tela. Sucesso some em 7 segundos com fade-out;
+         erro fica até a pessoa fechar e leva ao campo que precisa ser corrigido (Heurística 9).
          As páginas continuam usando <div class="message success|error"> normalmente. Veja o topo do toast-mensagens.js. -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/toast-mensagens.css?v=bp-toast-v1">
     <script src="<?= BASE_URL ?>/assets/js/toast-mensagens.js?v=bp-toast-v1"></script>

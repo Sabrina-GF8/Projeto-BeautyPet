@@ -1,314 +1,151 @@
 /*
  * ARQUIVO: assets/css/toast-mensagens.css
- * [BP-TOAST] Arquivo novo. Carregado em todas as páginas pelo includes/topo.php (depois do carregamento-global.css).
- *
- * RESPONSABILIDADE: visual das mensagens de sucesso e de erro como "toast" (caixinha flutuante).
- * Quem move a mensagem para a área flutuante, conta os 7 segundos e faz o fade-out é o assets/js/toast-mensagens.js.
- * Nenhuma página precisa de CSS próprio para isso: continua valendo o <div class="message success|error"> de sempre.
- *
- * PEÇAS:
- *   .bp-toast-area      -> área fixa na parte de baixo da tela, onde as mensagens ficam empilhadas
- *   .bp-toast           -> a caixinha da mensagem (fundo preto, mesmo estilo do aviso "Salvando...")
- *   .bp-toast-sucesso   -> detalhes em verde + ícone de check
- *   .bp-toast-erro      -> detalhes em vermelho + ícone de X (borda e brilho vermelhos para saltar aos olhos)
- *   .bp-toast-icone     -> bolinha com o ícone
- *   .bp-toast-fechar    -> botão "x" para fechar antes dos 7 segundos
- *   .bp-toast-barra     -> barrinha fina que mostra o tempo restante
- *   .bp-toast-saindo    -> classe colocada pelo JS aos 7 segundos: faz o fade-out
- *
- * Os seletores usam três classes de propósito: assim vencem os estilos antigos de ".message" que cada página tinha.
+ * [BP-TOAST] Arquivo novo. Visual do assets/js/toast-mensagens.js (veja as explicações lá).
+ * O tema escuro já é tratado pelo preferencias.css (inverte a página inteira).
  */
 
-/* ---------- Antes do JS agir ---------- */
-/* A mensagem original fica invisível e sem ocupar espaço, para não "piscar" no topo da página antes de virar toast.
-   Se o JS não carregar, depois de 1,5 s ela aparece flutuando mesmo assim: nenhum erro fica escondido. */
-.message.success:not(.bp-toast),
-.message.error:not(.bp-toast),
-.account-message.success:not(.bp-toast),
-.account-message.error:not(.bp-toast) {
+.bp-toasts {
     position: fixed;
     left: 50%;
-    bottom: 32px;
-    z-index: 9100;
-    width: max-content;
-    max-width: min(520px, calc(100vw - 32px));
-    margin: 0;
-    transform: translateX(-50%);
-    opacity: 0;
-    pointer-events: none;
-    animation: bpToastReserva 0s linear 1.5s forwards
-}
-
-@keyframes bpToastReserva {
-    to {
-        opacity: 1;
-        pointer-events: auto
-    }
-}
-
-/* ---------- Área flutuante ---------- */
-/* Fica acima da película de bloqueio (9000), do aviso "Salvando..." (9001) e da faixa de conexão (9002).
-   A área em si não recebe cliques; só as caixinhas recebem. */
-.bp-toast-area {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: calc(32px + env(safe-area-inset-bottom, 0px));
-    z-index: 9100;
+    bottom: 24px;
+    z-index: 19000;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    box-sizing: border-box;
-    padding: 0 16px;
-    pointer-events: none
+    gap: 10px;
+    width: min(520px, calc(100vw - 32px));
+    transform: translateX(-50%);
+    pointer-events: none;
 }
 
-/* ---------- Caixinha da mensagem ---------- */
-.bp-toast-area .bp-toast.bp-toast {
+.bp-toast {
     position: relative;
     display: flex;
-    align-items: center;
-    gap: 16px;
-    box-sizing: border-box;
-    width: max-content;
-    min-width: min(300px, 100%);
-    max-width: min(520px, 100%);
-    margin: 0;
-    padding: 18px 18px 22px 20px;
+    align-items: flex-start;
+    gap: 12px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, .1);
-    border-radius: 16px;
-    background: #222;
-    color: #fff;
-    font: 600 15px/1.45 Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
-    box-shadow: 0 18px 48px rgba(0, 0, 0, .35);
-    opacity: 1;
-    transform: none;
+    padding: 14px 14px 14px 16px;
+    border: 1px solid;
+    border-left-width: 6px;
+    border-radius: 12px;
+    background: #fff;
+    color: #1f2937;
+    font: 500 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
     pointer-events: auto;
-    animation: bpToastEntra .4s cubic-bezier(.2, .8, .2, 1);
-    transition: opacity .45s ease, transform .45s ease
+    animation: bp-toast-entrar .25s ease-out;
 }
 
-@keyframes bpToastEntra {
-    from {
-        opacity: 0;
-        transform: translateY(18px) scale(.96)
-    }
-
-    to {
-        opacity: 1;
-        transform: none
-    }
+.bp-toast.is-saindo {
+    animation: bp-toast-sair .3s ease-in forwards;
 }
 
-/* Fade-out suave: o JS coloca esta classe depois dos 7 segundos e remove a caixinha ao terminar. */
-.bp-toast-area .bp-toast.bp-toast.bp-toast-saindo {
-    opacity: 0;
-    transform: translateY(10px) scale(.98);
-    pointer-events: none
+.bp-toast-success { border-color: #b8e2c5; border-left-color: #1f9d55; background: #f0fbf4; }
+.bp-toast-info    { border-color: #c7dcf5; border-left-color: #2f6fbf; background: #f2f7fd; }
+.bp-toast-warning { border-color: #f1dc9a; border-left-color: #f3b000; background: #fffaeb; }
+.bp-toast-error   { border-color: #efbcbc; border-left-color: #ef3038; background: #fff4f4; }
+
+.bp-toast-icone {
+    margin-top: 2px;
+    font-size: 20px;
 }
 
-/* ---------- Sucesso x Erro ---------- */
-.bp-toast-area .bp-toast.bp-toast.bp-toast-sucesso {
-    border-color: rgba(46, 185, 89, .4)
-}
+.bp-toast-success .bp-toast-icone { color: #1f9d55; }
+.bp-toast-info .bp-toast-icone    { color: #2f6fbf; }
+.bp-toast-warning .bp-toast-icone { color: #b98600; }
+.bp-toast-error .bp-toast-icone   { color: #d0262e; }
 
-/* O erro ganha borda e brilho vermelhos e um tremidinho na entrada, para saltar aos olhos. */
-.bp-toast-area .bp-toast.bp-toast.bp-toast-erro {
-    border-color: rgba(240, 68, 59, .85);
-    box-shadow: 0 0 0 1px rgba(240, 68, 59, .4), 0 18px 48px rgba(0, 0, 0, .45), 0 0 36px rgba(240, 68, 59, .3);
-    animation: bpToastEntra .4s cubic-bezier(.2, .8, .2, 1), bpToastTremer .45s ease .3s
-}
-
-@keyframes bpToastTremer {
-
-    0%,
-    100% {
-        translate: 0
-    }
-
-    20% {
-        translate: -6px
-    }
-
-    40% {
-        translate: 6px
-    }
-
-    60% {
-        translate: -4px
-    }
-
-    80% {
-        translate: 3px
-    }
-}
-
-/* ---------- Ícone ---------- */
-.bp-toast-area .bp-toast-icone {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    color: #fff;
-    animation: bpToastIcone .5s cubic-bezier(.3, 1.6, .5, 1) .1s both
-}
-
-.bp-toast-area .bp-toast-icone svg {
-    display: block;
-    width: 22px;
-    height: 22px
-}
-
-.bp-toast-area .bp-toast-sucesso .bp-toast-icone {
-    background: #1E8A47;
-    box-shadow: 0 0 0 5px rgba(30, 138, 71, .28)
-}
-
-.bp-toast-area .bp-toast-erro .bp-toast-icone {
-    background: #E5362F;
-    box-shadow: 0 0 0 5px rgba(240, 68, 59, .35)
-}
-
-@keyframes bpToastIcone {
-    from {
-        opacity: 0;
-        transform: scale(.4)
-    }
-
-    to {
-        opacity: 1;
-        transform: none
-    }
-}
-
-/* ---------- Texto ---------- */
-.bp-toast-area .bp-toast-texto {
-    flex: 1 1 auto;
+.bp-toast-corpo {
+    flex: 1;
     min-width: 0;
-    color: #fff;
-    overflow-wrap: anywhere
 }
 
-/* ---------- Botão de fechar ---------- */
-/* "all: unset" tira qualquer estilo global de <button> do sistema; abaixo ele é redesenhado do zero. */
-.bp-toast-area .bp-toast .bp-toast-fechar {
-    all: unset;
-    box-sizing: border-box;
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    color: rgba(255, 255, 255, .65);
-    cursor: pointer;
-    transition: background .15s, color .15s
-}
-
-.bp-toast-area .bp-toast .bp-toast-fechar:hover {
-    background: rgba(255, 255, 255, .16);
-    color: #fff
-}
-
-.bp-toast-area .bp-toast .bp-toast-fechar:focus-visible {
-    outline: 2px solid #F3B000;
-    outline-offset: 2px
-}
-
-.bp-toast-area .bp-toast-fechar svg {
+.bp-toast-titulo {
     display: block;
-    width: 14px;
-    height: 14px
+    margin-bottom: 2px;
+    font-size: 15px;
+    font-weight: 700;
 }
 
-/* ---------- Barrinha do tempo (7 segundos) ---------- */
-/* A duração vem do JS pela variável --bp-toast-tempo, assim a barra e o relógio do JS andam juntos. */
-.bp-toast-area .bp-toast-barra {
+.bp-toast-texto {
+    overflow-wrap: anywhere;
+}
+
+.bp-toast-texto a {
+    color: inherit;
+    font-weight: 700;
+}
+
+.bp-toast-acao {
+    margin-top: 10px;
+    padding: 7px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: #ef3038;
+    color: #fff;
+    font: 600 14px/1 inherit;
+    cursor: pointer;
+}
+
+.bp-toast-fechar {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #4b5563;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.bp-toast-fechar:hover,
+.bp-toast-fechar:focus-visible {
+    background: rgba(0, 0, 0, .07);
+}
+
+/* Barrinha embaixo que mostra quanto tempo falta para o aviso sumir (para quando o mouse está em cima). */
+.bp-toast.tem-contagem::after {
+    content: "";
     position: absolute;
     left: 0;
-    right: 0;
     bottom: 0;
-    height: 4px;
-    transform-origin: left center;
-    animation: bpToastBarra var(--bp-toast-tempo, 7000ms) linear forwards
+    height: 3px;
+    width: 100%;
+    background: currentColor;
+    opacity: .25;
+    transform-origin: left;
+    animation: bp-toast-contagem var(--bp-toast-duracao, 7000ms) linear forwards;
 }
 
-.bp-toast-area .bp-toast-sucesso .bp-toast-barra {
-    background: #2DB964
+.bp-toast.is-pausado::after {
+    animation-play-state: paused;
 }
 
-.bp-toast-area .bp-toast-erro .bp-toast-barra {
-    background: #F0443B
+@keyframes bp-toast-contagem {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
 }
 
-@keyframes bpToastBarra {
-    from {
-        transform: scaleX(1)
-    }
-
-    to {
-        transform: scaleX(0)
-    }
+@keyframes bp-toast-entrar {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* ---------- Celular ---------- */
-@media (max-width: 520px) {
-    .bp-toast-area {
-        bottom: calc(16px + env(safe-area-inset-bottom, 0px))
-    }
-
-    .bp-toast-area .bp-toast.bp-toast {
-        gap: 12px;
-        padding: 14px 14px 18px 16px;
-        font-size: 14px
-    }
-
-    .bp-toast-area .bp-toast-icone {
-        width: 36px;
-        height: 36px
-    }
-
-    .bp-toast-area .bp-toast-icone svg {
-        width: 18px;
-        height: 18px
-    }
+@keyframes bp-toast-sair {
+    to { opacity: 0; transform: translateY(10px); }
 }
 
-/* ---------- Acessibilidade: movimento reduzido ---------- */
-/* Quem pediu "Reduzir animações" (Configurações do sistema) ou usa essa opção no sistema operacional não vê
-   entrada deslizando, tremida nem barrinha andando. A mensagem continua sumindo sozinha aos 7 segundos, só com um fade simples. */
-html[data-reduzir-animacoes="1"] .bp-toast-area .bp-toast.bp-toast,
-html[data-reduzir-animacoes="1"] .bp-toast-area .bp-toast-icone {
-    animation: none
-}
-
-html[data-reduzir-animacoes="1"] .bp-toast-area .bp-toast.bp-toast {
-    transition: opacity .2s linear
-}
-
-html[data-reduzir-animacoes="1"] .bp-toast-area .bp-toast-barra {
-    display: none
+@media (max-width: 600px) {
+    .bp-toasts { bottom: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .bp-toast-area .bp-toast.bp-toast,
-    .bp-toast-area .bp-toast.bp-toast.bp-toast-erro,
-    .bp-toast-area .bp-toast-icone {
-        animation: none
-    }
-
-    .bp-toast-area .bp-toast.bp-toast {
-        transition: opacity .2s linear
-    }
-
-    .bp-toast-area .bp-toast-barra {
-        display: none
-    }
+    .bp-toast, .bp-toast.is-saindo { animation: none; }
+    .bp-toast.is-saindo { opacity: 0; }
 }
+
+html[data-reduzir-animacoes="1"] .bp-toast,
+html[data-reduzir-animacoes="1"] .bp-toast.is-saindo { animation: none; }
+html[data-reduzir-animacoes="1"] .bp-toast.is-saindo { opacity: 0; }

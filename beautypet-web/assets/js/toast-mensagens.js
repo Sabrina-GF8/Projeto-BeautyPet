@@ -1,169 +1,177 @@
 /*
  * ARQUIVO: assets/js/toast-mensagens.js
- * [BP-TOAST] Arquivo novo. Carregado em todas as páginas pelo includes/topo.php.
+ * [BP-TOAST] Arquivo novo. Carregado no <head> de todas as páginas pelo includes/topo.php.
  *
- * RESPONSABILIDADE (Heurística 1 de Nielsen: visibilidade do status do sistema):
- *   Transformar as mensagens de sucesso e de erro em "toast": uma caixinha flutuante que aparece, fica visível
- *   por exatamente 7 segundos e some sozinha com um fade-out suave.
+ * HEURÍSTICA 1 (visibilidade do status) + HEURÍSTICA 9 (ajudar a reconhecer, diagnosticar e recuperar erros).
  *
- * COMO FUNCIONA SEM MEXER NAS PÁGINAS E SEM MEXER NA LÓGICA:
- *   As páginas continuam escrevendo a mensagem do mesmo jeito, por exemplo:
- *       <div class="message success">Cadastro salvo!</div>
- *       <div class="message error" role="alert">Não foi possível salvar.</div>
- *   Quando a página termina de carregar, este arquivo procura essas mensagens e MOVE cada uma (o próprio elemento,
- *   com o mesmo texto e os mesmos atributos) para uma área flutuante na parte de baixo da tela.
- *   Cada mensagem é um toast independente, com o seu próprio relógio de 7 segundos.
- *   O PHP, as rotas e os formulários não sabem que isso existe.
+ * As páginas continuam escrevendo a mensagem do PHP do jeito de sempre:
+ *     <div class="message success">Tutor cadastrado com sucesso!</div>
+ *     <div class="message error">Não foi possível salvar...</div>
+ * Este arquivo pega essas mensagens e mostra cada uma como "toast": um aviso flutuante na parte de baixo da tela,
+ * sempre visível mesmo se a pessoa estiver no fim de um formulário comprido.
  *
- * O QUE É TRANSFORMADO:
- *   .message.success / .message.error                 (páginas do sistema)
- *   .account-message.success / .account-message.error (troca de usuário e criação de usuário)
+ *   SUCESSO (verde) .... some sozinho depois de 7 segundos (com fade-out).
+ *   AVISO   (amarelo) .. some sozinho depois de 7 segundos.
+ *   ERRO    (vermelho) . NÃO some sozinho: fica até a pessoa fechar no X. Dá tempo de ler e entender o problema.
+ *                        Se houver campo com erro (aria-invalid="true"), o toast ganha o botão "Corrigir campo",
+ *                        que leva o cursor direto até ele, e o campo também recebe o foco ao abrir a página.
  *
- * O QUE NÃO É TRANSFORMADO (de propósito):
- *   .account-message.info (aviso fixo, não é resultado de uma ação) e mensagens dentro de um modal fechado.
+ * Passar o mouse por cima (ou focar com Tab) pausa a contagem. Esc fecha o último aviso.
  *
- * PARA CÓDIGO COM fetch (AJAX), SE UM DIA PRECISAR:
- *   BPToast.mostrar("success", "Salvo com sucesso!");
- *   BPToast.mostrar("error", "Não foi possível salvar.");
+ * USO PELO JAVASCRIPT DAS PÁGINAS:
+ *     BPToast.mostrar('Pagamento registrado.', 'success');
+ *     BPToast.mostrar('Não foi possível carregar. Atualize a página (F5).', 'error');
  *
- * Visual: assets/css/toast-mensagens.css
+ * PARA MANTER UMA MENSAGEM NO LUGAR ORIGINAL (sem virar toast): coloque data-sem-toast na <div>.
  */
 (function () {
-    "use strict";
+    'use strict';
 
-    // Evita registrar tudo duas vezes se o arquivo for carregado em duplicidade.
-    if (window.BPToast) return;
+    const DURACAO_MS = 7000;
 
-    // ---------- Tempos (em milissegundos) ----------
-    // Quanto tempo a mensagem fica totalmente visível.
-    var TEMPO_VISIVEL = 7000;
-    // Duração do fade-out. Precisa ser igual ao "transition" do toast-mensagens.css (.45s).
-    var TEMPO_SUMIR = 450;
+    const TIPOS = {
+        success: { icone: 'fa-circle-check', titulo: 'Tudo certo' },
+        info: { icone: 'fa-circle-info', titulo: 'Informação' },
+        warning: { icone: 'fa-triangle-exclamation', titulo: 'Atenção' },
+        error: { icone: 'fa-circle-exclamation', titulo: 'Algo deu errado' },
+    };
 
-    // Mensagens que viram toast.
-    var SELETOR = ".message.success, .message.error, .account-message.success, .account-message.error";
+    let pilha = null;
 
-    // Ícones em SVG dentro do próprio código: não dependem do Font Awesome nem da internet.
-    var ICONE_SUCESSO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-    var ICONE_ERRO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-    var ICONE_FECHAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    function obterPilha() {
+        if (pilha) return pilha;
 
-    // Área fixa onde os toasts ficam empilhados. Criada só na primeira vez que é necessária.
-    var area = null;
-
-    function garantirArea() {
-        if (area || !document.body) return;
-        area = document.createElement("div");
-        area.className = "bp-toast-area";
-        document.body.appendChild(area);
+        pilha = document.createElement('section');
+        pilha.className = 'bp-toasts';
+        pilha.setAttribute('aria-label', 'Avisos do sistema');
+        document.body.appendChild(pilha);
+        return pilha;
     }
 
-    // ------------------------------------------------------------
-    // Transforma UMA mensagem em toast
-    // ------------------------------------------------------------
+    function fechar(toast) {
+        if (!toast || toast.classList.contains('is-saindo')) return;
 
-    function transformar(mensagem, tipo) {
-        garantirArea();
-        if (!area) return;
+        clearTimeout(toast._temporizador);
+        toast.classList.add('is-saindo');
+        // Espera o fade-out terminar; o setTimeout garante a remoção mesmo sem animação.
+        setTimeout(() => toast.remove(), 350);
+    }
 
-        var erro = tipo === "error";
+    function iniciarContagem(toast, restante) {
+        toast._fim = Date.now() + restante;
+        toast._temporizador = setTimeout(() => fechar(toast), restante);
+        toast.style.setProperty('--bp-toast-duracao', restante + 'ms');
+        toast.classList.remove('is-pausado');
+    }
 
-        // 1) O conteúdo original (texto, <strong>, etc.) vai para dentro de um <span>, sem ser alterado.
-        var texto = document.createElement("span");
-        texto.className = "bp-toast-texto";
-        while (mensagem.firstChild) texto.appendChild(mensagem.firstChild);
+    // Primeiro campo marcado com erro pelo PHP (aria-invalid="true" ou classe input-error).
+    function primeiroCampoComErro() {
+        return document.querySelector('main [aria-invalid="true"], main .input-error');
+    }
 
-        // 2) Ícone: check no sucesso, X no erro. É decorativo; quem informa o tipo ao leitor de tela é o role.
-        var icone = document.createElement("span");
-        icone.className = "bp-toast-icone";
-        icone.setAttribute("aria-hidden", "true");
-        icone.innerHTML = erro ? ICONE_ERRO : ICONE_SUCESSO;
+    function irParaCampo(campo) {
+        campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        campo.focus({ preventScroll: true });
+    }
 
-        // 3) Botão para fechar antes dos 7 segundos (a pessoa continua no controle).
-        var fechar = document.createElement("button");
-        fechar.type = "button";
-        fechar.className = "bp-toast-fechar";
-        fechar.setAttribute("aria-label", "Fechar mensagem");
-        fechar.innerHTML = ICONE_FECHAR;
+    /**
+     * Mostra um aviso.
+     * conteudo: texto (string) ou nós HTML já existentes (quando vem de uma <div class="message">).
+     */
+    function mostrar(conteudo, tipo = 'info', opcoes = {}) {
+        if (!TIPOS[tipo]) tipo = 'info';
+        const config = TIPOS[tipo];
+        const ehErro = tipo === 'error';
 
-        // 4) Barrinha que mostra o tempo restante.
-        var barra = document.createElement("span");
-        barra.className = "bp-toast-barra";
-        barra.setAttribute("aria-hidden", "true");
+        const toast = document.createElement('div');
+        toast.className = `bp-toast bp-toast-${tipo}`;
+        // Erro interrompe o leitor de tela; sucesso espera ele terminar a frase atual.
+        toast.setAttribute('role', ehErro ? 'alert' : 'status');
+        toast.setAttribute('aria-live', ehErro ? 'assertive' : 'polite');
 
-        mensagem.appendChild(icone);
-        mensagem.appendChild(texto);
-        mensagem.appendChild(fechar);
-        mensagem.appendChild(barra);
+        toast.innerHTML =
+            `<i class="fa-solid ${config.icone} bp-toast-icone" aria-hidden="true"></i>`
+            + '<div class="bp-toast-corpo"><strong class="bp-toast-titulo"></strong><div class="bp-toast-texto"></div></div>'
+            + '<button type="button" class="bp-toast-fechar" aria-label="Fechar aviso" title="Fechar (Esc)">'
+            + '<i class="fa-solid fa-xmark" aria-hidden="true"></i></button>';
 
-        mensagem.classList.add("bp-toast", erro ? "bp-toast-erro" : "bp-toast-sucesso");
-        mensagem.style.setProperty("--bp-toast-tempo", TEMPO_VISIVEL + "ms");
+        toast.querySelector('.bp-toast-titulo').textContent = opcoes.titulo || config.titulo;
 
-        // Leitor de tela: erro interrompe e anuncia na hora; sucesso espera a vez. Respeita o role que a página já tinha.
-        if (!mensagem.hasAttribute("role")) mensagem.setAttribute("role", erro ? "alert" : "status");
+        const texto = toast.querySelector('.bp-toast-texto');
+        if (typeof conteudo === 'string') texto.textContent = conteudo;
+        else texto.append(...conteudo);
 
-        // 5) Vai para a área flutuante (sai do topo da página e deixa de ocupar espaço lá).
-        area.appendChild(mensagem);
-
-        // 6) Relógio de 7 segundos, só desta mensagem. Depois: fade-out e remoção.
-        var relogio = setTimeout(sair, TEMPO_VISIVEL);
-
-        function sair() {
-            clearTimeout(relogio);
-            if (mensagem.classList.contains("bp-toast-saindo")) return;
-            mensagem.classList.add("bp-toast-saindo");
-            setTimeout(function () {
-                if (mensagem.parentNode) mensagem.parentNode.removeChild(mensagem);
-            }, TEMPO_SUMIR + 50);
+        // HEURÍSTICA 9: caminho direto para a correção.
+        const campo = ehErro ? primeiroCampoComErro() : null;
+        if (campo) {
+            const corrigir = document.createElement('button');
+            corrigir.type = 'button';
+            corrigir.className = 'bp-toast-acao';
+            corrigir.textContent = 'Corrigir campo';
+            corrigir.addEventListener('click', () => irParaCampo(campo));
+            toast.querySelector('.bp-toast-corpo').appendChild(corrigir);
         }
 
-        fechar.addEventListener("click", sair);
-    }
+        toast.querySelector('.bp-toast-fechar').addEventListener('click', () => fechar(toast));
 
-    // ------------------------------------------------------------
-    // Procura as mensagens da página
-    // ------------------------------------------------------------
+        // Erro fica até ser fechado; os outros somem sozinhos.
+        const fixo = opcoes.fixo ?? ehErro;
+        if (!fixo) {
+            toast.classList.add('tem-contagem');
+            iniciarContagem(toast, opcoes.duracao || DURACAO_MS);
 
-    function varrer() {
-        var lista = document.querySelectorAll(SELETOR);
-
-        for (var i = 0; i < lista.length; i++) {
-            var mensagem = lista[i];
-
-            // Já virou toast.
-            if (mensagem.classList.contains("bp-toast")) continue;
-
-            // Mensagem dentro de um modal fechado (ex.: a troca de usuário): não está na tela, então não vira toast.
-            var modal = mensagem.closest(".account-modal, .account-page-modal");
-            if (modal && !modal.classList.contains("is-open")) continue;
-
-            transformar(mensagem, mensagem.classList.contains("error") ? "error" : "success");
+            const pausar = () => {
+                if (toast.classList.contains('is-pausado')) return;
+                clearTimeout(toast._temporizador);
+                toast._restante = Math.max(1500, toast._fim - Date.now());
+                toast.classList.add('is-pausado');
+            };
+            const continuar = () => {
+                if (toast.matches(':hover') || toast.contains(document.activeElement)) return;
+                if (toast.classList.contains('is-pausado')) iniciarContagem(toast, toast._restante);
+            };
+            toast.addEventListener('mouseenter', pausar);
+            toast.addEventListener('focusin', pausar);
+            toast.addEventListener('mouseleave', continuar);
+            toast.addEventListener('focusout', () => setTimeout(continuar, 0));
         }
+
+        obterPilha().appendChild(toast);
+        return toast;
     }
 
-    // O arquivo é carregado no <head>: espera a página ser montada antes de procurar as mensagens.
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", varrer);
-    } else {
-        varrer();
+    // Converte as <div class="message ..."> que o PHP colocou na página.
+    function converterMensagensDaPagina() {
+        const mensagens = document.querySelectorAll(
+            '.message.success, .message.error, .message.info, .message.warning'
+        );
+
+        mensagens.forEach(mensagem => {
+            if (mensagem.hasAttribute('data-sem-toast') || mensagem.closest('[data-sem-toast]')) return;
+            if (!mensagem.textContent.trim()) return;
+
+            const tipo = ['error', 'warning', 'success', 'info'].find(nome => mensagem.classList.contains(nome));
+            mostrar(Array.from(mensagem.childNodes), tipo);
+            mensagem.remove();
+        });
+
+        // Ao abrir a página com erro de validação, o cursor já vai para o campo a corrigir.
+        const campo = primeiroCampoComErro();
+        if (campo && !document.querySelector('.account-modal.is-open')) irParaCampo(campo);
     }
 
-    // Voltar pelo botão do navegador pode trazer a página "congelada" com toasts pela metade. Aqui eles são limpos.
-    window.addEventListener("pagehide", function () {
-        if (area) area.innerHTML = "";
+    // Esc fecha o aviso mais recente (só quando nenhuma janela está aberta, para não fechar as duas coisas).
+    document.addEventListener('keydown', evento => {
+        if (evento.key !== 'Escape' || !pilha?.lastElementChild) return;
+        if (document.body.classList.contains('account-modal-open')) return;
+        fechar(pilha.lastElementChild);
     });
 
-    // ------------------------------------------------------------
-    // API pública (para código com fetch/AJAX)
-    // ------------------------------------------------------------
-
-    function mostrar(tipo, texto) {
-        var mensagem = document.createElement("div");
-        var erro = tipo === "error" || tipo === "erro";
-        mensagem.className = "message " + (erro ? "error" : "success");
-        mensagem.textContent = texto;
-        transformar(mensagem, erro ? "error" : "success");
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', converterMensagensDaPagina, { once: true });
+    } else {
+        converterMensagensDaPagina();
     }
 
-    window.BPToast = { mostrar: mostrar };
+    window.BPToast = { mostrar, fechar };
 })();

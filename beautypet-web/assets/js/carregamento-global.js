@@ -1,410 +1,283 @@
 /*
- * ARQUIVO: assets/js/carregando.js
- * [BP-CARREGANDO] Arquivo novo. Carregado em todas as páginas pelo includes/topo.php.
+ * ARQUIVO: assets/js/carregamento-global.js
+ * [BP-CARREGANDO] Arquivo novo. Carregado no <head> de todas as páginas pelo includes/topo.php.
  *
- * RESPONSABILIDADE (Heurística 1 de Nielsen: visibilidade do status do sistema):
- *   1) Mostrar uma bolinha girando no botão e um aviso de texto ("Salvando...") enquanto algo é enviado,
- *      para a pessoa saber que o sistema está trabalhando, principalmente quando a internet está lenta.
- *   2) Impedir envio duplicado: depois do primeiro clique, qualquer outro clique/Enter em botão de enviar é ignorado,
- *      então o mesmo dado não chega duas vezes ao banco.
- *   3) Avisar quando a internet cai ou volta, e não tentar enviar sem conexão.
+ * HEURÍSTICA 1 DE NIELSEN (visibilidade do status do sistema) + HEURÍSTICA 5 (prevenção de erros).
  *
- * COMO FUNCIONA SEM MEXER NAS PÁGINAS:
- *   Este arquivo escuta o evento "submit" de TODOS os formulários da página. Formulários novos já nascem protegidos.
- *   Não é preciso escrever nada em cada tela.
+ * O QUE FAZ, SEM PRECISAR MEXER NAS PÁGINAS:
+ *   1. Ao enviar qualquer formulário, o botão clicado ganha uma bolinha girando e o texto muda
+ *      ("Salvando...", "Excluindo...", "Entrando...").
+ *   2. Formulário POST (grava no banco): aparece uma tela por cima de tudo ("Salvando, aguarde...")
+ *      que impede um segundo clique. Assim o mesmo cadastro não é gravado duas vezes.
+ *      O mesmo formulário também não pode ser enviado de novo enquanto o primeiro envio não termina
+ *      (vale até para quem aperta Enter várias vezes).
+ *   3. Sem internet: o envio é barrado ANTES de sair do navegador, com um aviso dizendo o que fazer.
+ *      Os dados digitados continuam no formulário.
+ *   4. Ao clicar em um link do sistema, aparece uma barra fina no topo mostrando que a página está carregando.
+ *   5. Se a resposta demorar, a tela de espera avisa que a internet parece lenta (a pessoa não fica sem saber).
  *
- * O QUE NÃO É TRATADO (de propósito):
- *   - Formulário cujo envio foi cancelado por outro código (ex.: confirm("Excluir?") respondido "Cancelar",
- *     ou validação própria da página). Se o envio não acontece, não há o que mostrar.
- *   - Formulário que não troca a página (feito com fetch/AJAX, como o chat do assistente).
- *     Para esses, use a função BPCarregando.executar(...) descrita abaixo.
+ * QUANDO A PÁGINA PRECISA CHAMAR NA MÃO (ex.: buscar dados com fetch, sem recarregar a página):
+ *   BPCarregando.iniciar({ botao: meuBotao, mensagem: 'Buscando...', bloquearTela: false });
+ *   ...
+ *   BPCarregando.parar(meuBotao);
  *
- * COMO AJUSTAR EM UM CASO ESPECÍFICO (todos opcionais):
- *   data-carregando="Texto..."   no <form> ou no <button>: troca a mensagem do aviso.
- *   data-sem-carregando          no <form>: este formulário não recebe o indicador nem o bloqueio.
- *
- * PARA CÓDIGO COM fetch (AJAX):
- *   BPCarregando.executar(botao, () => fetch(...), { mensagem: "Abrindo o registro..." });
- *   Mostra a bolinha no botão, ignora cliques repetidos e tira tudo sozinho ao terminar (com sucesso ou erro).
- *   Também existem BPCarregando.iniciar({ botao, mensagem }) e BPCarregando.parar(botao) para quem precisar de controle manual.
- *
- * Visual: assets/css/carregando.css
+ * PARA DESLIGAR EM UM FORMULÁRIO ESPECÍFICO: coloque o atributo data-sem-carregando no <form>.
+ * PARA TROCAR O TEXTO DO BOTÃO: coloque data-texto-carregando="Enviando..." no botão.
  */
 (function () {
-    "use strict";
+    'use strict';
 
-    // Evita registrar tudo duas vezes se o arquivo for carregado em duplicidade.
-    if (window.BPCarregando) return;
+    // Depois deste tempo a tela de espera avisa que a conexão parece lenta.
+    const AVISO_LENTO_MS = 8000;
 
-    // ---------- Tempos (em milissegundos) ----------
-    // Só mostra o aviso de texto depois deste tempo, para envios rápidos não piscarem na tela.
-    var ATRASO_AVISO = 400;
-    // Depois deste tempo o texto passa a explicar que a internet pode estar lenta.
-    var ATRASO_LENTO = 8000;
-    // Depois deste tempo aparece o botão "Tentar de novo".
-    var ATRASO_TRAVADO = 30000;
-
-    var TEXTO_LENTO = "Está demorando mais que o normal. Sua internet pode estar lenta. Aguarde e não feche a página.";
-    var TEXTO_TRAVADO = "Ainda sem resposta. Se quiser tentar de novo, confira antes se o registro já não foi salvo.";
-
-    // Texto do aviso conforme o botão clicado (primeira regra que combinar vence).
-    // Quem quiser outro texto num botão específico usa data-carregando="...".
-    var REGRAS_MENSAGEM = [
-        [/excluir|apagar|remover/, "Excluindo..."],
-        [/recusar/, "Recusando..."],
-        [/cancelar/, "Cancelando..."],
-        [/reabrir/, "Reabrindo..."],
-        [/finalizar|confirmar fechamento/, "Finalizando..."],
-        [/confirmar/, "Confirmando..."],
-        [/entrar/, "Entrando..."],
-        [/iniciar/, "Iniciando..."],
-        [/concluir/, "Concluindo..."],
-        [/salvar|criar|cadastrar|gravar/, "Salvando..."]
-    ];
-
-    // Envio em andamento. Só existe um por vez: enquanto houver um, os outros são ignorados.
-    var atual = null;
-
-    // Elementos visuais, criados só na primeira vez que são necessários.
-    var camada = null;
-    var aviso = null;
-    var textoAviso = null;
-    var botaoLiberar = null;
-    var faixa = null;
-    var temporizadorFaixa = null;
+    let telaEspera = null;
+    let barraTopo = null;
+    let temporizadorLento = null;
+    const botoesOcupados = new Set();
 
     // ------------------------------------------------------------
-    // Elementos da tela
+    // Elementos criados uma única vez e reaproveitados
     // ------------------------------------------------------------
 
-    function garantirElementos() {
-        if (camada || !document.body) return;
+    function obterTelaEspera() {
+        if (telaEspera) return telaEspera;
 
-        // Película que impede cliques no resto da tela durante o envio.
-        camada = document.createElement("div");
-        camada.className = "bp-carregando-camada";
-        camada.hidden = true;
-        camada.setAttribute("aria-hidden", "true");
+        telaEspera = document.createElement('div');
+        telaEspera.className = 'bp-tela-espera';
+        telaEspera.setAttribute('role', 'alertdialog');
+        telaEspera.setAttribute('aria-modal', 'true');
+        telaEspera.setAttribute('aria-live', 'assertive');
+        telaEspera.setAttribute('aria-labelledby', 'bpTelaEsperaTitulo');
+        telaEspera.hidden = true;
+        telaEspera.innerHTML =
+            '<div class="bp-tela-espera-caixa">'
+            + '<span class="bp-spinner bp-spinner-grande" aria-hidden="true"></span>'
+            + '<strong id="bpTelaEsperaTitulo"></strong>'
+            + '<small class="bp-tela-espera-dica">Não feche nem atualize a página.</small>'
+            + '<small class="bp-tela-espera-lento" hidden>A internet parece lenta. Continue aguardando: '
+            + 'clicar de novo pode gravar os dados duas vezes.</small>'
+            + '</div>';
 
-        // Caixa com a bolinha e o texto. role="status" faz o leitor de tela anunciar a mensagem.
-        aviso = document.createElement("div");
-        aviso.className = "bp-carregando-aviso";
-        aviso.setAttribute("role", "status");
-        aviso.setAttribute("aria-live", "polite");
-        aviso.hidden = true;
-
-        var giro = document.createElement("span");
-        giro.className = "bp-giro";
-        giro.setAttribute("aria-hidden", "true");
-
-        textoAviso = document.createElement("span");
-        textoAviso.className = "bp-carregando-texto";
-
-        botaoLiberar = document.createElement("button");
-        botaoLiberar.type = "button";
-        botaoLiberar.className = "bp-carregando-liberar";
-        botaoLiberar.textContent = "Tentar de novo";
-        botaoLiberar.hidden = true;
-        // Cancela a espera do navegador e devolve os botões. A pessoa decide, sabendo do risco avisado no texto.
-        botaoLiberar.addEventListener("click", function () {
-            if (typeof window.stop === "function") window.stop();
-            parar();
+        // Bloqueia teclado enquanto a tela está aberta (Enter/Espaço não disparam outro envio).
+        telaEspera.tabIndex = -1;
+        telaEspera.addEventListener('keydown', evento => {
+            if (evento.key !== 'Tab') evento.preventDefault();
         });
 
-        aviso.appendChild(giro);
-        aviso.appendChild(textoAviso);
-        aviso.appendChild(botaoLiberar);
+        document.body.appendChild(telaEspera);
+        return telaEspera;
+    }
 
-        document.body.appendChild(camada);
-        document.body.appendChild(aviso);
+    function obterBarraTopo() {
+        if (barraTopo) return barraTopo;
+
+        barraTopo = document.createElement('div');
+        barraTopo.className = 'bp-barra-carregando';
+        barraTopo.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(barraTopo);
+        return barraTopo;
     }
 
     // ------------------------------------------------------------
-    // Botão com a bolinha
+    // Botão em estado "carregando"
     // ------------------------------------------------------------
 
-    function marcarBotao(botao) {
-        var estilo = window.getComputedStyle(botao);
+    // Escolhe um texto de acordo com o que o botão faz.
+    function textoPadrao(botao, metodo) {
+        if (botao?.dataset.textoCarregando) return botao.dataset.textoCarregando;
 
-        // Guarda a cor do texto para a bolinha ter o mesmo contraste que o texto do botão tinha.
-        botao.style.setProperty("--bp-cor-giro", estilo.color);
+        const rotulo = (botao?.textContent || botao?.value || '').trim().toLowerCase();
 
-        // A bolinha é posicionada dentro do botão; precisa de um ponto de referência.
-        atual.posicaoOriginal = null;
-        if (estilo.position === "static") {
-            atual.posicaoOriginal = botao.style.position;
-            botao.style.position = "relative";
-        }
-
-        var giro = document.createElement("span");
-        giro.className = "bp-giro bp-giro-botao";
-        giro.setAttribute("aria-hidden", "true");
-        botao.appendChild(giro);
-        atual.giro = giro;
-
-        botao.classList.add("bp-botao-ocupado");
-        botao.setAttribute("aria-disabled", "true");
-        botao.setAttribute("aria-busy", "true");
+        if (/exclu|remov|apag/.test(rotulo)) return 'Excluindo...';
+        if (/entrar|login/.test(rotulo)) return 'Entrando...';
+        if (/cancel/.test(rotulo)) return 'Cancelando...';
+        if (/reabr/.test(rotulo)) return 'Reabrindo...';
+        if (/finaliz|fechar|conclu/.test(rotulo)) return 'Finalizando...';
+        if (/aprov|confirm|aceit/.test(rotulo)) return 'Confirmando...';
+        if (/recus|rejeit/.test(rotulo)) return 'Recusando...';
+        if (/envi/.test(rotulo)) return 'Enviando...';
+        if (metodo === 'get' || /busc|filtr|pesquis/.test(rotulo)) return 'Carregando...';
+        return 'Salvando...';
     }
 
-    function desmarcarBotao() {
-        var botao = atual.botao;
-        if (!botao) return;
+    function marcarBotao(botao, texto) {
+        if (!botao || botoesOcupados.has(botao)) return;
 
-        if (atual.giro && atual.giro.parentNode) atual.giro.parentNode.removeChild(atual.giro);
+        botoesOcupados.add(botao);
+        botao.dataset.bpConteudoOriginal = botao.tagName === 'INPUT' ? botao.value : botao.innerHTML;
+        // Mantém a largura para o layout não "pular" quando o texto muda.
+        botao.style.minWidth = botao.offsetWidth + 'px';
+        botao.classList.add('bp-carregando');
+        botao.setAttribute('aria-busy', 'true');
+        botao.setAttribute('aria-disabled', 'true');
 
-        botao.classList.remove("bp-botao-ocupado");
-        botao.removeAttribute("aria-disabled");
-        botao.removeAttribute("aria-busy");
-        botao.style.removeProperty("--bp-cor-giro");
-        if (atual.posicaoOriginal !== null) botao.style.position = atual.posicaoOriginal;
-    }
-
-    // ------------------------------------------------------------
-    // Início e fim de um envio
-    // ------------------------------------------------------------
-
-    /**
-     * Liga o indicador. Devolve false se já existe um envio em andamento.
-     * opcoes: { botao, form, mensagem, bloquearTela }
-     */
-    function iniciar(opcoes) {
-        if (atual) return false;
-
-        opcoes = opcoes || {};
-        garantirElementos();
-
-        atual = {
-            botao: opcoes.botao || null,
-            form: opcoes.form || null,
-            giro: null,
-            posicaoOriginal: null,
-            temporizadores: []
-        };
-
-        if (atual.form) atual.form.setAttribute("aria-busy", "true");
-        if (atual.botao) marcarBotao(atual.botao);
-
-        // A película começa invisível: só barra os cliques. O escurecido leve vem junto com o aviso.
-        if (opcoes.bloquearTela !== false && camada) camada.hidden = false;
-
-        var mensagem = opcoes.mensagem || "Enviando...";
-        var meu = atual;
-
-        meu.temporizadores.push(setTimeout(function () {
-            if (atual !== meu || !aviso) return;
-            textoAviso.textContent = mensagem;
-            aviso.hidden = false;
-            if (opcoes.bloquearTela !== false) camada.classList.add("bp-visivel");
-        }, ATRASO_AVISO));
-
-        meu.temporizadores.push(setTimeout(function () {
-            if (atual === meu && aviso) textoAviso.textContent = TEXTO_LENTO;
-        }, ATRASO_LENTO));
-
-        meu.temporizadores.push(setTimeout(function () {
-            if (atual !== meu || !aviso) return;
-            textoAviso.textContent = TEXTO_TRAVADO;
-            botaoLiberar.hidden = false;
-        }, ATRASO_TRAVADO));
-
-        return true;
-    }
-
-    // Desliga o indicador e devolve a tela ao normal.
-    // Se receber um botão, só desliga quando o indicador em andamento for DESSE botão. Assim um código não desliga,
-    // sem querer, o indicador que outro código ligou (ex.: um envio de formulário em andamento).
-    function parar(dono) {
-        if (!atual) return;
-        if (dono && atual.botao !== dono) return;
-
-        atual.temporizadores.forEach(clearTimeout);
-        if (atual.form) atual.form.removeAttribute("aria-busy");
-        desmarcarBotao();
-
-        if (camada) {
-            camada.hidden = true;
-            camada.classList.remove("bp-visivel");
-        }
-        if (aviso) {
-            aviso.hidden = true;
-            textoAviso.textContent = "";
-            botaoLiberar.hidden = true;
-        }
-
-        atual = null;
-    }
-
-    /**
-     * Para código que usa fetch: mostra a bolinha no botão enquanto a tarefa roda e ignora cliques repetidos.
-     *   alvo   -> o botão clicado (ou null)
-     *   tarefa -> função que devolve uma Promise (ou a própria Promise)
-     *   opcoes -> { mensagem, bloquearTela } (bloquearTela é false por padrão aqui)
-     * Devolve a Promise da tarefa; se já havia algo em andamento, devolve undefined sem rodar a tarefa.
-     */
-    function executar(alvo, tarefa, opcoes) {
-        opcoes = opcoes || {};
-        if (atual) return Promise.resolve(undefined);
-
-        var botao = alvo && alvo.nodeType === 1 ? alvo : null;
-        iniciar({
-            botao: botao,
-            mensagem: opcoes.mensagem || "Processando...",
-            bloquearTela: opcoes.bloquearTela === true
-        });
-
-        var promessa;
-        try {
-            promessa = Promise.resolve(typeof tarefa === "function" ? tarefa() : tarefa);
-        } catch (erro) {
-            parar();
-            return Promise.reject(erro);
-        }
-
-        return promessa.then(
-            function (valor) { parar(); return valor; },
-            function (erro) { parar(); throw erro; }
-        );
-    }
-
-    // ------------------------------------------------------------
-    // Escolha do texto do aviso
-    // ------------------------------------------------------------
-
-    function temArquivoEscolhido(form) {
-        var campos = form.querySelectorAll('input[type="file"]');
-        for (var i = 0; i < campos.length; i++) {
-            if (campos[i].files && campos[i].files.length) return true;
-        }
-        return false;
-    }
-
-    function mensagemPara(form, botao) {
-        // 1) Texto definido à mão na página, se houver.
-        var manual = (botao && botao.getAttribute("data-carregando")) || form.getAttribute("data-carregando");
-        if (manual) return manual;
-
-        // 2) Formulário de consulta/filtro (GET): só carrega uma tela.
-        if ((form.method || "get").toLowerCase() === "get") return "Carregando...";
-
-        // 3) Envio com foto: costuma ser o mais demorado com internet fraca.
-        if (temArquivoEscolhido(form)) return "Enviando os dados e a foto...";
-
-        // 4) Pelo texto do botão (ou título, nos botões que só têm ícone).
-        if (botao) {
-            var texto = [botao.textContent, botao.getAttribute("title"), botao.getAttribute("aria-label")]
-                .join(" ").replace(/\s+/g, " ").toLowerCase();
-            for (var i = 0; i < REGRAS_MENSAGEM.length; i++) {
-                if (REGRAS_MENSAGEM[i][0].test(texto)) return REGRAS_MENSAGEM[i][1];
-            }
-        }
-
-        return "Enviando...";
-    }
-
-    // Formulários que não devem receber o indicador.
-    function deveIgnorar(form, botaoEnvio) {
-        if (form.hasAttribute("data-sem-carregando")) return true;
-        if ((form.method || "").toLowerCase() === "dialog") return true;
-
-        // Envio para outra aba/janela não troca esta página: não há o que esperar aqui.
-        var destino = (botaoEnvio && botaoEnvio.formTarget) || form.target;
-        return !!destino && destino !== "_self";
-    }
-
-    // ------------------------------------------------------------
-    // Faixa de conexão
-    // ------------------------------------------------------------
-
-    function mostrarFaixa(texto, classe, esconderEmMs) {
-        if (!document.body) return;
-
-        if (!faixa) {
-            faixa = document.createElement("div");
-            faixa.setAttribute("role", "alert");
-            document.body.appendChild(faixa);
-        }
-
-        clearTimeout(temporizadorFaixa);
-        faixa.className = "bp-faixa-conexao " + classe;
-        faixa.textContent = texto;
-        faixa.hidden = false;
-
-        if (esconderEmMs) {
-            temporizadorFaixa = setTimeout(function () { faixa.hidden = true; }, esconderEmMs);
+        if (botao.tagName === 'INPUT') {
+            botao.value = texto;
+        } else {
+            botao.innerHTML = '<span class="bp-spinner" aria-hidden="true"></span><span></span>';
+            botao.lastChild.textContent = texto;
         }
     }
 
-    var TEXTO_SEM_INTERNET = "Você está sem internet. Seus dados continuam na tela; salve quando a conexão voltar.";
+    function desmarcarBotao(botao) {
+        if (!botao || !botoesOcupados.has(botao)) return;
 
-    window.addEventListener("offline", function () {
-        mostrarFaixa(TEXTO_SEM_INTERNET, "bp-faixa-offline");
-    });
+        botoesOcupados.delete(botao);
+        const original = botao.dataset.bpConteudoOriginal;
+        if (botao.tagName === 'INPUT') botao.value = original;
+        else botao.innerHTML = original;
 
-    window.addEventListener("online", function () {
-        mostrarFaixa("Conexão restabelecida.", "bp-faixa-online", 3500);
-    });
-
-    // ------------------------------------------------------------
-    // Ligação com os formulários da página
-    // ------------------------------------------------------------
-
-    // Fase de "bolha" no window: roda DEPOIS dos códigos de cada formulário. Assim, se o confirm("Excluir?") foi
-    // cancelado ou uma validação da página barrou o envio (preventDefault), este código nem chega a agir.
-    window.addEventListener("submit", function (evento) {
-        var form = evento.target;
-        if (!form || form.nodeName !== "FORM") return;
-        if (evento.defaultPrevented) return;
-
-        var botaoEnvio = evento.submitter || form.querySelector('button[type="submit"], input[type="submit"], button:not([type])');
-        if (deveIgnorar(form, botaoEnvio)) return;
-
-        // Já existe um envio em andamento: este segundo é descartado (clique duplo, Enter repetido, outro botão).
-        if (atual) {
-            evento.preventDefault();
-            return;
+        delete botao.dataset.bpConteudoOriginal;
+        botao.style.minWidth = '';
+        botao.classList.remove('bp-carregando');
+        botao.removeAttribute('aria-busy');
+        botao.removeAttribute('aria-disabled');
+        if (botao.dataset.bpDesativadoPorCarregamento) {
+            botao.disabled = false;
+            delete botao.dataset.bpDesativadoPorCarregamento;
         }
-
-        // Sem internet, enviar só daria erro. Barra e avisa, sem perder o que foi digitado.
-        if (navigator.onLine === false) {
-            evento.preventDefault();
-            mostrarFaixa(TEXTO_SEM_INTERNET, "bp-faixa-offline");
-            return;
-        }
-
-        iniciar({
-            form: form,
-            botao: botaoEnvio && botaoEnvio.nodeName !== "INPUT" ? botaoEnvio : null,
-            mensagem: mensagemPara(form, botaoEnvio)
-        });
-
-        // Segurança: se algum código registrado depois deste cancelar o envio, não deixa a tela travada.
-        setTimeout(function () {
-            if (evento.defaultPrevented) parar();
-        }, 0);
-    }, false);
-
-    // form.submit() chamado por código (ex.: onchange="this.form.submit()" nos campos de data) NÃO dispara o evento
-    // "submit". Aqui o método é envolvido para esses casos também mostrarem que a página está carregando.
-    var submitOriginal = HTMLFormElement.prototype.submit;
-    HTMLFormElement.prototype.submit = function () {
-        if (!deveIgnorar(this, null)) {
-            iniciar({ form: this, mensagem: mensagemPara(this, null) });
-        }
-        return submitOriginal.apply(this, arguments);
-    };
-
-    // Voltar pelo botão do navegador pode trazer a página "congelada" com o indicador ligado. Aqui ele é desligado.
-    window.addEventListener("pageshow", function (evento) {
-        if (evento.persisted) parar();
-    });
+    }
 
     // ------------------------------------------------------------
     // API pública
     // ------------------------------------------------------------
-    window.BPCarregando = {
-        iniciar: iniciar,
-        parar: parar,
-        executar: executar
+
+    function iniciar(opcoes = {}) {
+        const { botao = null, mensagem = 'Salvando, aguarde...', bloquearTela = true, metodo = 'post' } = opcoes;
+
+        marcarBotao(botao, opcoes.textoBotao || textoPadrao(botao, metodo));
+        obterBarraTopo().classList.add('is-ativa');
+
+        if (!bloquearTela) return;
+
+        const tela = obterTelaEspera();
+        tela.querySelector('#bpTelaEsperaTitulo').textContent = mensagem;
+        tela.querySelector('.bp-tela-espera-lento').hidden = true;
+        tela.hidden = false;
+        document.documentElement.classList.add('bp-ocupado');
+        // Tira o foco do botão para Enter/Espaço não dispararem de novo.
+        tela.focus({ preventScroll: true });
+
+        clearTimeout(temporizadorLento);
+        temporizadorLento = setTimeout(() => {
+            tela.querySelector('.bp-tela-espera-lento').hidden = false;
+        }, AVISO_LENTO_MS);
+    }
+
+    function parar(botao) {
+        if (botao) desmarcarBotao(botao);
+        else Array.from(botoesOcupados).forEach(desmarcarBotao);
+
+        if (botoesOcupados.size) return;
+
+        clearTimeout(temporizadorLento);
+        barraTopo?.classList.remove('is-ativa');
+        if (telaEspera) telaEspera.hidden = true;
+        document.documentElement.classList.remove('bp-ocupado');
+        document.querySelectorAll('form[data-bp-enviando]').forEach(form => delete form.dataset.bpEnviando);
+    }
+
+    // Aviso de erro: usa o toast (toast-mensagens.js) e, se ele não existir, um alert simples.
+    function avisarErro(texto) {
+        if (window.BPToast) window.BPToast.mostrar(texto, 'error');
+        else window.alert(texto);
+    }
+
+    // ------------------------------------------------------------
+    // 1, 2 e 3) Envio de formulários
+    // ------------------------------------------------------------
+
+    // Fase de captura: roda ANTES de qualquer outro código da página.
+    // Se o formulário já está sendo enviado, o segundo envio é descartado aqui mesmo.
+    window.addEventListener('submit', evento => {
+        if (evento.target.dataset?.bpEnviando) {
+            evento.preventDefault();
+            evento.stopImmediatePropagation();
+        }
+    }, true);
+
+    // Fase de "bolha": roda DEPOIS do código da página. Assim, se a página cancelou o envio
+    // (ex.: confirm('Excluir?') respondido com "Cancelar", ou campo obrigatório vazio), nada acontece.
+    document.addEventListener('submit', evento => {
+        const form = evento.target;
+        if (evento.defaultPrevented || !(form instanceof HTMLFormElement)) return;
+        if (form.hasAttribute('data-sem-carregando')) return;
+        // Formulário que abre em outra aba ou baixa arquivo: a página atual não muda, então não bloqueia.
+        if (form.target && form.target !== '_self') return;
+
+        const metodo = (form.getAttribute('method') || 'get').toLowerCase();
+        const botao = evento.submitter || form.querySelector('[type="submit"], button:not([type])');
+
+        // HEURÍSTICA 5: sem internet o envio falharia e a pessoa veria a página de erro do navegador.
+        if (metodo === 'post' && navigator.onLine === false) {
+            evento.preventDefault();
+            avisarErro('Sem conexão com a internet. Nada foi salvo e o que você digitou continua no formulário. '
+                + 'Verifique o Wi-Fi ou o cabo e clique no botão de novo.');
+            return;
+        }
+
+        form.dataset.bpEnviando = '1';
+
+        iniciar({
+            botao,
+            metodo,
+            bloquearTela: metodo === 'post',
+            mensagem: metodo === 'post' ? textoPadrao(botao, metodo).replace('...', ', aguarde...') : 'Carregando...',
+        });
+
+        // Desativa os outros botões de envio do formulário. Fica para depois do envio começar porque
+        // botão desativado não manda o name/value dele (alguns formulários usam isso para saber a ação).
+        setTimeout(() => {
+            form.querySelectorAll('button, input[type="submit"]').forEach(outro => {
+                if (outro.type === 'button' || outro.disabled) return;
+                outro.disabled = true;
+                outro.dataset.bpDesativadoPorCarregamento = '1';
+            });
+        }, 0);
+    });
+
+    // form.submit() feito por código (ex.: trocar a data da agenda) não dispara o evento "submit".
+    const submitOriginal = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function () {
+        if (!this.hasAttribute('data-sem-carregando') && (!this.target || this.target === '_self')) {
+            const metodo = (this.getAttribute('method') || 'get').toLowerCase();
+            iniciar({ metodo, bloquearTela: metodo === 'post', mensagem: metodo === 'post' ? 'Salvando, aguarde...' : 'Carregando...' });
+        }
+        return submitOriginal.call(this);
     };
+
+    // ------------------------------------------------------------
+    // 4) Links do sistema: barra fina no topo
+    // ------------------------------------------------------------
+
+    document.addEventListener('click', evento => {
+        if (evento.defaultPrevented || evento.button !== 0) return;
+        if (evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey) return;
+
+        const link = evento.target.closest?.('a[href]');
+        if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+
+        const destino = new URL(link.href, location.href);
+        if (destino.origin !== location.origin || !/^https?:$/.test(destino.protocol)) return;
+        // Link para outra parte da mesma página (#ancora): não recarrega nada.
+        if (destino.pathname === location.pathname && destino.search === location.search && destino.hash) return;
+
+        obterBarraTopo().classList.add('is-ativa');
+    });
+
+    // ------------------------------------------------------------
+    // Voltar pelo navegador: a página pode vir da memória ainda "carregando". Limpa tudo.
+    // ------------------------------------------------------------
+
+    window.addEventListener('pageshow', () => parar());
+
+    // Se a internet cair com a página aberta, avisa na hora (antes de a pessoa tentar salvar).
+    window.addEventListener('offline', () => {
+        avisarErro('A internet caiu. Espere a conexão voltar antes de salvar, para não perder o que foi digitado.');
+    });
+    window.addEventListener('online', () => {
+        window.BPToast?.mostrar('Conexão restabelecida. Você já pode salvar.', 'success');
+    });
+
+    window.BPCarregando = { iniciar, parar };
 })();
