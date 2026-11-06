@@ -1,39 +1,398 @@
 /*
  * ARQUIVO: assets/css/financeiro.css
  * [BP-ALTERAÇÃO #5] Arquivo novo. USADO POR: pages/financeiro.php (junto com cadastro.css).
- * RESPONSABILIDADE: cartões de resumo, tabelas e filtro de mês da página Financeiro.
+ * RESPONSABILIDADE: página Financeiro (barra de mês, cards de resumo, tabelas).
+ *
+ * [BP-PADRONIZAÇÃO] Este arquivo segue o mesmo visual das outras telas:
+ *   1. Container e cabeçalho  -> iguais aos da Agenda (agenda.css, "Agenda Container Principal Unificado").
+ *   2. Barra de mês           -> mesmas classes e medidas da barra de data da Agenda (google-calendar-toolbar).
+ *   3. Cards de resumo        -> mesmas classes e medidas dos KPIs do Dashboard (dashboard-base.css, seção 3).
+ *   4. Painéis e tabelas      -> mesmo visual dos "card-painel" do Dashboard e das tabelas do DESIGN.md.
+ * Tudo fica dentro de .finance-page para não afetar nenhuma outra página.
  */
 
-.finance-page{background:#fff9bf}
+/* ==========================================================================
+   1. CONTAINER E CABEÇALHO (igual à Agenda)
+   ========================================================================== */
+.finance-page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px;
+  border-radius: 26px;
+  background: linear-gradient(180deg, #fff7c9 0 148px, #f7f8fb 148px 100%);
+}
 
-.finance-filter{display:flex;align-items:center;gap:10px}
-.finance-filter label{color:#444;font-weight:600}
-.finance-filter input{padding:10px 12px;border:1px solid #dedede;border-radius:8px;background:#fff}
-.finance-filter .save-button{min-width:0;padding:10px 18px}
+.finance-page *,
+.finance-page *::before,
+.finance-page *::after {
+  box-sizing: border-box;
+}
 
-.finance-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;max-width:1050px;margin:0 auto 22px}
-.finance-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid #e6e1c4;border-radius:16px;background:#fff}
-.finance-card small{color:#6d6d6d}
-.finance-card strong{font-size:22px}
-.finance-card.income strong{color:#176a3b}
-.finance-card.expense strong{color:#b3261e}
+.finance-page .page-heading {
+  margin-bottom: 18px;
+}
 
-.finance-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1050px;margin:0 auto}
-.finance-section{margin-bottom:22px;width:100%}
-.finance-section h2{font-size:18px}
+.finance-page .page-heading h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
 
-.finance-table{width:100%;border-collapse:collapse}
-.finance-table th,.finance-table td{padding:11px 25px;border-bottom:1px solid #eee;text-align:left}
-.finance-table th{color:#6d6d6d;font-size:13px;font-weight:700}
-.finance-table td:last-child,.finance-table th:last-child{text-align:right;white-space:nowrap}
-.finance-table a{color:#8a6200;font-weight:700;text-decoration:none}
-.finance-table a:hover{text-decoration:underline}
+.finance-page .page-heading small {
+  display: block;
+  margin-top: 4px;
+  color: #7a7464;
+}
 
-.finance-empty{padding:22px 25px;color:#777}
-.finance-note{display:flex;gap:8px;align-items:center;max-width:1050px;margin:0 auto;color:#6d6d6d;font-size:13px}
-.finance-note a{color:#8a6200;font-weight:700}
+.finance-page .message {
+  max-width: none;
+  margin: 0 0 18px;
+}
 
-@media (max-width:900px){
-  .finance-grid{grid-template-columns:1fr}
-  .finance-table th,.finance-table td{padding:10px 14px}
+/* ==========================================================================
+   2. BARRA DE NAVEGAÇÃO DE MÊS (igual à barra de data da Agenda)
+   Ordem: Hoje · seta anterior · seletor de mês · seta seguinte · mês por extenso
+   ========================================================================== */
+.finance-page .google-calendar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  border: 1px solid #efe5c0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 35px #00000008;
+}
+
+/* Botão Hoje e setas */
+.finance-page .calendar-today-button,
+.finance-page .calendar-nav-buttons a {
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  border: 1px solid #e7e7e7;
+  border-radius: 12px;
+  background: #fff;
+  color: #45413a;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: none;
+  transition: .18s;
+}
+
+.finance-page .calendar-nav-buttons a {
+  width: 42px;
+  padding: 0;
+}
+
+.finance-page .calendar-today-button:hover,
+.finance-page .calendar-nav-buttons a:hover {
+  background: #fff8df;
+  border-color: #e7d89c;
+}
+
+.finance-page .calendar-today-button:focus-visible,
+.finance-page .calendar-nav-buttons a:focus-visible {
+  outline: 3px solid #ffd84d;
+  outline-offset: 2px;
+}
+
+/* Seta do mês seguinte quando já está no mês atual */
+.finance-page .calendar-nav-buttons a.is-disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.finance-page .calendar-nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Seletor de mês */
+.finance-page .calendar-date-form {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-left: 0;
+}
+
+/* O rótulo continua no HTML para leitores de tela, mas fica escondido (como na Agenda) */
+.finance-page .calendar-date-form label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.finance-page .calendar-date-form input {
+  height: 42px;
+  min-width: 175px;
+  padding: 0 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #fcfcfc;
+  outline: 0;
+  font: inherit;
+}
+
+.finance-page .calendar-date-form input:focus {
+  border-color: #e8b600;
+  box-shadow: 0 0 0 3px #f2c40022;
+}
+
+/* Mês por extenso (canto direito) */
+.finance-page .calendar-date-title {
+  margin-left: auto;
+  justify-self: end;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: #fff8dc;
+  color: #564a1f;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   3. CARDS DE RESUMO (mesmo padrão dos KPIs do Dashboard)
+   ========================================================================== */
+.finance-page .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.finance-page .kpi-card {
+  min-width: 0;
+  min-height: 148px;
+  padding: 18px;
+  border: 1px solid #ececf0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 7px 22px rgba(31, 35, 48, .055);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  color: #262626;
+}
+
+/* Tom vermelho suave: despesas e resultado negativo */
+.finance-page .kpi-card-alerta {
+  border-color: #ffd6d3;
+  background: linear-gradient(180deg, #fff, #fff8f7);
+}
+
+/* Tom verde suave: entradas e resultado positivo */
+.finance-page .kpi-card-verde {
+  border-color: #cdeee0;
+  background: linear-gradient(180deg, #fff, #f3fbf6);
+}
+
+.finance-page .kpi-icone {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.finance-page .kpi-icone-verde    { background: #e9f8ef; color: #2e9c62; }
+.finance-page .kpi-icone-azul     { background: #eaf2ff; color: #407bdb; }
+.finance-page .kpi-icone-amarelo  { background: #fff5d8; color: #c58a00; }
+.finance-page .kpi-icone-vermelho { background: #ffebe9; color: #e34a43; }
+
+.finance-page .kpi-valor {
+  font-size: 24px;
+  line-height: 1.1;
+  margin-bottom: 7px;
+  color: #222;
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-page .kpi-rotulo {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #73777e;
+}
+
+/* ==========================================================================
+   4. PAINÉIS E TABELAS (mesmo visual dos "card-painel" do Dashboard)
+   ========================================================================== */
+.finance-page .finance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.finance-page .finance-section {
+  width: 100%;
+  max-width: none;
+  margin: 0 0 18px;
+  border: 1px solid #ececf0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(34, 34, 34, .08);
+  overflow: hidden;
+}
+
+.finance-page .finance-grid .finance-section {
+  margin-bottom: 0;
+}
+
+.finance-page .finance-section h2 {
+  margin: 0;
+  padding: 22px 22px 17px;
+  border-bottom: 1px solid #eeeef2;
+  color: #292929;
+  font-size: 18px;
+}
+
+/* Tabela com rolagem horizontal em telas pequenas */
+.finance-page .finance-table-wrap {
+  overflow-x: auto;
+}
+
+.finance-page .finance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.finance-page .finance-table th,
+.finance-page .finance-table td {
+  padding: 12px 22px;
+  border-bottom: 1px solid #eeeef2;
+  text-align: left;
+}
+
+.finance-page .finance-table th {
+  background: #f7f8fa;
+  color: #6b6b6b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.finance-page .finance-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.finance-page .finance-table tbody tr:hover td {
+  background: #f7f8fa;
+}
+
+/* Valores monetários sempre alinhados à direita */
+.finance-page .finance-table td:last-child,
+.finance-page .finance-table th:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-page .finance-table a {
+  color: #9a6f00;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.finance-page .finance-table a:hover {
+  text-decoration: underline;
+}
+
+.finance-page .finance-empty {
+  margin: 0;
+  padding: 28px 22px;
+  color: #6b6b6b;
+  text-align: center;
+}
+
+.finance-page .finance-note {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: none;
+  margin: 0;
+  color: #6b6b6b;
+  font-size: 13px;
+}
+
+.finance-page .finance-note a {
+  color: #9a6f00;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   5. RESPONSIVIDADE (mesmos pontos de quebra do Dashboard e da Agenda)
+   ========================================================================== */
+@media (max-width: 1350px) {
+  .finance-page .kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .finance-page .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .finance-page {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .finance-page .finance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-page .google-calendar-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .finance-page .calendar-date-title {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .finance-page .finance-table th,
+  .finance-page .finance-table td {
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 620px) {
+  .finance-page .google-calendar-toolbar {
+    align-items: stretch;
+  }
+
+  .finance-page .calendar-date-form {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .finance-page .calendar-date-form input {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+@media (max-width: 680px) {
+  .finance-page .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-page .finance-section h2 {
+    padding: 16px;
+  }
 }
