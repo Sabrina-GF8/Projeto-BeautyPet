@@ -551,11 +551,6 @@ function pagamentosPostFechamento(array $post): array
 }
 
 /**
- * Executa a responsabilidade específica de "inserirFinanceiroRegistroFechamento" e devolve/produz o resultado necessário para o restante do módulo.
- * Mantém esta regra isolada para evitar repetição e facilitar manutenção/testes.
- */
-
-/**
  * Calcula os números que devem ser conferidos antes de encerrar o dia.
  *
  * A contagem usa pets únicos por serviço. Assim, se o mesmo pet tiver dois
@@ -2040,7 +2035,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->rollBack();
             }
 
-            // HEURÍSTICA 9: registra a causa e garante ao usuário que nada foi gravado.
+            // HEURÍSTICA 9: registra a causa e garante ao usuário que nada foi alterado.
             error_log('[BeautyPet] finalizar fechamento: ' . $erro->getMessage());
             $mensagem = erroDeRegra($erro)
                 ? $erro->getMessage()
@@ -2439,6 +2434,25 @@ require __DIR__ . '/../includes/topo.php';
                 <?= escapar((string) $fechamento['status']) ?>
             </span>
 
+            <?php if (!$fechamentoFechado): ?>
+                <button class="daily-finish-button" type="button" data-open-daily-modal="finish">
+                    Finalizar dia
+                </button>
+            <?php else: ?>
+                <div class="daily-closed-label">
+                    <i class="fa-solid fa-lock"></i>
+                    Fechado em <?= escapar(formatarDataHoraAgenda($fechamento['fechado_em'])) ?>
+                </div>
+
+                <?php if ($administrador): ?>
+                    <form method="post" action="fechamento-diario.php?data=<?= escapar($dataSelecionada) ?>">
+                        <input type="hidden" name="acao" value="reabrir_fechamento">
+                        <button class="daily-ghost-button daily-reopen-button" type="submit">
+                            Reabrir dia
+                        </button>
+                    </form>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
     <?php if ($mensagem !== ''): ?>
@@ -2765,13 +2779,13 @@ require __DIR__ . '/../includes/topo.php';
             <span class="daily-detail-icon cash"><i class="fa-solid fa-cash-register"></i></span>
             <div>
                 <h2>Conferência do caixa</h2>
-                <small>O dinheiro esperado considera a abertura do caixa + os recebimentos em dinheiro.</small>
+                <small>O valor previsto considera a abertura do caixa + os recebimentos em dinheiro.</small>
             </div>
         </div>
 
         <div class="daily-cash-numbers">
             <div>
-                <span>Esperado</span>
+                <span>Previsto</span>
                 <strong><?= formatarMoeda($dinheiroEsperado) ?></strong>
             </div>
             <div>
@@ -2782,28 +2796,6 @@ require __DIR__ . '/../includes/topo.php';
                 <span>Diferença</span>
                 <strong><?= $diferencaDinheiro !== null ? formatarMoeda($diferencaDinheiro) : '—' ?></strong>
             </div>
-        </div>
-
-<div class="daily-cash-actions-area">
-            <?php if (!$fechamentoFechado): ?>
-                <button class="daily-finish-button" type="button" data-open-daily-modal="finish">
-                    Finalizar dia
-                </button>
-            <?php else: ?>
-                <div class="daily-closed-label">
-                    <i class="fa-solid fa-lock"></i>
-                    Fechado em <?= escapar(formatarDataHoraAgenda($fechamento['fechado_em'])) ?>
-                </div>
-
-                <?php if ($administrador): ?>
-                    <form method="post" action="fechamento-diario.php?data=<?= escapar($dataSelecionada) ?>">
-                        <input type="hidden" name="acao" value="reabrir_fechamento">
-                        <button class="daily-ghost-button daily-reopen-button" type="submit">
-                            Reabrir dia
-                        </button>
-                    </form>
-                <?php endif; ?>
-            <?php endif; ?>
         </div>
     </section>
 </div>
@@ -3034,28 +3026,28 @@ require __DIR__ . '/../includes/topo.php';
                     </div>
 
                     <div class="field span-6">
-                        <label>Banho <small>Esperado: <?= (int) ($conferenciaFechamento['banho'] ?? 0) ?></small></label>
-                        <input name="quantidade_banho" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
+                        <label>Banho <small>Previsto: <?= (int) ($conferenciaFechamento['banho'] ?? 0) ?></small></label>
+                        <input name="quantidade_banho" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho'] ?? (int) ($conferenciaFechamento['banho'] ?? 0))) ?>">
                     </div>
 
                     <div class="field span-6">
-                        <label>Banho e tosa <small>Esperado: <?= (int) ($conferenciaFechamento['banho_tosa'] ?? 0) ?></small></label>
-                        <input name="quantidade_banho_tosa" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho_tosa'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
+                        <label>Banho e tosa <small>Previsto: <?= (int) ($conferenciaFechamento['banho_tosa'] ?? 0) ?></small></label>
+                        <input name="quantidade_banho_tosa" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_banho_tosa'] ?? (int) ($conferenciaFechamento['banho_tosa'] ?? 0))) ?>">
                     </div>
 
                     <div class="field span-6">
-                        <label>Tosa higiênica <small>Esperado: <?= (int) ($conferenciaFechamento['higienica'] ?? 0) ?></small></label>
-                        <input name="quantidade_higienica" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_higienica'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
+                        <label>Tosa higiênica <small>Previsto: <?= (int) ($conferenciaFechamento['higienica'] ?? 0) ?></small></label>
+                        <input name="quantidade_higienica" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_higienica'] ?? (int) ($conferenciaFechamento['higienica'] ?? 0))) ?>">
                     </div>
 
                     <div class="field span-6">
-                        <label>Creche <small>Esperado: <?= (int) ($conferenciaFechamento['creche'] ?? 0) ?></small></label>
-                        <input name="quantidade_creche" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_creche'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
+                        <label>Creche <small>Previsto: <?= (int) ($conferenciaFechamento['creche'] ?? 0) ?></small></label>
+                        <input name="quantidade_creche" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_creche'] ?? (int) ($conferenciaFechamento['creche'] ?? 0))) ?>">
                     </div>
 
                     <div class="field span-6">
-                        <label>Hotel <small>Esperado: <?= (int) ($conferenciaFechamento['hotel'] ?? 0) ?></small></label>
-                        <input name="quantidade_hotel" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_hotel'] ?? '0')) /* [BP-ALTERAÇÃO #7] Começa em 0 em vez de vazio. */ ?>">
+                        <label>Hotel <small>Previsto: <?= (int) ($conferenciaFechamento['hotel'] ?? 0) ?></small></label>
+                        <input name="quantidade_hotel" type="number" min="0" step="1" required value="<?= escapar((string) ($_POST['quantidade_hotel'] ?? (int) ($conferenciaFechamento['hotel'] ?? 0))) ?>">
                     </div>
 
                     <div class="field span-12">
@@ -3063,18 +3055,18 @@ require __DIR__ . '/../includes/topo.php';
                     </div>
 
                     <div class="field span-4">
-                        <label>Dinheiro contado <small>Esperado: <?= formatarMoeda($conferenciaFechamento['dinheiro'] ?? 0) ?></small></label>
-                        <div class="money-input"><span>R$</span><input name="valor_dinheiro_contado" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_dinheiro_contado'] ?? '0.00')) /* [BP-ALTERAÇÃO #7] Começa em 0,00 em vez de vazio. */ ?>"></div>
+                        <label>Dinheiro contado <small>Previsto: <?= formatarMoeda($conferenciaFechamento['dinheiro'] ?? 0) ?></small></label>
+                        <div class="money-input"><span>R$</span><input name="valor_dinheiro_contado" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_dinheiro_contado'] ?? number_format((float) ($conferenciaFechamento['dinheiro'] ?? 0), 2, '.', ''))) ?>"></div>
                     </div>
 
                     <div class="field span-4">
-                        <label>Pix conferido <small>Esperado: <?= formatarMoeda($conferenciaFechamento['pix'] ?? 0) ?></small></label>
-                        <div class="money-input"><span>R$</span><input name="valor_pix_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_pix_conferido'] ?? '0.00')) /* [BP-ALTERAÇÃO #7] Começa em 0,00 em vez de vazio. */ ?>"></div>
+                        <label>Pix conferido <small>Previsto: <?= formatarMoeda($conferenciaFechamento['pix'] ?? 0) ?></small></label>
+                        <div class="money-input"><span>R$</span><input name="valor_pix_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_pix_conferido'] ?? number_format((float) ($conferenciaFechamento['pix'] ?? 0), 2, '.', ''))) ?>"></div>
                     </div>
 
                     <div class="field span-4">
-                        <label>Cartão conferido <small>Esperado: <?= formatarMoeda($conferenciaFechamento['cartao'] ?? 0) ?></small></label>
-                        <div class="money-input"><span>R$</span><input name="valor_cartao_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_cartao_conferido'] ?? '0.00')) /* [BP-ALTERAÇÃO #7] Começa em 0,00 em vez de vazio. */ ?>"></div>
+                        <label>Cartão conferido <small>Previsto: <?= formatarMoeda($conferenciaFechamento['cartao'] ?? 0) ?></small></label>
+                        <div class="money-input"><span>R$</span><input name="valor_cartao_conferido" type="number" min="0" step="0.01" required value="<?= escapar((string) ($_POST['valor_cartao_conferido'] ?? number_format((float) ($conferenciaFechamento['cartao'] ?? 0), 2, '.', ''))) ?>"></div>
                     </div>
 
                     <div class="field span-12">
@@ -4037,4 +4029,3 @@ setupPetSearchPicker();
 </script>
 
 <?php require __DIR__ . '/../includes/rodape.php'; ?>
-

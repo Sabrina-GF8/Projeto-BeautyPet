@@ -64,7 +64,7 @@ $dataPorExtenso = sprintf(
 // e os paineis correspondentes nunca saiam do lugar um do outro.
 $abasDashboard = [
     ['chave' => 'visao-geral',    'rotulo' => 'Visão geral',     'icone' => 'fa-solid fa-table-columns'],
-    ['chave' => 'interpretacoes', 'rotulo' => 'Interpretações',  'icone' => 'fa-solid fa-magnifying-glass-chart'],
+    ['chave' => 'interpretacoes', 'rotulo' => 'Análises',  'icone' => 'fa-solid fa-magnifying-glass-chart'],
     ['chave' => 'graficos',       'rotulo' => 'Gráficos',        'icone' => 'fa-solid fa-chart-column'],
     ['chave' => 'sugestoes',      'rotulo' => 'Sugestões da IA', 'icone' => 'fa-solid fa-tags'],
     ['chave' => 'assistente',     'rotulo' => 'Assistente',      'icone' => 'fa-regular fa-comments'],
