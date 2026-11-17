@@ -54,6 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
     // Armazena em "ativo" o valor necessário para as próximas etapas deste fluxo.
     $ativo = $primeiroUsuario || isset($_POST['ativo']) ? 1 : 0;
 
+    // Regex de senha forte: mín. 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 caractere especial.
+    $regexSenhaForte = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_\-]).{8,}$/';
+
     // Verifica a condição abaixo antes de executar este bloco.
     if ($nome === null || $email === null || $senha === '' || $confirmacao === '') {
         // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
@@ -67,9 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
         // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
     // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
-    } elseif (strlen($senha) < 8) {
+    } elseif (!preg_match($regexSenhaForte, $senha)) {
         // Inicializa a mensagem de retorno que será mostrada ao usuário após validações ou operações.
-        $mensagem = 'A senha deve possuir pelo menos 8 caracteres.';
+        $mensagem = 'A senha não atende aos critérios de segurança: mínimo de 8 caracteres, com pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.';
         // Define a classe visual da mensagem de retorno, normalmente sucesso ou erro.
         $tipoMensagem = 'error';
     // Caso a condição anterior não tenha sido atendida, testa esta alternativa.
@@ -146,7 +149,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $podeCriar) {
                 header('Location: novo-usuario.php?salvo=1');
                 // Encerra a execução desta requisição após o redirecionamento ou resposta enviada.
                 exit;
-            }        } catch (PDOException $erro) {
+            }
+        } catch (PDOException $erro) {
             // Verifica a condição abaixo antes de executar este bloco.
             // HEURÍSTICA 9: o banco é PostgreSQL; duplicidade é o SQLSTATE 23505 (o 1062 era do MySQL e nunca disparava).
             if (($erro->errorInfo[0] ?? '') === '23505' || (string) $erro->getCode() === '23505') {
@@ -237,7 +241,7 @@ require __DIR__ . '/../includes/topo.php';
             <?php endif; ?>
 
             <!-- Formulário responsável por enviar os dados desta ação para processamento no PHP. -->
-            <form class="account-create-form" method="post" autocomplete="off">
+            <form class="account-create-form" id="formNovoUsuario" method="post" autocomplete="off">
                 <div class="account-field">
                     <!-- Rótulo do campo "Nome completo", indicando ao usuário qual informação deve ser preenchida. -->
                     <label for="nome">Nome completo</label>
@@ -290,6 +294,28 @@ require __DIR__ . '/../includes/topo.php';
                                 data-password-target="senha" title="Mostrar ou ocultar senha">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
+                        </div>
+
+                        <!-- Indicador visual dinâmico dos requisitos de senha forte -->
+                        <div id="requisitosSenha" class="password-strength-indicator" aria-live="polite">
+                            <small class="req-title">A senha deve conter:</small>
+                            <ul>
+                                <li id="req-length" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Mínimo de 8 caracteres
+                                </li>
+                                <li id="req-upper" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 letra maiúscula (A-Z)
+                                </li>
+                                <li id="req-lower" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 letra minúscula (a-z)
+                                </li>
+                                <li id="req-number" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 número (0-9)
+                                </li>
+                                <li id="req-special" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 caractere especial (!@#$%^&*...)
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
@@ -364,12 +390,73 @@ require __DIR__ . '/../includes/topo.php';
                 </div>
 
                 <button class="account-primary-button" type="submit">
-                    <i class="fa-solid fa-user-plus"></i>
                     Criar usuário
                 </button>
             </form>
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const inputSenha = document.getElementById('senha');
+    const form = document.getElementById('formNovoUsuario');
+    if (!inputSenha || !form) return;
+
+    const reqLength = document.getElementById('req-length');
+    const reqUpper = document.getElementById('req-upper');
+    const reqLower = document.getElementById('req-lower');
+    const reqNumber = document.getElementById('req-number');
+    const reqSpecial = document.getElementById('req-special');
+
+    const atualizarItem = (elemento, valido) => {
+        if (!elemento) return;
+        const icone = elemento.querySelector('i');
+        if (valido) {
+            elemento.classList.remove('invalid');
+            elemento.classList.add('valid');
+            if (icone) icone.className = 'fa-solid fa-circle-check';
+        } else {
+            elemento.classList.remove('valid');
+            elemento.classList.add('invalid');
+            if (icone) icone.className = 'fa-solid fa-circle-xmark';
+        }
+    };
+
+    const validarRegrasSenha = (valor) => {
+        const regras = {
+            length: valor.length >= 8,
+            upper: /[A-Z]/.test(valor),
+            lower: /[a-z]/.test(valor),
+            number: /\d/.test(valor),
+            special: /[!@#$%^&*(),.?":{}|<>_\-]/.test(valor)
+        };
+
+        atualizarItem(reqLength, regras.length);
+        atualizarItem(reqUpper, regras.upper);
+        atualizarItem(reqLower, regras.lower);
+        atualizarItem(reqNumber, regras.number);
+        atualizarItem(reqSpecial, regras.special);
+
+        return regras.length && regras.upper && regras.lower && regras.number && regras.special;
+    };
+
+    inputSenha.addEventListener('input', function () {
+        validarRegrasSenha(inputSenha.value);
+    });
+
+    form.addEventListener('submit', function (evento) {
+        if (!validarRegrasSenha(inputSenha.value)) {
+            evento.preventDefault();
+            if (typeof window.mostrarToast === 'function') {
+                window.mostrarToast('A senha não atende a todos os critérios de segurança obrigatórios.', 'error');
+            } else {
+                alert('A senha não atende a todos os critérios de segurança obrigatórios.');
+            }
+            inputSenha.focus();
+        }
+    });
+});
+</script>
 
 <?php require __DIR__ . '/../includes/rodape.php'; ?>

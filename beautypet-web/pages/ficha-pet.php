@@ -3,6 +3,7 @@
  * ARQUIVO: ficha-pet.php
  * RESPONSABILIDADE: Ficha detalhada do pet.
  * Carrega dados cadastrais, tutor, pacotes e histórico de serviços/financeiro com paginação.
+ * Inclui também a lógica de exclusão restrita a administradores (Alteração #4).
  */
 require __DIR__ . '/../config/config.php';
 
@@ -12,6 +13,33 @@ $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id) {
     header('Location: fichas-pets.php?nao_encontrado=1');
     exit;
+}
+
+// Obtém o usuário atual para checar se é ADMINISTRADOR (Controle de Acesso da Alteração #4)
+$usuarioAtual = obterUsuarioAtual($pdo);
+$ehAdministrador = (($usuarioAtual['perfil'] ?? null) === 'ADMINISTRADOR');
+
+// ---------------------------------------------------------------------------
+// Processamento da Exclusão do Pet (Backend - Alteração #4)
+// ---------------------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'excluir_pet') {
+    if (!$ehAdministrador) {
+        header('Location: ficha-pet.php?id=' . $id . '&erro=permissao');
+        exit;
+    }
+
+    try {
+        // Exclusão segura utilizando Prepared Statement
+        $stmtDel = $pdo->prepare('UPDATE pets SET ativo = FALSE WHERE id = :id');
+        $stmtDel->execute([':id' => $id]);
+
+        header('Location: fichas-pets.php?deletado=1');
+        exit;
+    } catch (Throwable $e) {
+        error_log('[BeautyPet] Erro ao excluir pet: ' . $e->getMessage());
+        header('Location: ficha-pet.php?id=' . $id . '&erro=conexao');
+        exit;
+    }
 }
 
 // Prepara uma consulta em "pets" para carregar os dados cadastrais e financeiros do pet.
@@ -171,7 +199,16 @@ require __DIR__ . '/../includes/topo.php';
         <div class="message success detail-edit-message">Dados atualizados com sucesso!</div>
     <?php endif; ?>
 
-    <!-- Seção de topo com identidade, resumos do pet e botão de edição alinhado à direita -->
+    <?php if (isset($_GET['erro'])): ?>
+        <div class="message error detail-edit-message">
+            <?php
+                if ($_GET['erro'] === 'permissao') echo 'Você não possui permissão de Administrador para realizar esta exclusão.';
+                else echo 'Não foi possível realizar a exclusão do pet. Tente novamente.';
+            ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Seção de topo com identidade, resumos do pet e botões de ação alinhados à direita -->
     <section class="detail-card pet-profile-top">
         <div class="pet-profile-identity">
             <?php $fotoPet = urlFotoPet($pet['foto_url'] ?? null); ?>
@@ -223,11 +260,20 @@ require __DIR__ . '/../includes/topo.php';
             </article>
         </div>
 
-        <!-- Botão de edição reposicionado para ficar logo abaixo e alinhado à direita dos cards -->
-        <div class="pet-action-wrapper">
+        <!-- Botão de edição e botão Excluir com o design customizado .danger alinhados à direita -->
+        <div class="pet-action-wrapper" style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
             <a class="detail-edit-button" href="cadastro-pet.php?editar=<?= (int) $id ?>">
                 Editar pet
             </a>
+
+            <?php if ($ehAdministrador): ?>
+                <form method="post" id="formExcluirPet" onsubmit="return confirm('Tem certeza que deseja excluir este pet? Esta ação desativará o registro do sistema.');" style="margin: 0;">
+                    <input type="hidden" name="acao" value="excluir_pet">
+                    <button type="submit" class="detail-edit-button icon-action-button danger" style="background: #ffe4e4; color: #b21f1f; border: 1px solid #f0cbc8;">
+                        Excluir
+                    </button>
+                </form>
+            <?php endif; ?>
         </div>
     </div>
 </section>

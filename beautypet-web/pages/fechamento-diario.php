@@ -2436,7 +2436,7 @@ require __DIR__ . '/../includes/topo.php';
 
             <?php if (!$fechamentoFechado): ?>
                 <button class="daily-finish-button" type="button" data-open-daily-modal="finish">
-                    Finalizar dia
+                    Fechar dia
                 </button>
             <?php else: ?>
                 <div class="daily-closed-label">

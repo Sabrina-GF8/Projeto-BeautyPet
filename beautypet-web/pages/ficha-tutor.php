@@ -1,6 +1,10 @@
 <?php
-
-// Carrega as configurações do sistema e a conexão com o banco de dados.
+/**
+ * ARQUIVO: ficha-tutor.php
+ * RESPONSABILIDADE: Ficha detalhada do tutor.
+ * Carrega dados cadastrais, pets vinculados, métricas financeiras e histórico de atendimentos.
+ * Inclui também a lógica de exclusão restrita a administradores (Alteração #4).
+ */
 require __DIR__ . '/../config/config.php';
 
 // Valida o ID do tutor recebido por parâmetro na URL
@@ -9,6 +13,43 @@ $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id) {
     header('Location: fichas-tutores.php?nao_encontrado=1');
     exit;
+}
+
+// Obtém o usuário atual para checar se é ADMINISTRADOR (Controle de Acesso da Alteração #4)
+$usuarioAtual = obterUsuarioAtual($pdo);
+$ehAdministrador = (($usuarioAtual['perfil'] ?? null) === 'ADMINISTRADOR');
+
+// ---------------------------------------------------------------------------
+// Processamento da Exclusão do Tutor (Backend - Alteração #4)
+// ---------------------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'excluir_tutor') {
+    if (!$ehAdministrador) {
+        header('Location: ficha-tutor.php?id=' . $id . '&erro=permissao');
+        exit;
+    }
+
+    try {
+        // Verifica se existem pets vinculados ou restrições de chave estrangeira
+        $stmtPets = $pdo->prepare('SELECT COUNT(*) FROM pets WHERE cliente_id = :id AND ativo = TRUE');
+        $stmtPets->execute([':id' => $id]);
+        $temPetsAtivos = (int) $stmtPets->fetchColumn();
+
+        if ($temPetsAtivos > 0) {
+            header('Location: ficha-tutor.php?id=' . $id . '&erro=possui_pets');
+            exit;
+        }
+
+        // Exclusão segura utilizando Prepared Statement
+        $stmtDel = $pdo->prepare('UPDATE clientes SET ativo = FALSE WHERE id = :id');
+        $stmtDel->execute([':id' => $id]);
+
+        header('Location: fichas-tutores.php?deletado=1');
+        exit;
+    } catch (Throwable $e) {
+        error_log('[BeautyPet] Erro ao excluir tutor: ' . $e->getMessage());
+        header('Location: ficha-tutor.php?id=' . $id . '&erro=conexao');
+        exit;
+    }
 }
 
 // Consulta principal dos dados do perfil e métricas financeiras do tutor
@@ -186,10 +227,20 @@ require __DIR__ . '/../includes/topo.php';
         <div class="message success detail-edit-message">Dados atualizados com sucesso!</div>
     <?php endif; ?>
 
+    <?php if (isset($_GET['erro'])): ?>
+        <div class="message error detail-edit-message">
+            <?php
+                if ($_GET['erro'] === 'possui_pets') echo 'Não é possível excluir este tutor pois ele possui pets ativos vinculados.';
+                elseif ($_GET['erro'] === 'permissao') echo 'Você não possui permissão de Administrador para realizar esta exclusão.';
+                else echo 'Não foi possível realizar a exclusão. Tente novamente.';
+            ?>
+        </div>
+    <?php endif; ?>
+
     <!-- Layout principal contendo perfil do tutor e resumo lateral -->
     <div class="detail-layout">
 
-        <!-- Card com os dados pessoais do tutor e botão de edição integrado -->
+        <!-- Card com os dados pessoais do tutor e botões de edição/exclusão integrados -->
         <section class="detail-card tutor-profile-card">
 
             <div>
@@ -257,11 +308,20 @@ require __DIR__ . '/../includes/topo.php';
                 </div>
             </div>
 
-            <!-- Botão de edição posicionado no canto inferior direito do card -->
-            <div class="tutor-action-wrapper">
+            <!-- Botões de ação alinhados lado a lado (Editar e Excluir com o design customizado .danger) -->
+            <div class="tutor-action-wrapper" style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
                 <a class="detail-edit-button" href="cadastro-tutor.php?editar=<?= (int) $id ?>">
                     Editar tutor
                 </a>
+
+                <?php if ($ehAdministrador): ?>
+                    <form method="post" id="formExcluirTutor" onsubmit="return confirm('Tem certeza que deseja excluir este tutor? Esta ação não poderá ser desfeita e removerá os acessos vinculados.');" style="margin: 0;">
+                        <input type="hidden" name="acao" value="excluir_tutor">
+                        <button type="submit" class="detail-edit-button icon-action-button danger" style="background: #ffe4e4; color: #b21f1f; border: 1px solid #f0cbc8;">
+                            Excluir
+                        </button>
+                    </form>
+                <?php endif; ?>
             </div>
 
         </section>

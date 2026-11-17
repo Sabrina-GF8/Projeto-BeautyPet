@@ -1,7 +1,7 @@
 /*
  * ARQUIVO: assets/css/novo-usuario.css
- * USADO POR: pages/novo-usuario.php
- * RESPONSABILIDADE: Tela de criação de novo usuário.
+ * USADO POR: pages/novo-usuario.php e pages/configuracoes.php
+ * RESPONSABILIDADE: Tela de criação de novo usuário e indicador visual de força de senha.
  * Origem: separado do antigo assets/style.css. Limpeza: removidos comentários automáticos, regras sobrescritas no mesmo arquivo e classes que nenhuma página usa.
  */
 
@@ -52,6 +52,51 @@
 .account-active-option span{display:flex;flex-direction:column;gap:1px}
 .account-active-option strong{font-size:13px}
 .account-active-option small{color:#818793;font-size:11px}
+
+/* Indicador visual dinâmico de senha forte */
+.password-strength-indicator{
+  margin-top:8px;
+  padding:10px 12px;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  background:#f8fafc
+}
+.password-strength-indicator .req-title{
+  display:block;
+  margin-bottom:6px;
+  font-size:12px;
+  font-weight:700;
+  color:#475569
+}
+.password-strength-indicator ul{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px
+}
+.password-strength-indicator li{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  line-height:1.35;
+  color:#64748b;
+  transition:color .15s ease
+}
+.password-strength-indicator li i{
+  font-size:12px;
+  flex:0 0 auto
+}
+.password-strength-indicator li.invalid{
+  color:#b91c1c
+}
+.password-strength-indicator li.valid{
+  color:#047857;
+  font-weight:600
+}
+
 @media (max-width:700px){
   .account-form-row{grid-template-columns:1fr}
   .create-user-dialog{width:min(470px,100%)}

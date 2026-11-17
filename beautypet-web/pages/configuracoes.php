@@ -25,12 +25,15 @@ $mensagem = '';
 $tipoMensagem = '';
 
 // ---------------------------------------------------------------------------
-// Alterar a própria senha (mesma regra do novo-usuario.php: mínimo de 8 caracteres).
+// Alterar a própria senha (validação de senha forte igual ao novo-usuario.php).
 // ---------------------------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'alterar_senha') {
     $senhaAtual = (string) ($_POST['senha_atual'] ?? '');
     $senhaNova = (string) ($_POST['senha_nova'] ?? '');
     $confirmacao = (string) ($_POST['confirmar_senha'] ?? '');
+
+    // Regex de senha forte: mín. 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 caractere especial.
+    $regexSenhaForte = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_\-]).{8,}$/';
 
     if (!$usuarioAtual) {
         $mensagem = 'Entre em uma conta antes de alterar a senha.';
@@ -38,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'alterar
     } elseif ($senhaAtual === '' || $senhaNova === '' || $confirmacao === '') {
         $mensagem = 'Preencha a senha atual, a nova senha e a confirmação.';
         $tipoMensagem = 'error';
-    } elseif (strlen($senhaNova) < 8) {
-        $mensagem = 'A nova senha deve possuir pelo menos 8 caracteres.';
+    } elseif (!preg_match($regexSenhaForte, $senhaNova)) {
+        $mensagem = 'A nova senha não atende aos critérios de segurança: mínimo de 8 caracteres, com pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.';
         $tipoMensagem = 'error';
     } elseif ($senhaNova !== $confirmacao) {
         $mensagem = 'A confirmação da nova senha não corresponde.';
@@ -85,7 +88,8 @@ $tituloPagina = 'Configurações';
 $paginaAtiva = 'configuracoes';
 // cadastro.css: reaproveita o visual dos formulários (form-card, field, save-button, message).
 // configuracoes.css: só o que é próprio desta página (opções de tema, chaves liga/desliga).
-$cssPagina = ['cadastro', 'configuracoes'];
+// novo-usuario.css: reaproveita o estilo do indicador visual de senha forte.
+$cssPagina = ['cadastro', 'configuracoes', 'novo-usuario'];
 require __DIR__ . '/../includes/topo.php';
 ?>
 
@@ -129,7 +133,7 @@ require __DIR__ . '/../includes/topo.php';
         </div>
 
         <?php if ($usuarioAtual): ?>
-            <form class="form-section" method="post" action="configuracoes.php#conta" autocomplete="off">
+            <form class="form-section" id="formAlterarSenha" method="post" action="configuracoes.php#conta" autocomplete="off">
                 <input type="hidden" name="acao" value="alterar_senha">
                 <h3>Alterar minha senha</h3>
                 <div class="form-grid">
@@ -143,12 +147,34 @@ require __DIR__ . '/../includes/topo.php';
                         </div>
                     </div>
                     <div class="field span-4">
-                        <label for="senhaNova">Nova senha <small>(mínimo 8 caracteres)</small></label>
+                        <label for="senhaNova">Nova senha</label>
                         <div class="password-field">
                             <input id="senhaNova" name="senha_nova" type="password" minlength="8" autocomplete="new-password" required>
                             <button class="toggle-password" type="button" data-password-target="senhaNova" title="Mostrar ou ocultar senha" aria-label="Mostrar ou ocultar senha">
                                 <i class="fa-regular fa-eye" aria-hidden="true"></i>
                             </button>
+                        </div>
+
+                        <!-- Indicador visual dinâmico dos requisitos de senha forte -->
+                        <div id="requisitosSenhaNova" class="password-strength-indicator" aria-live="polite">
+                            <small class="req-title">A nova senha deve conter:</small>
+                            <ul>
+                                <li id="req-nova-length" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Mínimo de 8 caracteres
+                                </li>
+                                <li id="req-nova-upper" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 letra maiúscula (A-Z)
+                                </li>
+                                <li id="req-nova-lower" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 letra minúscula (a-z)
+                                </li>
+                                <li id="req-nova-number" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 número (0-9)
+                                </li>
+                                <li id="req-nova-special" class="invalid">
+                                    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> 1 caractere especial (!@#$%^&*...)
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <div class="field span-4">
@@ -290,6 +316,67 @@ require __DIR__ . '/../includes/topo.php';
 </div>
 
 <script>
+// Validação dinâmica de senha forte na alteração de senha (configuracoes.php)
+(function () {
+    const inputSenhaNova = document.getElementById('senhaNova');
+    const formAlterarSenha = document.getElementById('formAlterarSenha');
+    if (!inputSenhaNova || !formAlterarSenha) return;
+
+    const reqLength = document.getElementById('req-nova-length');
+    const reqUpper = document.getElementById('req-nova-upper');
+    const reqLower = document.getElementById('req-nova-lower');
+    const reqNumber = document.getElementById('req-nova-number');
+    const reqSpecial = document.getElementById('req-nova-special');
+
+    const atualizarItem = (elemento, valido) => {
+        if (!elemento) return;
+        const icone = elemento.querySelector('i');
+        if (valido) {
+            elemento.classList.remove('invalid');
+            elemento.classList.add('valid');
+            if (icone) icone.className = 'fa-solid fa-circle-check';
+        } else {
+            elemento.classList.remove('valid');
+            elemento.classList.add('invalid');
+            if (icone) icone.className = 'fa-solid fa-circle-xmark';
+        }
+    };
+
+    const validarRegrasSenha = (valor) => {
+        const regras = {
+            length: valor.length >= 8,
+            upper: /[A-Z]/.test(valor),
+            lower: /[a-z]/.test(valor),
+            number: /\d/.test(valor),
+            special: /[!@#$%^&*(),.?":{}|<>_\-]/.test(valor)
+        };
+
+        atualizarItem(reqLength, regras.length);
+        atualizarItem(reqUpper, regras.upper);
+        atualizarItem(reqLower, regras.lower);
+        atualizarItem(reqNumber, regras.number);
+        atualizarItem(reqSpecial, regras.special);
+
+        return regras.length && regras.upper && regras.lower && regras.number && regras.special;
+    };
+
+    inputSenhaNova.addEventListener('input', function () {
+        validarRegrasSenha(inputSenhaNova.value);
+    });
+
+    formAlterarSenha.addEventListener('submit', function (evento) {
+        if (!validarRegrasSenha(inputSenhaNova.value)) {
+            evento.preventDefault();
+            if (typeof window.mostrarToast === 'function') {
+                window.mostrarToast('A nova senha não atende a todos os critérios de segurança obrigatórios.', 'error');
+            } else {
+                alert('A nova senha não atende a todos os critérios de segurança obrigatórios.');
+            }
+            inputSenhaNova.focus();
+        }
+    });
+})();
+
 // Liga os campos desta página ao assets/js/preferencias.js (carregado no topo de todas as páginas).
 (function () {
     const preferencias = window.BeautyPetPreferencias;
