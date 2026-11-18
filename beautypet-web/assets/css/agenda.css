@@ -849,55 +849,6 @@
   margin: 0 0 18px;
 }
 
-/* ===== Barra de Navegação do Calendário da Agenda ===== */
-.google-calendar-toolbar {
-  display: flex;
-  grid-template-columns: auto auto minmax(220px, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 24px;
-  padding: 14px 16px;
-  border: 1px solid #efe5c0;
-  border-radius: 20px;
-  background: #fff;
-  box-shadow: 0 18px 35px #00000008;
-}
-
-/* Botão Hoje e Setas de Navegação */
-.calendar-today-button,
-.calendar-nav-buttons a {
-  height: 42px;
-  display: grid;
-  place-items: center;
-  padding: 0 16px;
-  border: 1px solid #e7e7e7;
-  border-radius: 12px;
-  background: #fff;
-  color: #45413a;
-  text-decoration: none;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: none;
-  transition: .18s;
-}
-
-.calendar-nav-buttons a {
-  width: 42px;
-  padding: 0;
-}
-
-.calendar-today-button:hover,
-.calendar-nav-buttons a:hover {
-  background: #fff8df;
-  border-color: #e7d89c;
-}
-
-.calendar-nav-buttons {
-  display: flex;
-  gap: 8px;
-}
-
 /* Formulário do Seletor de Data */
 .calendar-date-form {
   display: flex;
@@ -929,18 +880,6 @@
 .calendar-date-form input:focus {
   border-color: #e8b600;
   box-shadow: 0 0 0 3px #f2c40022;
-}
-
-/* Data por extenso (no canto direito) */
-.calendar-date-title {
-  margin-left: auto;
-  justify-self: end;
-  padding: 10px 16px;
-  border-radius: 14px;
-  background: #fff8dc;
-  color: #564a1f;
-  font-size: 16px;
-  font-weight: 800;
 }
 
 .google-calendar-card {
@@ -1152,11 +1091,6 @@ body.agenda-modal-open {
 
   .google-calendar-toolbar {
     flex-wrap: wrap
-  }
-
-  .calendar-date-title {
-    width: 100%;
-    margin-left: 0
   }
 
   .google-time-content {
@@ -1720,19 +1654,6 @@ body.agenda-modal-open {
     gap: 10px
   }
 
-  .calendar-nav-buttons {
-    order: 2
-  }
-
-  .calendar-date-form {
-    order: 3;
-    flex-wrap: wrap
-  }
-
-  .calendar-date-form input {
-    width: 100%
-  }
-
   .calendar-date-title {
     order: 1;
     justify-self: start
@@ -1757,4 +1678,49 @@ body.agenda-modal-open {
     flex-wrap: wrap
   }
 
+}
+
+/* ===== Barra de datas da agenda ===== */
+.agenda-datebar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 24px;padding:16px 20px;border:1px solid #efe5c0;border-radius:20px;background:#fff;box-shadow:0 18px 35px #00000008}
+
+/* Lado esquerdo: data ativa */
+.agenda-datebar-info{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+.agenda-datebar-title{margin:0;font-size:20px;font-weight:800;line-height:1.2;color:#252930;letter-spacing:-.01em}
+.agenda-datebar-tag{padding:4px 11px;border-radius:999px;background:#eef0f3;color:#596070;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.agenda-datebar-tag[hidden]{display:none}
+.agenda-datebar-tag.is-hoje{background:#fff2b7;color:#7a5800}
+
+/* Lado direito: controles agrupados */
+.agenda-datebar-controls{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.agenda-datebar-group{display:flex;align-items:center;gap:6px}
+
+.agenda-datebar-arrow{width:44px;height:44px;display:grid;place-items:center;border:1px solid #d5d9e0;border-radius:12px;background:#fff;color:#45413a;text-decoration:none;transition:.18s}
+.agenda-datebar-arrow:hover{background:#fff8df;border-color:#e7d89c}
+
+/* Botão "Hoje": destaque âmbar (só existe quando a data ≠ hoje) */
+.agenda-datebar-today{height:44px;display:grid;place-items:center;padding:0 18px;border:1px solid #e6b500;border-radius:12px;background:#fff2b7;color:#7a5800;font-weight:800;text-decoration:none;transition:.18s}
+.agenda-datebar-today[hidden]{display:none}
+.agenda-datebar-today:hover{background:#ffe680}
+
+/* Seletor de data */
+.agenda-datebar-form{position:relative;display:flex;align-items:center;margin:0}
+.agenda-datebar-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.agenda-datebar-form input{height:44px;min-width:170px;padding:0 38px 0 14px;border:1px solid #c9ced8;border-radius:12px;background:#fff;color:#252930;font:inherit;font-weight:600;outline:0;cursor:pointer}
+.agenda-datebar-form input:hover{border-color:#e7d89c}
+.agenda-datebar-form input:focus{border-color:#e6b500;box-shadow:0 0 0 3px #e8bd1822}
+/* Esconde o ícone nativo: a seta ▾ própria o substitui e o JS abre o calendário */
+.agenda-datebar-form input::-webkit-calendar-picker-indicator{display:none}
+.agenda-datebar-caret{position:absolute;right:14px;color:#6b7280;font-size:14px;pointer-events:none}
+
+/* Telas menores */
+@media (max-width:900px){
+  .agenda-datebar{flex-direction:column;align-items:stretch}
+  .agenda-datebar-controls{justify-content:space-between;flex-wrap:wrap}
+}
+@media (max-width:560px){
+  .agenda-datebar-title{font-size:18px}
+  .agenda-datebar-group{width:100%}
+  .agenda-datebar-form{flex:1}
+  .agenda-datebar-form input{width:100%;min-width:0}
+  .agenda-datebar-today{width:100%}
 }

@@ -29,28 +29,36 @@
 .global-search-option strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
 .global-search-option small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#858c98;font-size:11px}
 /* Qualquer botão/item dentro da lista, com ou sem a classe .search-picker-item */
-[data-search-results] button,
-[data-search-results] .search-picker-item {
-    display: block !important;
-    width: 100% !important;
-    text-align: left !important;
-    padding: 8px 12px !important;
-    margin: 0 !important;
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    outline: none !important;
-    box-shadow: none !important;
-    appearance: none;
-    -webkit-appearance: none;
-    font-size: 14px;
-    font-family: inherit;
-    color: #334155;
-    cursor: pointer;
-    box-sizing: border-box;
-}
-[data-search-results] button:hover,
-[data-search-results] .search-picker-item:hover {
-    background-color: #f1f5f9 !important;
-    color: #0f172a;
-}
+/* ===== Combobox de pet (modal de agendamento) ===== */
+.pet-combo{position:relative;width:100%}
+.pet-combo-field{position:relative;display:flex;align-items:center;width:100%}
+
+.pet-combo-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);z-index:1;color:#9aa1ad;font-size:13px;pointer-events:none}
+
+.pet-combo-field>input{width:100%;min-height:44px;padding:11px 70px 11px 38px;border:1px solid #dfe2e7;border-radius:14px;background:#fbfcfd;color:#252930;outline:0;text-overflow:ellipsis;cursor:pointer;box-sizing:border-box}
+.pet-combo-field>input:focus{border-color:#e6b500;box-shadow:0 0 0 3px #e8bd1822;background:#fff;cursor:text}
+
+.pet-combo-clear{position:absolute;right:34px;top:50%;transform:translateY(-50%);z-index:1;width:24px;height:24px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:#27508f;font-size:20px;font-weight:700;line-height:1;cursor:pointer}
+.pet-combo-clear[hidden]{display:none}
+.pet-combo-clear:hover{background:#eef0f3}
+
+.pet-combo-arrow{position:absolute;right:13px;top:50%;transform:translateY(-50%);z-index:1;color:#6b7280;font-size:14px;pointer-events:none;transition:transform .15s}
+.pet-combo-field>input[aria-expanded="true"]~.pet-combo-arrow{transform:translateY(-50%) rotate(180deg)}
+
+.pet-combo.is-selected .pet-combo-field>input{background:#fff9e1;border-color:#e6b500;font-weight:600;cursor:default}
+.pet-combo.is-invalid .pet-combo-field>input{border-color:#dc2626;box-shadow:0 0 0 3px #dc262622}
+.pet-combo-error{margin:6px 2px 0;color:#dc2626;font-size:12px}
+.pet-combo-error[hidden]{display:none}
+
+.pet-combo-results{position:absolute;z-index:3200;top:calc(100% + 7px);left:0;right:0;max-height:290px;overflow-y:auto;padding:7px;border:1px solid #e3e6eb;border-radius:16px;background:#fff;box-shadow:0 20px 55px #11182720}
+.pet-combo-results[hidden]{display:none}
+
+.pet-combo-option{display:flex;flex-direction:column;gap:3px;padding:11px 12px;border-radius:11px;color:#343943;cursor:pointer}
+.pet-combo-option strong{font-size:14px;font-weight:700;color:#252930}
+.pet-combo-option small{font-size:12px;color:#838a96}
+.pet-combo-option:hover,.pet-combo-option.is-active{background:#fff7d8}
+
+.pet-combo-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;color:#858c98;font-size:13px;text-align:center}
+.pet-combo-empty a{color:#906900;font-weight:600;text-decoration:none}
+.pet-combo-empty a:hover{text-decoration:underline}
+.pet-combo-empty.is-error{color:#b91c1c}

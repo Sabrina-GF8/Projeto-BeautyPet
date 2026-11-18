@@ -512,28 +512,49 @@ require __DIR__ . '/../includes/topo.php';
         </div>
     <?php endif; ?>
 
-<div class="monthly-period-bar">
-        <!-- 1. Seta Esquerda -->
-        <a class="monthly-period-arrow" href="fechamento-mensal.php?mes=<?= escapar($competenciaAnterior) ?>" aria-label="Mês anterior">
-            <i class="fa-solid fa-chevron-left"></i>
-        </a>
+<?php
+// ===== Dados da barra de período (título do mês e tag contextual) =====
+$mensCompetenciaAtual = date('Y-m');
+$mensTituloMes = nomeMesFechamento($mes) . ' de ' . $ano;
+$mensDiferencaMeses = (($ano - (int) date('Y')) * 12) + ($mes - (int) date('n'));
+$mensTagMes = [-1 => 'Mês passado', 0 => 'Mês atual', 1 => 'Próximo mês'][$mensDiferencaMeses] ?? '';
+$mensEhMesAtual = $competencia === $mensCompetenciaAtual;
+?>
 
-        <!-- 2. Calendário / Mês (Submete automaticamente ao selecionar) -->
-        <form method="get" action="fechamento-mensal.php" class="monthly-period-form">
-            <label for="monthlyPeriod">Escolher mês</label>
-            <input id="monthlyPeriod" name="mes" type="month" value="<?= escapar($competencia) ?>" onchange="this.form.submit()">
-        </form>
+<div class="monthly-datebar" id="monthlyDatebar" data-atual="<?= escapar($mensCompetenciaAtual) ?>">
+    <!-- Lado esquerdo: mês ativo em destaque + tag contextual -->
+    <div class="monthly-datebar-info">
+        <h2 class="monthly-datebar-title" id="monthlyTitulo"><?= escapar($mensTituloMes) ?></h2>
+        <span class="monthly-datebar-tag<?= $mensTagMes === 'Mês atual' ? ' is-atual' : '' ?>"
+              id="monthlyTag"
+              <?= $mensTagMes === '' ? 'hidden' : '' ?>><?= escapar($mensTagMes) ?></span>
+    </div>
 
-        <!-- 3. Seta Direita -->
-        <a class="monthly-period-arrow" href="fechamento-mensal.php?mes=<?= escapar($competenciaSeguinte) ?>" aria-label="Mês seguinte">
-            <i class="fa-solid fa-chevron-right"></i>
-        </a>
+    <!-- Lado direito: controles agrupados -->
+    <div class="monthly-datebar-controls">
+        <!-- "Mês atual" só aparece quando o mês selecionado não é o mês corrente -->
+        <a class="monthly-datebar-current" id="monthlyBotaoAtual"
+           href="fechamento-mensal.php?mes=<?= escapar($mensCompetenciaAtual) ?>"
+           <?= $mensEhMesAtual ? 'hidden' : '' ?>>Mês atual</a>
 
-        <div class="monthly-period-title">
-            <small>Competência</small>
-            <strong><?= escapar(nomeMesFechamento($mes)) ?> de <?= $ano ?></strong>
+        <div class="monthly-datebar-group">
+            <a class="monthly-datebar-arrow" href="fechamento-mensal.php?mes=<?= escapar($competenciaAnterior) ?>" aria-label="Mês anterior">
+                <i class="fa-solid fa-chevron-left"></i>
+            </a>
+
+            <!-- Seletor de mês (o JS envia o formulário ao mudar) -->
+            <form class="monthly-datebar-form" id="monthlyPeriodForm" method="get" action="fechamento-mensal.php">
+                <label class="monthly-datebar-label" for="monthlyPeriod">Escolher mês</label>
+                <input id="monthlyPeriod" name="mes" type="month" value="<?= escapar($competencia) ?>">
+                <span class="monthly-datebar-caret" aria-hidden="true">▾</span>
+            </form>
+
+            <a class="monthly-datebar-arrow" href="fechamento-mensal.php?mes=<?= escapar($competenciaSeguinte) ?>" aria-label="Mês seguinte">
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
         </div>
     </div>
+</div>
 
     <!-- Inicia uma seção visual que agrupa informações relacionadas desta página. -->
     <section class="monthly-sheet-card">
@@ -789,6 +810,72 @@ require __DIR__ . '/../includes/topo.php';
         </form>
     </div>
 </div>
+
+<!-- Script da barra de período: texto do mês, tag e botão "Mês atual" -->
+<script>
+(() => {
+    const periodoInput = document.querySelector('#monthlyPeriod');
+    const periodoForm = document.querySelector('#monthlyPeriodForm');
+    const barra = document.querySelector('#monthlyDatebar');
+    const tituloMes = document.querySelector('#monthlyTitulo');
+    const tagMes = document.querySelector('#monthlyTag');
+    const botaoAtual = document.querySelector('#monthlyBotaoAtual');
+
+    if (!periodoInput || !periodoForm || !barra) return;
+
+    const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const atualISO = barra.dataset.atual || '';
+
+    // Lê "AAAA-MM" e valida o mês
+    const lerMes = (valor) => {
+        const partes = /^(\d{4})-(\d{2})$/.exec(valor || '');
+        if (!partes) return null;
+        const ano = Number(partes[1]);
+        const mes = Number(partes[2]);
+        return mes >= 1 && mes <= 12 ? { ano, mes } : null;
+    };
+
+    const tagDoMes = (valor) => {
+        const m = lerMes(valor);
+        const atual = lerMes(atualISO);
+        if (!m || !atual) return '';
+        const diferenca = ((m.ano - atual.ano) * 12) + (m.mes - atual.mes);
+        return { '-1': 'Mês passado', '0': 'Mês atual', '1': 'Próximo mês' }[String(diferenca)] || '';
+    };
+
+    const atualizarBarraPeriodo = () => {
+        const valor = periodoInput.value;
+        const m = lerMes(valor);
+        if (!m) return;
+
+        tituloMes.textContent = `${MESES[m.mes - 1]} de ${m.ano}`;
+
+        const tag = tagDoMes(valor);
+        tagMes.textContent = tag;
+        tagMes.hidden = !tag;
+        tagMes.classList.toggle('is-atual', tag === 'Mês atual');
+
+        // "Mês atual" só aparece quando o mês selecionado é diferente do mês corrente
+        if (botaoAtual) botaoAtual.hidden = valor === atualISO;
+    };
+
+    // Clicar em qualquer área do seletor abre o calendário de meses na hora
+    periodoForm.addEventListener('click', () => {
+        try {
+            periodoInput.showPicker();
+        } catch (erro) {
+            // Navegador sem showPicker: o input nativo cuida sozinho
+        }
+    });
+
+    // Ao mudar o mês: atualiza o texto na hora e carrega o fechamento do mês
+    periodoInput.addEventListener('change', () => {
+        if (!lerMes(periodoInput.value)) return; // ignora mês incompleto
+        atualizarBarraPeriodo();
+        periodoForm.submit();
+    });
+})();
+</script>
 
 <!-- Script responsável pelas interações desta parte da página no navegador. -->
 <script>

@@ -990,35 +990,63 @@ require __DIR__ . '/../includes/topo.php';
         </div>
     <?php endif; ?>
 
-<div class="google-calendar-toolbar">
-        <!-- 1. Botão Hoje -->
-        <a class="calendar-today-button" href="agenda.php?data=<?= escapar(date('Y-m-d')) ?>">Hoje</a>
+<?php
+// ===== Dados da barra de datas (texto por extenso e tag do dia) =====
+$agendaDiasExtenso = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+$agendaMesesExtenso = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
-        <!-- 2. Seta para o dia anterior -->
-        <div class="calendar-nav-buttons">
-            <a href="agenda.php?data=<?= escapar($dataAnterior) ?>" aria-label="Dia anterior">
+$agendaHojeSql = date('Y-m-d');
+$agendaDataObj = new DateTime($dataSelecionada);
+$agendaDiaNumero = (int) $agendaDataObj->format('j');
+
+$agendaDataExtenso = $agendaDiasExtenso[(int) $agendaDataObj->format('w')] . ', '
+    . ($agendaDiaNumero === 1 ? '1º' : $agendaDiaNumero) . ' de '
+    . $agendaMesesExtenso[(int) $agendaDataObj->format('n') - 1];
+
+// Só mostra o ano quando a data não é do ano atual
+if ($agendaDataObj->format('Y') !== date('Y')) {
+    $agendaDataExtenso .= ' de ' . $agendaDataObj->format('Y');
+}
+
+$agendaDiferencaDias = (int) (new DateTime($agendaHojeSql))->diff($agendaDataObj)->format('%r%a');
+$agendaTagDia = [-1 => 'Ontem', 0 => 'Hoje', 1 => 'Amanhã'][$agendaDiferencaDias] ?? '';
+$agendaEhHoje = $dataSelecionada === $agendaHojeSql;
+?>
+
+<div class="agenda-datebar" id="agendaDatebar" data-hoje="<?= escapar($agendaHojeSql) ?>">
+    <!-- Lado esquerdo: data ativa por extenso + tag do dia -->
+    <div class="agenda-datebar-info">
+        <h2 class="agenda-datebar-title" id="agendaDataExtenso"><?= escapar($agendaDataExtenso) ?></h2>
+        <span class="agenda-datebar-tag<?= $agendaTagDia === 'Hoje' ? ' is-hoje' : '' ?>"
+              id="agendaDataTag"
+              <?= $agendaTagDia === '' ? 'hidden' : '' ?>><?= escapar($agendaTagDia) ?></span>
+    </div>
+
+    <!-- Lado direito: controles agrupados -->
+    <div class="agenda-datebar-controls">
+        <!-- "Hoje" só aparece quando a data selecionada não é hoje -->
+        <a class="agenda-datebar-today" id="agendaBotaoHoje"
+           href="agenda.php?data=<?= escapar($agendaHojeSql) ?>"
+           <?= $agendaEhHoje ? 'hidden' : '' ?>>Hoje</a>
+
+        <div class="agenda-datebar-group">
+            <a class="agenda-datebar-arrow" href="agenda.php?data=<?= escapar($dataAnterior) ?>" aria-label="Dia anterior">
                 <i class="fa-solid fa-chevron-left"></i>
             </a>
-        </div>
 
-        <!-- 3. Calendário (Submete automaticamente ao alterar a data) -->
-        <form class="calendar-date-form" method="get" action="agenda.php">
-            <label for="dataAgenda">Data</label>
-            <input id="dataAgenda" name="data" type="date" value="<?= escapar($dataSelecionada) ?>" onchange="this.form.submit()">
-        </form>
+            <!-- Seletor de data (o JS envia o formulário ao mudar a data) -->
+            <form class="agenda-datebar-form" id="agendaDataForm" method="get" action="agenda.php">
+                <label class="agenda-datebar-label" for="dataAgenda">Data</label>
+                <input id="dataAgenda" name="data" type="date" value="<?= escapar($dataSelecionada) ?>">
+                <span class="agenda-datebar-caret" aria-hidden="true">▾</span>
+            </form>
 
-        <!-- 4. Seta para o dia seguinte -->
-        <div class="calendar-nav-buttons">
-            <a href="agenda.php?data=<?= escapar($dataSeguinte) ?>" aria-label="Dia seguinte">
+            <a class="agenda-datebar-arrow" href="agenda.php?data=<?= escapar($dataSeguinte) ?>" aria-label="Dia seguinte">
                 <i class="fa-solid fa-chevron-right"></i>
             </a>
         </div>
-
-        <!-- 5. Data por extenso no canto direito -->
-        <strong class="calendar-date-title">
-            <?= escapar(formatarData($dataSelecionada)) ?>
-        </strong>
     </div>
+</div>
 
     <?php
     // Armazena em "banhosPorHora" o valor necessário para as próximas etapas deste fluxo.
@@ -1275,35 +1303,48 @@ require __DIR__ . '/../includes/topo.php';
             <!-- Bloco visual "agenda-modal-grid" que organiza esta parte da interface. -->
             <div class="agenda-modal-grid">
                 <div class="field span-12">
-                    <!-- Rótulo do campo "Pet", indicando ao usuário qual informação deve ser preenchida. -->
-                    <label for="petAgendaBusca">Pet</label>
-                    <div
-                        class="search-picker"
-                        data-search-picker="pet"
-                        data-required="1">
-                        <!-- Bloco visual "search-picker-input-wrap" que organiza esta parte da interface. -->
-                        <div class="search-picker-input-wrap">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <input
-                                id="petAgendaBusca"
-                                data-search-input
-                                type="search"
-                                autocomplete="off"
-                                value="<?= escapar($rotuloPetSelecionado) ?>"
-                                data-selected-label="<?= escapar($rotuloPetSelecionado) ?>"
-                                placeholder="Digite o nome do pet ou do tutor"
-                                required>
-                            <input
-                                id="petAgenda"
-                                data-search-value
-                                type="hidden"
-                                name="pet_id"
-                                value="<?= $petSelecionadoId !== null ? (int) $petSelecionadoId : '' ?>">
-                        </div>
-                        <!-- Bloco visual "search-picker-results" que organiza esta parte da interface. -->
-                        <div class="search-picker-results" data-search-results hidden></div>
-                    </div>
-                </div>
+    <!-- Rótulo do campo "Pet", indicando ao usuário qual informação deve ser preenchida. -->
+    <label for="petAgendaBusca">Pet</label>
+
+    <!-- Combobox de pet: o JS do modal controla este bloco pelos IDs abaixo -->
+    <div class="pet-combo" id="petCombo">
+        <div class="pet-combo-field">
+            
+
+            <!-- Campo visível: mostra o texto digitado ou o pet selecionado -->
+            <input
+                id="petAgendaBusca"
+                type="text"
+                autocomplete="off"
+                value="<?= escapar($rotuloPetSelecionado) ?>"
+                placeholder="Selecione ou pesquise um pet..."
+                role="combobox"
+                aria-expanded="false"
+                aria-controls="petAgendaResultados"
+                aria-autocomplete="list"
+                aria-required="true">
+
+            <!-- Botão × para limpar o pet escolhido -->
+            <button type="button" class="pet-combo-clear" id="petAgendaLimpar" aria-label="Limpar pet" hidden>×</button>
+
+            <!-- Seta ▾ à direita -->
+            <span class="pet-combo-arrow" aria-hidden="true">▾</span>
+
+            <!-- Lista de resultados (preenchida pelo JS) -->
+            <div class="pet-combo-results" id="petAgendaResultados" role="listbox" hidden></div>
+        </div>
+
+        <!-- Campo oculto enviado ao backend (mesmo id e name de antes) -->
+        <input
+            id="petAgenda"
+            type="hidden"
+            name="pet_id"
+            value="<?= $petSelecionadoId !== null ? (int) $petSelecionadoId : '' ?>">
+
+        <!-- Mensagem de erro exibida quando tentar salvar sem escolher um pet -->
+        <p class="pet-combo-error" id="petAgendaErro" role="alert" hidden>Selecione um pet da lista.</p>
+    </div>
+</div>
 
                 <div class="field span-12">
                     <!-- Rótulo do campo "Serviço", indicando ao usuário qual informação deve ser preenchida. -->
@@ -1422,12 +1463,97 @@ require __DIR__ . '/../includes/topo.php';
         const categoriaTexto = document.querySelector('#agendaModalCategory');
         const acao = document.querySelector('#agendaFormAction');
         const agendamentoId = document.querySelector('#agendaFormId');
+
+        // ===== Barra de datas =====
+const dataInput = document.querySelector('#dataAgenda');
+const dataForm = document.querySelector('#agendaDataForm');
+const datebar = document.querySelector('#agendaDatebar');
+const dataExtenso = document.querySelector('#agendaDataExtenso');
+const dataTag = document.querySelector('#agendaDataTag');
+const botaoHoje = document.querySelector('#agendaBotaoHoje');
+
+const DIAS_SEMANA = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+const DIAS_CURTOS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const hojeISO = datebar?.dataset.hoje || '';
+
+// Lê "AAAA-MM-DD" sem usar fuso horário (evita o bug de voltar um dia)
+const lerData = (valor) => {
+    const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valor || '');
+    if (!partes) return null;
+    const ano = Number(partes[1]);
+    const mes = Number(partes[2]);
+    const dia = Number(partes[3]);
+    return { ano, mes, dia, diaSemana: new Date(ano, mes - 1, dia).getDay() };
+};
+
+const dataPorExtenso = (valor) => {
+    const d = lerData(valor);
+    if (!d) return '';
+    const hoje = lerData(hojeISO);
+    let texto = `${DIAS_SEMANA[d.diaSemana]}, ${d.dia === 1 ? '1º' : d.dia} de ${MESES[d.mes - 1]}`;
+    if (hoje && d.ano !== hoje.ano) texto += ` de ${d.ano}`;
+    return texto;
+};
+
+// Formato curto usado no subtítulo do modal: "QUA, 18/11"
+const dataCurta = (valor) => {
+    const d = lerData(valor);
+    if (!d) return '';
+    return `${DIAS_CURTOS[d.diaSemana]}, ${String(d.dia).padStart(2, '0')}/${String(d.mes).padStart(2, '0')}`;
+};
+
+const tagDoDia = (valor) => {
+    const d = lerData(valor);
+    const hoje = lerData(hojeISO);
+    if (!d || !hoje) return '';
+    const diferenca = Math.round(
+        (Date.UTC(d.ano, d.mes - 1, d.dia) - Date.UTC(hoje.ano, hoje.mes - 1, hoje.dia)) / 86400000
+    );
+    return { '-1': 'Ontem', '0': 'Hoje', '1': 'Amanhã' }[String(diferenca)] || '';
+};
+
+const atualizarBarraDatas = () => {
+    const valor = dataInput.value;
+    if (!lerData(valor)) return;
+
+    dataExtenso.textContent = dataPorExtenso(valor);
+
+    const tag = tagDoDia(valor);
+    dataTag.textContent = tag;
+    dataTag.hidden = !tag;
+    dataTag.classList.toggle('is-hoje', tag === 'Hoje');
+
+    // "Hoje" só aparece quando a data selecionada é diferente da data atual
+    botaoHoje.hidden = valor === hojeISO;
+};
+
+if (dataInput && dataForm) {
+    // Clicar em qualquer área do seletor abre o calendário na hora
+    dataForm.addEventListener('click', () => {
+        try {
+            dataInput.showPicker();
+        } catch (erro) {
+            // Navegador sem showPicker: o input nativo cuida sozinho
+        }
+    });
+
+    // Ao mudar a data: atualiza o texto na hora e carrega a agenda do dia
+    dataInput.addEventListener('change', () => {
+        if (!lerData(dataInput.value)) return; // ignora data incompleta
+        atualizarBarraDatas();
+        dataForm.submit();
+    });
+}
         
         // Elementos do componente de busca de pet
-        const petPicker = document.querySelector('[data-search-picker="pet"]');
-        const petInput = document.querySelector('#petAgendaBusca');
-        const petValue = document.querySelector('#petAgenda');
-        const petResults = document.querySelector('[data-search-results]');
+        const petCombo = document.querySelector('#petCombo');
+const petInput = document.querySelector('#petAgendaBusca');
+const petValue = document.querySelector('#petAgenda');
+const petResults = document.querySelector('#petAgendaResultados');
+const petLimpar = document.querySelector('#petAgendaLimpar');
+const petErro = document.querySelector('#petAgendaErro');
+const URL_CADASTRO_PET = 'cadastro-pet.php'; // ajuste para a sua página de cadastro de pet
 
         const servico = document.querySelector('#servicoAgenda');
         const duracao = document.querySelector('#duracaoBanho');
@@ -1450,7 +1576,6 @@ require __DIR__ . '/../includes/topo.php';
         };
 
         let categoriaAtual = '';
-        let debounceTimer = null;
 
         const minutos = (hora) => {
             const partes = String(hora || '').split(':').map(Number);
@@ -1465,98 +1590,190 @@ require __DIR__ . '/../includes/topo.php';
             return `${horas}h${String(resto).padStart(2, '0')}`;
         };
 
-        // Reset do seletor de pet
-        const resetarBuscaPet = () => {
-            if (petInput) {
-                petInput.value = '';
-                petInput.dataset.selectedLabel = '';
-            }
-            if (petValue) {
-                petValue.value = '';
-            }
-            if (petResults) {
-                petResults.hidden = true;
-                petResults.innerHTML = '';
-            }
-        };
+        // ===== Combobox de pet =====
+let requisicaoPet = 0;
+let debounceTimer = null;
+let itemAtivo = -1;
 
-        // Busca dinâmica ajustada para o seu arquivo busca-registros.php
-        const buscarPets = async (termo) => {
-            if (!termo || termo.length < 2) {
-                if (petResults) {
-                    petResults.hidden = true;
-                    petResults.innerHTML = '';
-                }
-                return;
-            }
+const esc = (texto) => String(texto ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
 
-            try {
-                // Rota atualizada com o nome do arquivo correto e tipo=pet
-                const response = await fetch(`busca-registros.php?tipo=pet&q=${encodeURIComponent(termo)}`);
-                const pets = await response.json();
+// Aceita campos separados (nome/raca/tutor) ou, se o PHP só mandar label, quebra por " — "
+const normalizarPet = (pet) => {
+    const partes = String(pet.label || '').split(' — ').map((p) => p.trim()).filter(Boolean);
+    const nome = pet.nome || partes[0] || '';
+    const tutor = pet.tutor || (partes.length > 1 ? partes[partes.length - 1] : '');
+    const raca = pet.raca || (partes.length > 2 ? partes[1] : '');
+    return { id: pet.id, nome, raca, tutor, label: pet.label || nome };
+};
 
-                if (!petResults) return;
+const abrirLista = () => {
+    petResults.hidden = false;
+    petInput.setAttribute('aria-expanded', 'true');
+};
 
-                if (!pets || pets.length === 0) {
-                    petResults.innerHTML = '<div class="search-picker-empty" style="padding: 10px; color: #777;">Nenhum pet encontrado. Confira o nome ou cadastre o pet em Cadastro de pet.</div>';
-                } else {
-                    // Mapeia usando a propriedade 'label' retornada pelo seu PHP
-                    petResults.innerHTML = pets.map(pet => `
-    <button type="button" 
-            class="search-picker-item" 
-            data-pet-id="${pet.id}" 
-            data-pet-name="${pet.label}">
-        ${pet.label}
-    </button>
-`).join('');
-                }
+const fecharLista = () => {
+    petResults.hidden = true;
+    petInput.setAttribute('aria-expanded', 'false');
+    itemAtivo = -1;
+};
 
-                petResults.hidden = false;
-            } catch (erro) {
-                console.error('Erro ao buscar pets:', erro);
-                // HEURÍSTICA 9: antes o erro só ia para o console; agora o usuário vê o que aconteceu.
-                if (petResults) {
-                    petResults.innerHTML = '<div class="search-picker-empty" role="alert" style="padding: 10px; color: #b91c1c;">Não foi possível buscar pets agora. Verifique a conexão e digite novamente.</div>';
-                    petResults.hidden = false;
-                }
-            }
-        };
+const atualizarBotaoLimpar = () => {
+    petLimpar.hidden = !petInput.value;
+};
 
-        // Evento ao digitar no campo de busca de pet
-        if (petInput) {
-            petInput.addEventListener('input', (e) => {
-                const termo = e.target.value.trim();
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => buscarPets(termo), 300);
-            });
+const renderizarPets = (pets) => {
+    itemAtivo = -1;
+
+    if (!pets.length) {
+        petResults.innerHTML = `
+            <div class="pet-combo-empty">
+                <span>Nenhum pet encontrado</span>
+                <a href="${esc(URL_CADASTRO_PET)}">+ Cadastrar novo pet</a>
+            </div>`;
+    } else {
+        petResults.innerHTML = pets.map(normalizarPet).map((pet) => {
+            const detalhe = [pet.raca, pet.tutor ? `Tutor: ${pet.tutor}` : '']
+                .filter(Boolean).join(' • ');
+            return `
+                <div class="pet-combo-option" role="option"
+                     data-pet-id="${esc(pet.id)}" data-pet-label="${esc(pet.label)}">
+                    <strong>${esc(pet.nome)}</strong>
+                    ${detalhe ? `<small>${esc(detalhe)}</small>` : ''}
+                </div>`;
+        }).join('');
+    }
+    abrirLista();
+};
+
+const buscarPets = async (termo) => {
+    const id = ++requisicaoPet; // ignora respostas antigas
+    petResults.innerHTML = '<div class="pet-combo-empty">Buscando...</div>';
+    abrirLista();
+
+    try {
+        const resposta = await fetch(`busca-registros.php?tipo=pet&q=${encodeURIComponent(termo)}`);
+        if (!resposta.ok) throw new Error(resposta.status);
+        const pets = await resposta.json();
+        if (id !== requisicaoPet) return;
+        renderizarPets(Array.isArray(pets) ? pets : []);
+    } catch (erro) {
+        console.error('Erro ao buscar pets:', erro);
+        if (id !== requisicaoPet) return;
+        petResults.innerHTML = '<div class="pet-combo-empty is-error" role="alert">Não foi possível buscar pets agora. Tente novamente.</div>';
+    }
+};
+
+const selecionarPet = (id, label) => {
+    petValue.value = id;
+    petInput.value = label;
+    petInput.readOnly = true;
+    petCombo.classList.add('is-selected');
+    petCombo.classList.remove('is-invalid');
+    petInput.removeAttribute('aria-invalid');
+    petErro.hidden = true;
+    atualizarBotaoLimpar();
+    fecharLista();
+};
+
+const limparPet = () => {
+    petValue.value = '';
+    petInput.value = '';
+    petInput.readOnly = false;
+    petCombo.classList.remove('is-selected');
+    atualizarBotaoLimpar();
+};
+
+// Usada pelo fecharModal e pelo prepararNovo (mesmo nome de antes)
+const resetarBuscaPet = () => {
+    clearTimeout(debounceTimer);
+    requisicaoPet += 1;
+    limparPet();
+    petCombo.classList.remove('is-invalid');
+    petInput.removeAttribute('aria-invalid');
+    petErro.hidden = true;
+    fecharLista();
+};
+
+// 1. focus: abre a lista na hora, mesmo sem digitar
+petInput.addEventListener('focus', () => {
+    if (petInput.readOnly) return;
+    buscarPets(petInput.value.trim());
+});
+
+// clicar com o campo já focado e a lista fechada reabre
+petInput.addEventListener('click', () => {
+    if (!petInput.readOnly && petResults.hidden) buscarPets(petInput.value.trim());
+});
+
+// 2. input: filtra (o PHP busca por nome, raça ou tutor)
+petInput.addEventListener('input', () => {
+    atualizarBotaoLimpar();
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => buscarPets(petInput.value.trim()), 250);
+});
+
+// 3. mousedown no item: seleciona (mousedown vem antes do blur)
+petResults.addEventListener('mousedown', (e) => {
+    e.preventDefault(); // mantém o foco no input
+    const item = e.target.closest('.pet-combo-option');
+    if (item) selecionarPet(item.dataset.petId, item.dataset.petLabel);
+});
+
+// 4. blur: saiu sem selecionar → limpa texto solto e pet_id
+petInput.addEventListener('blur', () => {
+    clearTimeout(debounceTimer);
+    requisicaoPet += 1;
+    if (!petValue.value) limparPet();
+    fecharLista();
+});
+
+// 5. botão ×: limpa tudo e devolve o foco
+petLimpar.addEventListener('mousedown', (e) => e.preventDefault());
+petLimpar.addEventListener('click', () => {
+    limparPet();
+    petInput.focus(); // o focus reabre a lista
+});
+
+// Teclado: setas, Enter e Esc
+petInput.addEventListener('keydown', (e) => {
+    const itens = Array.from(petResults.querySelectorAll('.pet-combo-option'));
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (!itens.length) return;
+        e.preventDefault();
+        itemAtivo = e.key === 'ArrowDown'
+            ? (itemAtivo + 1) % itens.length
+            : (itemAtivo - 1 + itens.length) % itens.length;
+        itens.forEach((item, i) => item.classList.toggle('is-active', i === itemAtivo));
+        itens[itemAtivo].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+        e.preventDefault(); // Enter no campo não envia o formulário
+        if (itemAtivo >= 0 && itens[itemAtivo]) {
+            selecionarPet(itens[itemAtivo].dataset.petId, itens[itemAtivo].dataset.petLabel);
         }
+    } else if (e.key === 'Escape' && !petResults.hidden) {
+        e.stopPropagation(); // fecha só a lista, não o modal
+        fecharLista();
+    }
+});
 
-        // Evento de seleção do pet na lista
-        if (petResults) {
-            petResults.addEventListener('click', (e) => {
-                const item = e.target.closest('[data-pet-id]');
-                if (!item) return;
+// 6. submit: bloqueia se não houver pet_id
+form.addEventListener('submit', (e) => {
+    if (petValue.value) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    petCombo.classList.add('is-invalid');
+    petInput.setAttribute('aria-invalid', 'true');
+    petErro.hidden = false;
+    petInput.focus();
+}, true);
 
-                const id = item.dataset.petId;
-                const nome = item.dataset.petName;
-
-                if (petValue) petValue.value = id;
-                if (petInput) {
-                    petInput.value = nome;
-                    petInput.dataset.selectedLabel = nome;
-                }
-
-                petResults.hidden = true;
-                petResults.innerHTML = '';
-            });
-        }
-
-        // Oculta a lista de resultados se clicar fora do componente
-        document.addEventListener('click', (e) => {
-            if (petPicker && !petPicker.contains(e.target) && petResults) {
-                petResults.hidden = true;
-            }
-        });
+// Modo edição: se o PHP já preencheu o pet, entra travado
+if (petValue.value && petInput.value) {
+    selecionarPet(petValue.value, petInput.value);
+}
 
         const abrirModal = () => {
             modal.classList.add('is-open');
@@ -1665,7 +1882,9 @@ require __DIR__ . '/../includes/topo.php';
 
         const configurarCategoria = (categoria, horarioPreferido = '') => {
             categoriaAtual = categoria;
-            categoriaTexto.textContent = nomesCategorias[categoria] || 'Novo agendamento';
+            const rotuloCategoria = nomesCategorias[categoria] || 'Novo agendamento';
+const dataDoModal = dataCurta(dataInput?.value);
+categoriaTexto.textContent = dataDoModal ? `${rotuloCategoria} • ${dataDoModal}` : rotuloCategoria;
 
             mostrar(bathFields, categoria === 'banho_tosa');
             mostrar(crecheFields, categoria === 'creche');
@@ -1701,7 +1920,6 @@ require __DIR__ . '/../includes/topo.php';
             configurarCategoria(categoria, horario);
             abrirModal();
             
-            setTimeout(() => petInput?.focus(), 50);
         };
 
         botoesAbrir.forEach((botao) => {
