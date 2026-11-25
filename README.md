@@ -171,5 +171,3 @@ find beautypet-web -name '*.php' -exec php -l {} \;
 
 - [Visão do projeto](VISAO.md)
 - [Design system](DESIGN.md)
-- [Integração web e mobile](beautypet-mobile/SINCRONIA-WEB-MOBILE.md)
-- [Configuração do Supabase para o aplicativo](beautypet-mobile/LEIA-ME-SUPABASE-MOBILE.md)
